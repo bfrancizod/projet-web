@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes candidatures - Help Me Stage{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="/assets/css/student-dashboard.css">
+{% endblock %}
+
+{% block body %}
+<main class="student-page">
+    <div class="student-container">
+        <section class="student-section">
+            <div class="student-section-header">
+                <h2>Mes candidatures</h2>
+                <a href="/espace-etudiant">Retour au dashboard</a>
+            </div>
+
+            <div class="student-list">
+                {% for application in applications %}
+                    <article class="student-row">
+                        <div class="student-main">
+                            <h3>{{ application.titre }}</h3>
+                            <p>{{ application.entreprise }}</p>
+                            <small>Postulé le {{ application.created_at|date('d/m/Y') }}</small>
+                        </div>
+
+                        {% if application.status == 'envoyee' %}
+                            <span class="badge badge-yellow">En attente</span>
+                        {% elseif application.status == 'en_etude' %}
+                            <span class="badge badge-green">En cours</span>
+                        {% elseif application.status == 'acceptee' %}
+                            <span class="badge badge-blue">Acceptée</span>
+                        {% elseif application.status == 'refusee' %}
+                            <span class="badge badge-red">Refusée</span>
+                        {% endif %}
+                    </article>
+                {% else %}
+                    <p class="empty-state">Aucune candidature pour le moment.</p>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+</main>
+{% endblock %}

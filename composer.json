@@ -1,0 +1,13 @@
+{
+  "name": "tonnom/help-me-stage",
+  "description": "Premier site PHP avec Twig",
+  "type": "project",
+  "require": {
+    "twig/twig": "^3.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "App\\": "src/"
+    }
+  }
+}

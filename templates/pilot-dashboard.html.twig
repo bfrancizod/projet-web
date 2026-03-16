@@ -1,0 +1,110 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Espace pilote - Help Me Stage{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="/assets/css/pilot-dashboard.css">
+{% endblock %}
+
+{% block body %}
+<main class="pilot-page">
+    <div class="pilot-container">
+
+        <div class="pilot-header">
+            <div>
+                <h1>Tableau de bord Pilote</h1>
+                <p>Vue d’ensemble de la promotion</p>
+            </div>
+        </div>
+
+        <section class="stats-grid">
+            <article class="stat-card stat-red">
+                <div class="stat-icon">❗</div>
+                <div class="stat-content">
+                    <strong>{{ stats.sans_stage }}</strong>
+                    <span>Étudiants sans stage</span>
+                </div>
+            </article>
+
+            <article class="stat-card stat-yellow">
+                <div class="stat-icon">💼</div>
+                <div class="stat-content">
+                    <strong>{{ stats.offres }}</strong>
+                    <span>Offres disponibles</span>
+                </div>
+            </article>
+
+            <article class="stat-card stat-blue">
+                <div class="stat-icon">📄</div>
+                <div class="stat-content">
+                    <strong>{{ stats.candidatures }}</strong>
+                    <span>Candidatures envoyées</span>
+                </div>
+            </article>
+
+            <article class="stat-card stat-green">
+                <div class="stat-icon">✅</div>
+                <div class="stat-content">
+                    <strong>{{ stats.valides }}</strong>
+                    <span>Stages validés</span>
+                </div>
+            </article>
+        </section>
+
+        <section class="quick-actions">
+            <a href="/pilot-etudiants" class="action-card">
+                <div class="action-icon">👥</div>
+                <h3>Gérer les étudiants</h3>
+                <p>Consulter la liste complète et suivre leur progression</p>
+            </a>
+
+            <a href="/pilot-offres" class="action-card">
+                <div class="action-icon">💼</div>
+                <h3>Voir les offres</h3>
+                <p>Parcourir toutes les offres de stage disponibles</p>
+            </a>
+
+            <a href="/pilot-candidatures" class="action-card">
+                <div class="action-icon">📋</div>
+                <h3>Suivre les candidatures</h3>
+                <p>Voir toutes les candidatures de la promotion</p>
+            </a>
+        </section>
+
+        <section class="activity-section">
+            <div class="activity-header">
+                <h2>Activité récente des étudiants</h2>
+                <a href="/pilot-etudiants">Voir tous les étudiants</a>
+            </div>
+
+            <div class="student-list">
+                {% for student in recent_students %}
+                    <article class="student-row">
+                        <div class="student-main">
+                            <h3>{{ student.prenom }} {{ student.nom }}</h3>
+                            <p>{{ student.formation }} • {{ student.email }}</p>
+
+                            <div class="student-meta">
+                                {% if student.status == 'sans_stage' %}
+                                    <span class="badge badge-red">Sans stage</span>
+                                {% elseif student.status == 'en_recherche' %}
+                                    <span class="badge badge-yellow">En recherche</span>
+                                {% elseif student.status == 'stage_trouve' %}
+                                    <span class="badge badge-blue">Stage trouvé</span>
+                                {% elseif student.status == 'stage_valide' %}
+                                    <span class="badge badge-green">Stage validé</span>
+                                {% endif %}
+
+                                <small>Dernière activité : {{ student.last_activity|date('d/m/Y') }}</small>
+                            </div>
+                        </div>
+
+                        <a href="/pilot-etudiants" class="student-button">Voir le dossier</a>
+                    </article>
+                {% endfor %}
+            </div>
+        </section>
+
+    </div>
+</main>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Offres - Espace pilote{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="/assets/css/pilot-dashboard.css">
+{% endblock %}
+
+{% block body %}
+<main class="pilot-page">
+    <div class="pilot-container">
+        <div class="activity-section">
+            <div class="activity-header">
+                <h2>Offres disponibles</h2>
+                <a href="/espace-pilote">Retour au dashboard</a>
+            </div>
+
+            <div class="student-list">
+                {% for offer in offers %}
+                    <article class="student-row">
+                        <div class="student-main">
+                            <h3>{{ offer.titre }}</h3>
+                            <p>{{ offer.entreprise }} • {{ offer.lieu }}</p>
+                            <div class="student-meta">
+                                <small>{{ offer.duree_semaines }} semaines • {{ offer.remuneration }} €</small>
+                            </div>
+                        </div>
+
+                        <a href="/offre?id={{ offer.id }}" class="student-button">Voir l'offre</a>
+                    </article>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}

@@ -1,0 +1,133 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ offer.titre }} - Help Me Stage{% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="/assets/css/offer-detail.css">
+{% endblock %}
+
+{% block body %}
+
+<header class="site-header">
+    <div class="container header-content">
+        <div class="logo">
+            <a href="/" class="logo-link">Help Me Stage</a>
+        </div>
+
+        <button class="menu-button" aria-label="Ouvrir le menu">
+            ☰
+        </button>
+    </div>
+</header>
+
+
+<main class="offer-detail-page">
+
+<div class="container">
+
+<nav class="breadcrumb">
+
+<a href="/">Accueil</a>
+
+<span>/</span>
+
+<a href="/offres">Offres</a>
+
+<span>/</span>
+
+<span>{{ offer.titre }}</span>
+
+</nav>
+
+
+<section class="offer-detail-card">
+
+<h1>{{ offer.titre }}</h1>
+
+<p class="detail-company">
+{{ offer.entreprise }}
+</p>
+
+
+<div class="detail-info-grid">
+
+<div class="detail-info-item">
+
+<span class="detail-label">
+Rémunération
+</span>
+
+<strong>
+{{ offer.remuneration }} € / mois
+</strong>
+
+</div>
+
+
+<div class="detail-info-item">
+
+<span class="detail-label">
+Lieu
+</span>
+
+<strong>
+{{ offer.lieu }}
+</strong>
+
+</div>
+
+
+<div class="detail-info-item">
+
+<span class="detail-label">
+Durée
+</span>
+
+<strong>
+{{ offer.duree_semaines }} semaines
+</strong>
+
+</div>
+
+
+<div class="detail-info-item">
+
+<span class="detail-label">
+Publication
+</span>
+
+<strong>
+{{ offer.created_at|date('d/m/Y') }}
+</strong>
+
+</div>
+
+</div>
+
+
+<h2>Description de l'offre</h2>
+
+<p class="detail-description">
+
+{{ offer.description }}
+
+</p>
+
+
+<div class="detail-actions">
+    {% if current_user is null %}
+        <a href="/connexion" class="apply-button">Se connecter pour postuler</a>
+        <p class="detail-note">Connexion requise pour postuler à cette offre</p>
+
+    {% elseif current_user.role != 'etudiant' %}
+        <button class="apply-button disabled-button" disabled>Postuler</button>
+        <p class="detail-note">Seuls les étudiants peuvent postuler à cette offre</p>
+
+    {% else %}
+        <a href="/offres/{{ offer.id }}/postuler" class="apply-button">Postuler</a>
+        <p class="detail-note">Votre candidature sera ajoutée à votre espace étudiant</p>
+    {% endif %}
+</div>
+</main>
+
+{% endblock %}

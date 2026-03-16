@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ma wishlist - Help Me Stage{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="/assets/css/student-dashboard.css">
+{% endblock %}
+
+{% block body %}
+<main class="student-page">
+    <div class="student-container">
+        <section class="student-section">
+            <div class="student-section-header">
+                <h2>Ma wishlist</h2>
+                <a href="/espace-etudiant">Retour au dashboard</a>
+            </div>
+
+            <div class="student-list">
+                {% for offer in offers %}
+                    <article class="student-row">
+                        <div class="student-main">
+                            <h3>{{ offer.titre }}</h3>
+                            <p>{{ offer.entreprise }} • {{ offer.lieu }}</p>
+                            <small>{{ offer.duree_semaines }} semaines • {{ offer.remuneration }} €</small>
+                        </div>
+
+                        <a href="/offre?id={{ offer.id }}" class="student-link">Voir l'offre</a>
+                    </article>
+                {% else %}
+                    <p class="empty-state">Aucune offre dans votre wishlist.</p>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+</main>
+{% endblock %}

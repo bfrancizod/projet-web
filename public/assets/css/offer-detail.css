@@ -1,0 +1,91 @@
+.offer-detail-page {
+padding: 40px 0;
+}
+
+
+/* BREADCRUMB */
+
+.breadcrumb {
+font-size: 14px;
+margin-bottom: 20px;
+color: #6b7280;
+}
+
+.breadcrumb a {
+text-decoration: none;
+color: #6b7280;
+}
+
+.breadcrumb span {
+margin: 0 5px;
+}
+
+
+/* CARD */
+
+.offer-detail-card {
+background: white;
+padding: 30px;
+border-radius: 16px;
+box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+.offer-detail-card h1 {
+font-size: 34px;
+margin-bottom: 10px;
+}
+
+.detail-company {
+font-size: 18px;
+color: #6b7280;
+margin-bottom: 25px;
+}
+
+
+/* INFO GRID */
+
+.detail-info-grid {
+display: grid;
+grid-template-columns: repeat(2,1fr);
+gap: 20px;
+background: #f6f7f9;
+padding: 20px;
+border-radius: 12px;
+margin-bottom: 30px;
+}
+
+.detail-label {
+font-size: 14px;
+color: #6b7280;
+}
+
+
+/* DESCRIPTION */
+
+.offer-detail-card h2 {
+margin-top: 20px;
+margin-bottom: 10px;
+}
+
+.detail-description {
+color: #374151;
+margin-bottom: 30px;
+}
+
+
+/* ACTION */
+
+.apply-button {
+background: #9ca3af;
+color: white;
+padding: 12px 22px;
+border-radius: 10px;
+text-decoration: none;
+display: inline-block;
+}
+
+.detail-note {
+font-size: 14px;
+margin-top: 10px;
+color: #6b7280;
+}

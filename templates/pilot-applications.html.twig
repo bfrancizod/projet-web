@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Candidatures - Espace pilote{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="/assets/css/pilot-dashboard.css">
+{% endblock %}
+
+{% block body %}
+<main class="pilot-page">
+    <div class="pilot-container">
+        <div class="activity-section">
+            <div class="activity-header">
+                <h2>Suivi des candidatures</h2>
+                <a href="/espace-pilote">Retour au dashboard</a>
+            </div>
+
+            <div class="student-list">
+                {% for application in applications %}
+                    <article class="student-row">
+                        <div class="student-main">
+                            <h3>{{ application.prenom }} {{ application.nom }}</h3>
+                            <p>{{ application.titre }} • {{ application.email }}</p>
+
+                            <div class="student-meta">
+                                <span class="badge badge-blue">{{ application.status }}</span>
+                                <small>Envoyée le {{ application.created_at|date('d/m/Y') }}</small>
+                            </div>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}

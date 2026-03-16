@@ -1,0 +1,100 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Offres - Help Me Stage{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="/assets/css/offers.css">
+{% endblock %}
+
+{% block body %}
+<main class="offers-page">
+    <div class="container offers-layout">
+
+        <aside class="filters">
+            <h3>Filtres</h3>
+
+            <form method="GET" action="/offres">
+                <label for="skills">Compétences</label>
+                <input
+                    id="skills"
+                    name="skills"
+                    type="text"
+                    placeholder="Ex: React, Python, JS"
+                    value="{{ selected_skill|default('') }}"
+                >
+
+                <label for="location">Lieu</label>
+                <input
+                    id="location"
+                    name="location"
+                    type="text"
+                    placeholder="Ex: Paris, Lyon"
+                    value="{{ selected_location|default('') }}"
+                >
+
+                <label for="duration">Durée maximum</label>
+                <select id="duration" name="duration">
+                    <option value="">Toutes les durées</option>
+                    <option value="8" {% if selected_duration == '8' %}selected{% endif %}>8 semaines max</option>
+                    <option value="10" {% if selected_duration == '10' %}selected{% endif %}>10 semaines max</option>
+                    <option value="12" {% if selected_duration == '12' %}selected{% endif %}>12 semaines max</option>
+                    <option value="16" {% if selected_duration == '16' %}selected{% endif %}>16 semaines max</option>
+                </select>
+
+                <label for="salary">Rémunération minimum</label>
+                <select id="salary" name="salary">
+                    <option value="">Toutes les rémunérations</option>
+                    <option value="550" {% if selected_salary == '550' %}selected{% endif %}>550 € minimum</option>
+                    <option value="600" {% if selected_salary == '600' %}selected{% endif %}>600 € minimum</option>
+                    <option value="650" {% if selected_salary == '650' %}selected{% endif %}>650 € minimum</option>
+                    <option value="700" {% if selected_salary == '700' %}selected{% endif %}>700 € minimum</option>
+                </select>
+
+                <button type="submit" class="cta-button filter-btn">Filtrer</button>
+            </form>
+
+            <a href="/offres" class="reset-filters">Réinitialiser</a>
+        </aside>
+
+        <section class="offers-list">
+            <h1>Offres de stage</h1>
+
+            {% if offers is empty %}
+                <p class="no-results">Aucune offre ne correspond à votre recherche.</p>
+            {% endif %}
+
+            <div class="offers-grid">
+                {% for offer in offers %}
+                    <article class="offer-card">
+                        <div class="offer-header">
+                            <h3>{{ offer.titre }}</h3>
+                            <span class="star">☆</span>
+                        </div>
+
+                        <p class="company">{{ offer.entreprise }}</p>
+                        <p>📍 {{ offer.lieu }}</p>
+                        <p>⏱ {{ offer.duree_semaines }} semaines</p>
+                        <p>💰 {{ offer.remuneration }} €</p>
+
+                        {% if offer.skills is not empty %}
+                            <div class="tags">
+                                {% for skill in offer.skills %}
+                                    <span class="tag">{{ skill.nom }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <a href="/offre?id={{ offer.id }}" class="cta-button offer-button">Voir l'offre</a>
+                    </article>
+                {% endfor %}
+            </div>
+
+            <div class="pagination">
+                <span class="page active">1</span>
+                <span class="page">2</span>
+            </div>
+        </section>
+
+    </div>
+</main>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Étudiants - Espace pilote{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="/assets/css/pilot-dashboard.css">
+{% endblock %}
+
+{% block body %}
+<main class="pilot-page">
+    <div class="pilot-container">
+        <div class="activity-section">
+            <div class="activity-header">
+                <h2>Liste des étudiants</h2>
+                <a href="/espace-pilote">Retour au dashboard</a>
+            </div>
+
+            <div class="student-list">
+                {% for student in students %}
+                    <article class="student-row">
+                        <div class="student-main">
+                            <h3>{{ student.prenom }} {{ student.nom }}</h3>
+                            <p>{{ student.formation }} • {{ student.email }}</p>
+
+                            <div class="student-meta">
+                                {% if student.status == 'sans_stage' %}
+                                    <span class="badge badge-red">Sans stage</span>
+                                {% elseif student.status == 'en_recherche' %}
+                                    <span class="badge badge-yellow">En recherche</span>
+                                {% elseif student.status == 'stage_trouve' %}
+                                    <span class="badge badge-blue">Stage trouvé</span>
+                                {% elseif student.status == 'stage_valide' %}
+                                    <span class="badge badge-green">Stage validé</span>
+                                {% endif %}
+
+                                <small>Dernière activité : {{ student.last_activity|date('d/m/Y') }}</small>
+                            </div>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}

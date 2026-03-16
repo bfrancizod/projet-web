@@ -1,0 +1,96 @@
+.login-page {
+    background: #f4f4ea;
+    min-height: calc(100vh - 80px);
+    padding: 60px 20px;
+}
+
+.login-section {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 520px;
+    background: white;
+    border-radius: 18px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    padding: 36px 28px;
+}
+
+.login-card h1 {
+    text-align: center;
+    font-size: 2.2rem;
+    margin-bottom: 24px;
+}
+
+.demo-box {
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 14px;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.demo-student {
+    background: #f8f0c7;
+    border: 1px solid #e9cf4d;
+}
+
+.demo-pilot {
+    background: #dfe9f8;
+    border: 1px solid #9ab8ea;
+}
+
+.login-error {
+    color: #b42318;
+    background: #fee4e2;
+    border: 1px solid #fda29b;
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 16px;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 18px;
+}
+
+.login-form label {
+    font-weight: 600;
+}
+
+.login-form input {
+    padding: 14px;
+    border: 1px solid #cfd4dc;
+    border-radius: 10px;
+    font: inherit;
+    background: #eef3fb;
+}
+
+.forgot-password {
+    text-align: right;
+    margin-top: 4px;
+    margin-bottom: 6px;
+}
+
+.forgot-password a {
+    color: #111827;
+    text-decoration: none;
+    font-size: 0.95rem;
+}
+
+.login-button {
+    width: 100%;
+    margin-top: 8px;
+}
+
+.login-note {
+    text-align: center;
+    color: #6b7280;
+    font-size: 0.95rem;
+    margin-top: 18px;
+}

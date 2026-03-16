@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Help Me Stage{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="/assets/css/base.css">
+    {% block stylesheets %}{% endblock %}
+</head>
+
+<body>
+
+<header class="site-header">
+    <div class="container header-content">
+        <div class="logo">
+            <a href="/" class="logo-link">Help Me Stage</a>
+        </div>
+
+        <div class="header-right">
+            {% if current_user %}
+                <span class="connected-user">
+                    {{ current_user.email }}
+                </span>
+            {% endif %}
+
+            <button
+                class="menu-button"
+                aria-label="Ouvrir le menu"
+                aria-expanded="false"
+                aria-controls="mobile-menu"
+                id="menu-toggle"
+                type="button"
+            >
+                ☰
+            </button>
+        </div>
+    </div>
+
+    <nav class="mobile-menu" id="mobile-menu">
+        {% if current_user %}
+            <a href="#">{{ current_user.email }}</a>
+
+            {% if current_user.role == 'pilote' %}
+                <a href="/espace-pilote">Mon espace pilote</a>
+            {% elseif current_user.role == 'etudiant' %}
+                <a href="/espace-etudiant">Mon espace étudiant</a>
+                <a href="/etudiant-candidatures">Mes candidatures</a>
+                <a href="/etudiant-wishlist">Ma wishlist</a>
+            {% endif %}
+
+            <a href="/offres">Voir les offres</a>
+            <a href="/logout">Déconnexion</a>
+        {% else %}
+            <a href="/#comment-ca-marche">Comment ça marche ?</a>
+            <a href="/offres">Voir les offres</a>
+            <a href="/connexion">Connexion</a>
+            <a href="/#contact">Contact</a>
+        {% endif %}
+    </nav>
+</header>
+
+{% block body %}{% endblock %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const button = document.getElementById('menu-toggle');
+    const menu = document.getElementById('mobile-menu');
+
+    if (button && menu) {
+        button.addEventListener('click', function () {
+            menu.classList.toggle('is-open');
+
+            const expanded = button.getAttribute('aria-expanded') === 'true';
+            button.setAttribute('aria-expanded', String(!expanded));
+        });
+    }
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,104 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    background: #f6f7f9;
+    color: #1f2937;
+    line-height: 1.6;
+}
+
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: auto;
+}
+
+.site-header {
+    background: white;
+    border-bottom: 1px solid #e5e7eb;
+    position: relative;
+    z-index: 20;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 0;
+}
+
+.logo-link {
+    font-size: 20px;
+    font-weight: 700;
+    text-decoration: none;
+    color: #111827;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.connected-user {
+    font-size: 0.95rem;
+    color: #6b7280;
+    white-space: nowrap;
+}
+
+.menu-button {
+    width: 44px;
+    height: 44px;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    background: white;
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.mobile-menu {
+    display: none;
+    flex-direction: column;
+    gap: 0;
+    background: white;
+    border-top: 1px solid #e5e7eb;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+}
+
+.mobile-menu.is-open {
+    display: flex;
+}
+
+.mobile-menu a {
+    padding: 18px 16px;
+    text-decoration: none;
+    color: #1f2937;
+    border-bottom: 1px solid #f1f1f1;
+}
+
+.mobile-menu a:last-child {
+    border-bottom: none;
+}
+
+.cta-button {
+    display: inline-block;
+    background: #f4b400;
+    color: black;
+    padding: 12px 22px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.cta-button:hover {
+    background: #e5a700;
+}

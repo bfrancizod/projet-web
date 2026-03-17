@@ -12,15 +12,39 @@
         <div class="activity-section">
             <div class="activity-header">
                 <h2>Liste des étudiants</h2>
-                <a href="/espace-pilote">Retour au dashboard</a>
+                <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                    <a href="/pilot-etudiant-create" class="student-button">Créer un étudiant</a>
+                    <a href="/espace-pilote">Retour au dashboard</a>
+                </div>
             </div>
+
+            <form method="GET" action="/pilot-etudiants" class="apply-form" style="margin-bottom: 18px;">
+                <label for="promotion_id">Filtrer par promotion</label>
+                <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                    <select id="promotion_id" name="promotion_id">
+                        <option value="">Toutes les promotions</option>
+                        {% for promotion in promotions %}
+                            <option value="{{ promotion.id }}" {% if selected_promotion_id == promotion.id %}selected{% endif %}>
+                                {{ promotion.label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+
+                    <button type="submit" class="student-button">Filtrer</button>
+                    <a href="/pilot-etudiants" class="student-button">Réinitialiser</a>
+                </div>
+            </form>
 
             <div class="student-list">
                 {% for student in students %}
                     <article class="student-row">
                         <div class="student-main">
                             <h3>{{ student.prenom }} {{ student.nom }}</h3>
-                            <p>{{ student.formation }} • {{ student.email }}</p>
+                            <p>
+                                {{ student.promotion_label ?: 'Promotion non définie' }}
+                                {% if student.formation %}• {{ student.formation }}{% endif %}
+                                • {{ student.email }}
+                            </p>
 
                             <div class="student-meta">
                                 {% if student.status == 'sans_stage' %}
@@ -36,7 +60,19 @@
                                 <small>Dernière activité : {{ student.last_activity|date('d/m/Y') }}</small>
                             </div>
                         </div>
+
+                        <div class="student-actions student-actions-vertical">
+                            <a href="/pilot-etudiants/{{ student.id }}" class="student-button">Voir le dossier</a>
+                            <a href="/pilot-etudiants/{{ student.id }}/editer" class="student-button">Modifier le profil</a>
+
+                            <form method="POST" action="/pilot-etudiants/{{ student.id }}/supprimer" onsubmit="return confirm('Confirmer la suppression ?');">
+                                <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+                                <button type="submit" class="student-button">Supprimer</button>
+                            </form>
+                        </div>
                     </article>
+                {% else %}
+                    <p class="empty-state">Aucun étudiant trouvé.</p>
                 {% endfor %}
             </div>
         </div>

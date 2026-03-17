@@ -18,13 +18,18 @@ class OfferController
     {
         $pdo = Database::getConnection();
 
-        $selectedSkill = isset($_GET['skills']) ? trim($_GET['skills']) : '';
-        $selectedLocation = isset($_GET['location']) ? trim($_GET['location']) : '';
-        $selectedDuration = isset($_GET['duration']) ? trim($_GET['duration']) : '';
-        $selectedSalary = isset($_GET['salary']) ? trim($_GET['salary']) : '';
+        $selectedSkill = trim($_GET['skills'] ?? '');
+        $selectedLocation = trim($_GET['location'] ?? '');
+        $selectedDuration = trim($_GET['duration'] ?? '');
+        $selectedSalary = trim($_GET['salary'] ?? '');
+        $selectedSort = trim($_GET['sort'] ?? 'recent');
+        $search = trim($_GET['q'] ?? '');
+
+        $page = max(1, (int) ($_GET['page'] ?? 1));
+        $perPage = 6;
+        $offset = ($page - 1) * $perPage;
 
         $sql = "
-            SELECT DISTINCT o.*
             FROM offres o
             LEFT JOIN offre_competence oc ON oc.offre_id = o.id
             LEFT JOIN competences c ON c.id = oc.competence_id
@@ -53,11 +58,38 @@ class OfferController
             $params['salary'] = (float) $selectedSalary;
         }
 
-        $sql .= " ORDER BY o.created_at DESC ";
+        if ($search !== '') {
+            $sql .= " AND (o.titre LIKE :search OR o.entreprise LIKE :search OR o.description LIKE :search) ";
+            $params['search'] = '%' . $search . '%';
+        }
 
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute($params);
+        $countStmt = $pdo->prepare("SELECT COUNT(DISTINCT o.id) " . $sql);
+        $countStmt->execute($params);
+        $totalOffers = (int) $countStmt->fetchColumn();
+        $totalPages = max(1, (int) ceil($totalOffers / $perPage));
 
+        $orderBy = " ORDER BY o.created_at DESC ";
+        if ($selectedSort === 'salary_desc') {
+            $orderBy = " ORDER BY o.remuneration DESC ";
+        } elseif ($selectedSort === 'salary_asc') {
+            $orderBy = " ORDER BY o.remuneration ASC ";
+        } elseif ($selectedSort === 'duration_asc') {
+            $orderBy = " ORDER BY o.duree_semaines ASC ";
+        }
+
+        $stmt = $pdo->prepare("
+            SELECT DISTINCT o.*
+            " . $sql . $orderBy . "
+            LIMIT :limit OFFSET :offset
+        ");
+
+        foreach ($params as $key => $value) {
+            $stmt->bindValue(':' . $key, $value);
+        }
+        $stmt->bindValue(':limit', $perPage, \PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, \PDO::PARAM_INT);
+
+        $stmt->execute();
         $offers = $stmt->fetchAll();
 
         foreach ($offers as &$offer) {
@@ -68,11 +100,7 @@ class OfferController
                 WHERE oc.offre_id = :id
                 ORDER BY c.nom ASC
             ");
-
-            $stmtSkills->execute([
-                'id' => $offer['id']
-            ]);
-
+            $stmtSkills->execute(['id' => $offer['id']]);
             $offer['skills'] = $stmtSkills->fetchAll();
         }
 
@@ -82,7 +110,11 @@ class OfferController
             'selected_skill' => $selectedSkill,
             'selected_location' => $selectedLocation,
             'selected_duration' => $selectedDuration,
-            'selected_salary' => $selectedSalary
+            'selected_salary' => $selectedSalary,
+            'selected_sort' => $selectedSort,
+            'search_query' => $search,
+            'page' => $page,
+            'total_pages' => $totalPages
         ]);
     }
 }

@@ -89,3 +89,142 @@ font-size: 14px;
 margin-top: 10px;
 color: #6b7280;
 }
+
+.offer-detail-page {
+    padding: 34px 0 56px;
+}
+
+.breadcrumb {
+    margin-bottom: 18px;
+    font-size: 0.95rem;
+}
+
+.offer-detail-card {
+    padding: 28px;
+}
+
+.offer-detail-card h1 {
+    margin-bottom: 10px;
+}
+
+.detail-company {
+    font-size: 1.04rem;
+    margin-bottom: 22px;
+}
+
+.detail-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+}
+
+.detail-info-item {
+    padding: 18px;
+    border-radius: 14px;
+}
+
+.detail-label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 0.92rem;
+    color: #6b7280;
+}
+
+.detail-description {
+    font-size: 1rem;
+    line-height: 1.7;
+    margin-bottom: 26px;
+}
+
+.detail-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 14px;
+}
+
+.detail-note {
+    width: 100%;
+    font-size: 0.94rem;
+    color: #6b7280;
+}
+
+@media (max-width: 768px) {
+    .detail-info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .offer-detail-card {
+        padding: 20px;
+    }
+}
+.offer-detail-page {
+    padding: 34px 0 56px;
+}
+
+.breadcrumb {
+    margin-bottom: 18px;
+    font-size: 0.95rem;
+}
+
+.offer-detail-card {
+    padding: 28px;
+}
+
+.offer-detail-card h1 {
+    margin-bottom: 10px;
+}
+
+.detail-company {
+    font-size: 1.04rem;
+    margin-bottom: 22px;
+}
+
+.detail-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+}
+
+.detail-info-item {
+    padding: 18px;
+    border-radius: 14px;
+}
+
+.detail-label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 0.92rem;
+    color: #6b7280;
+}
+
+.detail-description {
+    font-size: 1rem;
+    line-height: 1.7;
+    margin-bottom: 26px;
+}
+
+.detail-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 14px;
+}
+
+.detail-note {
+    width: 100%;
+    font-size: 0.94rem;
+    color: #6b7280;
+}
+
+@media (max-width: 768px) {
+    .detail-info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .offer-detail-card {
+        padding: 20px;
+    }
+}

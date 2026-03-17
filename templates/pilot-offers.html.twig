@@ -26,8 +26,10 @@
                             </div>
                         </div>
 
-                        <a href="/offre?id={{ offer.id }}" class="student-button">Voir l'offre</a>
+                        <a href="/offres/{{ offer.id }}" class="student-button">Voir l'offre</a>
                     </article>
+                {% else %}
+                    <p class="empty-state">Aucune offre disponible.</p>
                 {% endfor %}
             </div>
         </div>

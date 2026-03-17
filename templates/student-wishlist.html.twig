@@ -24,7 +24,7 @@
                             <small>{{ offer.duree_semaines }} semaines • {{ offer.remuneration }} €</small>
                         </div>
 
-                        <a href="/offre?id={{ offer.id }}" class="student-link">Voir l'offre</a>
+                        <a href="/offres/{{ offer.id }}" class="student-link">Voir l'offre</a>
                     </article>
                 {% else %}
                     <p class="empty-state">Aucune offre dans votre wishlist.</p>

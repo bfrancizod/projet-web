@@ -1,0 +1,65 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dossier étudiant{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="/assets/css/student-dashboard.css">
+{% endblock %}
+
+{% block body %}
+<main class="student-page">
+    <div class="student-container">
+        <section class="student-section">
+            <div class="student-section-header">
+                <h2>{{ student.prenom }} {{ student.nom }}</h2>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <a href="/pilot-etudiants/{{ student.id }}/editer">Modifier</a>
+                    <a href="/pilot-etudiants">Retour</a>
+                </div>
+            </div>
+
+            <p><strong>Email :</strong> {{ student.email }}</p>
+            <p><strong>Formation :</strong> {{ student.formation }}</p>
+            <p><strong>Promotion :</strong> {{ student.promotion_label ?: 'Non définie' }}</p>
+            <p><strong>État de recherche :</strong> {{ student.status }}</p>
+            <p><strong>Dernière activité :</strong> {{ student.last_activity|date('d/m/Y') }}</p>
+        </section>
+
+        <section class="student-section">
+            <h2>Candidatures</h2>
+            <div class="student-list">
+                {% for application in applications %}
+                    <article class="student-row">
+                        <div class="student-main">
+                            <h3>{{ application.titre }}</h3>
+                            <p>{{ application.entreprise }}</p>
+                            <small>{{ application.created_at|date('d/m/Y') }}</small>
+                            <p><strong>CV :</strong> {{ application.cv_filename ?: 'Non renseigné' }}</p>
+                            <p><strong>Lettre :</strong> {{ application.lettre_motivation ?: 'Non renseignée' }}</p>
+                        </div>
+                        <span class="badge badge-blue">{{ application.status }}</span>
+                    </article>
+                {% else %}
+                    <p class="empty-state">Aucune candidature.</p>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="student-section">
+            <h2>Wishlist</h2>
+            <div class="student-list">
+                {% for offer in wishlist %}
+                    <article class="student-row">
+                        <div class="student-main">
+                            <h3>{{ offer.titre }}</h3>
+                            <p>{{ offer.entreprise }} • {{ offer.lieu }}</p>
+                        </div>
+                    </article>
+                {% else %}
+                    <p class="empty-state">Wishlist vide.</p>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+</main>
+{% endblock %}

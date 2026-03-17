@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller;
 
 use App\Database;
@@ -16,7 +18,7 @@ class StudentApplicationsController
 
     public function index(): string
     {
-        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'etudiant') {
+        if (!isset($_SESSION['user']) || ($_SESSION['user']['role'] ?? null) !== 'etudiant') {
             header('Location: /connexion');
             exit;
         }
@@ -42,8 +44,7 @@ class StudentApplicationsController
 
         return $this->twig->render('student-applications.html.twig', [
             'site_name' => 'Help Me Stage',
-            'user' => $_SESSION['user'],
-            'applications' => $applications
+            'applications' => $applications,
         ]);
     }
 }

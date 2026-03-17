@@ -28,7 +28,9 @@
                 <p class="login-error">{{ error }}</p>
             {% endif %}
 
-            <form method="POST" action="/connexion" class="login-form">
+            <form method="POST" action="/connexion" class="login-form" novalidate>
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+
                 <label for="email">Email</label>
                 <input
                     id="email"
@@ -36,6 +38,8 @@
                     type="email"
                     placeholder="etudiant@helpmestage.fr"
                     required
+                    maxlength="255"
+                    autocomplete="email"
                 >
 
                 <label for="password">Mot de passe</label>
@@ -45,6 +49,7 @@
                     type="password"
                     placeholder="********"
                     required
+                    autocomplete="current-password"
                 >
 
                 <div class="forgot-password">

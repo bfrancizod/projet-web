@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller;
 
 use App\Database;
@@ -16,7 +18,7 @@ class StudentWishlistController
 
     public function index(): string
     {
-        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'etudiant') {
+        if (!isset($_SESSION['user']) || ($_SESSION['user']['role'] ?? null) !== 'etudiant') {
             header('Location: /connexion');
             exit;
         }
@@ -42,8 +44,7 @@ class StudentWishlistController
 
         return $this->twig->render('student-wishlist.html.twig', [
             'site_name' => 'Help Me Stage',
-            'user' => $_SESSION['user'],
-            'offers' => $offers
+            'offers' => $offers,
         ]);
     }
 }

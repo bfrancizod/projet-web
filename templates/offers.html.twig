@@ -14,6 +14,16 @@
             <h3>Filtres</h3>
 
             <form method="GET" action="/offres">
+                <label for="q">Recherche</label>
+                <input
+                    id="q"
+                    name="q"
+                    type="text"
+                    placeholder="Titre, entreprise, mot-clé..."
+                    value="{{ search_query|default('') }}"
+                    maxlength="100"
+                >
+
                 <label for="skills">Compétences</label>
                 <input
                     id="skills"
@@ -21,6 +31,7 @@
                     type="text"
                     placeholder="Ex: React, Python, JS"
                     value="{{ selected_skill|default('') }}"
+                    maxlength="100"
                 >
 
                 <label for="location">Lieu</label>
@@ -30,6 +41,7 @@
                     type="text"
                     placeholder="Ex: Paris, Lyon"
                     value="{{ selected_location|default('') }}"
+                    maxlength="100"
                 >
 
                 <label for="duration">Durée maximum</label>
@@ -48,6 +60,14 @@
                     <option value="600" {% if selected_salary == '600' %}selected{% endif %}>600 € minimum</option>
                     <option value="650" {% if selected_salary == '650' %}selected{% endif %}>650 € minimum</option>
                     <option value="700" {% if selected_salary == '700' %}selected{% endif %}>700 € minimum</option>
+                </select>
+
+                <label for="sort">Trier par</label>
+                <select id="sort" name="sort">
+                    <option value="recent" {% if selected_sort == 'recent' %}selected{% endif %}>Plus récentes</option>
+                    <option value="salary_desc" {% if selected_sort == 'salary_desc' %}selected{% endif %}>Salaire décroissant</option>
+                    <option value="salary_asc" {% if selected_sort == 'salary_asc' %}selected{% endif %}>Salaire croissant</option>
+                    <option value="duration_asc" {% if selected_sort == 'duration_asc' %}selected{% endif %}>Durée croissante</option>
                 </select>
 
                 <button type="submit" class="cta-button filter-btn">Filtrer</button>
@@ -84,15 +104,27 @@
                             </div>
                         {% endif %}
 
-                        <a href="/offre?id={{ offer.id }}" class="cta-button offer-button">Voir l'offre</a>
+                        <a href="/offres/{{ offer.id }}" class="cta-button offer-button">Voir l'offre</a>
                     </article>
                 {% endfor %}
             </div>
 
-            <div class="pagination">
-                <span class="page active">1</span>
-                <span class="page">2</span>
-            </div>
+            {% if total_pages > 1 %}
+                <div class="pagination">
+                    {% for i in 1..total_pages %}
+                        {% if i == page %}
+                            <span class="page active">{{ i }}</span>
+                        {% else %}
+                            <a
+                                class="page"
+                                href="/offres?page={{ i }}&q={{ search_query|url_encode }}&skills={{ selected_skill|url_encode }}&location={{ selected_location|url_encode }}&duration={{ selected_duration|url_encode }}&salary={{ selected_salary|url_encode }}&sort={{ selected_sort|url_encode }}"
+                            >
+                                {{ i }}
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
         </section>
 
     </div>

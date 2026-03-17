@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller;
 
 use App\Database;
@@ -16,19 +18,13 @@ class StudentDashboardController
 
     public function index(): string
     {
-        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'etudiant') {
+        if (!isset($_SESSION['user']) || ($_SESSION['user']['role'] ?? null) !== 'etudiant') {
             header('Location: /connexion');
             exit;
         }
 
         $pdo = Database::getConnection();
         $userId = (int) $_SESSION['user']['id'];
-
-        $applicationsCount = (int) $pdo->prepare("
-            SELECT COUNT(*)
-            FROM candidatures
-            WHERE student_user_id = :user_id
-        ")->execute(['user_id' => $userId]);
 
         $stmt = $pdo->prepare("
             SELECT COUNT(*)
@@ -91,13 +87,11 @@ class StudentDashboardController
         $recommendedOffers = $stmt->fetchAll();
 
         foreach ($recommendedOffers as &$offer) {
-            // Score simple visuel
             $offer['match_percent'] = min(95, 70 + ((int) $offer['match_count'] * 10));
         }
 
         return $this->twig->render('student-dashboard.html.twig', [
             'site_name' => 'Help Me Stage',
-            'user' => $_SESSION['user'],
             'stats' => [
                 'applications' => $applicationsCount,
                 'wishlist' => $wishlistCount,

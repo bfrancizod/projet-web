@@ -13,7 +13,7 @@
         <nav class="breadcrumb">
             <a href="/offres">Offres</a>
             <span>/</span>
-            <a href="/offre?id={{ offer.id }}">{{ offer.titre }}</a>
+            <a href="/offres/{{ offer.id }}">{{ offer.titre }}</a>
             <span>/</span>
             <span>Postuler</span>
         </nav>
@@ -29,7 +29,7 @@
 
                 <div class="apply-actions-row">
                     <a href="/espace-etudiant" class="cta-button">Voir mon espace étudiant</a>
-                    <a href="/offre?id={{ offer.id }}" class="secondary-button">Retour à l'offre</a>
+                    <a href="/offres/{{ offer.id }}" class="secondary-button">Retour à l'offre</a>
                 </div>
             {% else %}
                 {% if error %}
@@ -38,7 +38,9 @@
                     </div>
                 {% endif %}
 
-                <form method="POST" action="/offres/{{ offer.id }}/postuler" class="apply-form">
+                <form method="POST" action="/offres/{{ offer.id }}/postuler" class="apply-form" novalidate>
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+
                     <label for="lettre_motivation">Lettre de motivation *</label>
                     <textarea
                         id="lettre_motivation"
@@ -46,6 +48,8 @@
                         rows="10"
                         placeholder="Expliquez pourquoi vous êtes le candidat idéal pour ce stage..."
                         required
+                        minlength="20"
+                        maxlength="5000"
                     ></textarea>
 
                     <small class="field-help">
@@ -59,6 +63,7 @@
                         type="text"
                         placeholder="Ex: cv-alice-dupont.pdf"
                         required
+                        maxlength="255"
                     >
 
                     <div class="apply-note">
@@ -70,7 +75,7 @@
                             Envoyer ma candidature
                         </button>
 
-                        <a href="/offre?id={{ offer.id }}" class="secondary-button">
+                        <a href="/offres/{{ offer.id }}" class="secondary-button">
                             Annuler
                         </a>
                     </div>

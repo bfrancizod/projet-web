@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller;
 
 use App\Database;
+use App\Security\Csrf;
 use Twig\Environment;
 
 class ApplyController
@@ -21,7 +24,7 @@ class ApplyController
             exit;
         }
 
-        if ($_SESSION['user']['role'] !== 'etudiant') {
+        if (($_SESSION['user']['role'] ?? null) !== 'etudiant') {
             http_response_code(403);
             return 'Seuls les étudiants peuvent postuler à cette offre.';
         }
@@ -52,22 +55,29 @@ class ApplyController
         ");
         $stmt->execute([
             'user_id' => $userId,
-            'offer_id' => $offerId
+            'offer_id' => $offerId,
         ]);
 
-        $alreadyApplied = (bool) $stmt->fetch();
-
+        $alreadyApplied = (bool) $stmt->fetchColumn();
         $error = null;
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            Csrf::requireValidToken($_POST['_csrf_token'] ?? null);
+
             if ($alreadyApplied) {
                 $error = 'Vous avez déjà postulé à cette offre.';
             } else {
-                $lettreMotivation = trim($_POST['lettre_motivation'] ?? '');
-                $cvFilename = trim($_POST['cv_filename'] ?? '');
+                $lettreMotivation = trim((string) ($_POST['lettre_motivation'] ?? ''));
+                $cvFilename = trim((string) ($_POST['cv_filename'] ?? ''));
 
-                if ($lettreMotivation === '' || $cvFilename === '') {
-                    $error = 'Merci de remplir la lettre de motivation et le nom du CV.';
+                if ($lettreMotivation === '' || mb_strlen($lettreMotivation) < 20) {
+                    $error = 'La lettre de motivation doit contenir au moins 20 caractères.';
+                } elseif ($cvFilename === '') {
+                    $error = 'Le nom du CV est requis.';
+                } elseif (mb_strlen($cvFilename) > 255) {
+                    $error = 'Nom de CV trop long.';
+                } elseif (!preg_match('/^[a-zA-Z0-9._-]+\.pdf$/', $cvFilename)) {
+                    $error = 'Le CV doit être un fichier PDF valide.';
                 } else {
                     $stmt = $pdo->prepare("
                         INSERT INTO candidatures (
@@ -90,7 +100,7 @@ class ApplyController
                         'user_id' => $userId,
                         'offer_id' => $offerId,
                         'lettre_motivation' => $lettreMotivation,
-                        'cv_filename' => $cvFilename
+                        'cv_filename' => $cvFilename,
                     ]);
 
                     header('Location: /espace-etudiant?success=application_sent');
@@ -103,7 +113,7 @@ class ApplyController
             'site_name' => 'Help Me Stage',
             'offer' => $offer,
             'already_applied' => $alreadyApplied,
-            'error' => $error
+            'error' => $error,
         ]);
     }
 }

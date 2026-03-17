@@ -1,0 +1,92 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+    {% if is_edit %}
+        Modifier le profil étudiant
+    {% else %}
+        Créer un étudiant
+    {% endif %}
+{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="/assets/css/student-dashboard.css">
+{% endblock %}
+
+{% block body %}
+<main class="student-page">
+    <div class="student-container">
+        <section class="student-section">
+            <div class="student-section-header">
+                <h2>
+                    {% if is_edit %}
+                        Modifier le profil étudiant
+                    {% else %}
+                        Créer un étudiant
+                    {% endif %}
+                </h2>
+                <a href="/pilot-etudiants">Retour</a>
+            </div>
+
+            {% if error %}
+                <p class="empty-state" style="color:#b91c1c;">{{ error }}</p>
+            {% endif %}
+
+            {% if success %}
+                <p class="empty-state" style="color:#15803d;">{{ success }}</p>
+            {% endif %}
+
+            <form
+                method="POST"
+                action="{% if is_edit %}/pilot-etudiants/{{ student.id }}/editer{% else %}/pilot-etudiant-create{% endif %}"
+                class="apply-form"
+                novalidate
+            >
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+
+                <label for="nom">Nom *</label>
+                <input id="nom" type="text" name="nom" value="{{ student.nom }}" required maxlength="100">
+
+                <label for="prenom">Prénom *</label>
+                <input id="prenom" type="text" name="prenom" value="{{ student.prenom }}" required maxlength="100">
+
+                <label for="email">Email *</label>
+                <input id="email" type="email" name="email" value="{{ student.email }}" required maxlength="255">
+
+                <label for="formation">Formation *</label>
+                <input id="formation" type="text" name="formation" value="{{ student.formation }}" required maxlength="150">
+
+                <label for="promotion_id">Promotion *</label>
+                <select id="promotion_id" name="promotion_id" required>
+                    <option value="">Choisir une promotion</option>
+                    {% for promotion in promotions %}
+                        <option value="{{ promotion.id }}" {% if student.promotion_id == promotion.id %}selected{% endif %}>
+                            {{ promotion.label }}
+                        </option>
+                    {% endfor %}
+                </select>
+
+                <label for="status">État de recherche *</label>
+                <select id="status" name="status" required>
+                    <option value="sans_stage" {% if student.status == 'sans_stage' %}selected{% endif %}>Sans stage</option>
+                    <option value="en_recherche" {% if student.status == 'en_recherche' %}selected{% endif %}>En recherche</option>
+                    <option value="stage_trouve" {% if student.status == 'stage_trouve' %}selected{% endif %}>Stage trouvé</option>
+                    <option value="stage_valide" {% if student.status == 'stage_valide' %}selected{% endif %}>Stage validé</option>
+                </select>
+
+                {% if not is_edit %}
+                    <label for="password">Mot de passe initial *</label>
+                    <input id="password" type="password" name="password" required minlength="8">
+                {% endif %}
+
+                <button type="submit" class="cta-button">
+                    {% if is_edit %}
+                        Enregistrer les modifications
+                    {% else %}
+                        Créer l'étudiant
+                    {% endif %}
+                </button>
+            </form>
+        </section>
+    </div>
+</main>
+{% endblock %}

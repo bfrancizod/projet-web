@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller;
 
 use App\Database;
@@ -16,7 +18,7 @@ class PilotOffersController
 
     public function index(): string
     {
-        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'pilote') {
+        if (!isset($_SESSION['user']) || ($_SESSION['user']['role'] ?? null) !== 'pilote') {
             header('Location: /connexion');
             exit;
         }
@@ -28,13 +30,11 @@ class PilotOffersController
             FROM offres
             ORDER BY created_at DESC
         ");
-
         $offers = $stmt->fetchAll();
 
         return $this->twig->render('pilot-offers.html.twig', [
             'site_name' => 'Help Me Stage',
-            'user' => $_SESSION['user'],
-            'offers' => $offers
+            'offers' => $offers,
         ]);
     }
 }

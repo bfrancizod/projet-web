@@ -128,3 +128,183 @@
     margin-bottom: 20px;
     color: #6b7280;
 }
+
+.offers-page {
+    padding: 34px 0 56px;
+}
+
+.offers-layout {
+    align-items: start;
+    gap: 28px;
+}
+
+.filters {
+    padding: 22px;
+    border-radius: 20px;
+}
+
+.filters h3 {
+    font-size: 1.2rem;
+    margin-bottom: 18px;
+}
+
+.filters label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.94rem;
+    font-weight: 600;
+}
+
+.filters form {
+    display: grid;
+    gap: 16px;
+}
+
+.filter-btn {
+    width: 100%;
+}
+
+.offers-list h1 {
+    margin-bottom: 22px;
+}
+
+.offers-grid {
+    gap: 18px;
+}
+
+.offer-card {
+    padding: 20px;
+    min-height: 250px;
+}
+
+.offer-header h3 {
+    font-size: 1.16rem;
+}
+
+.offer-card p,
+.offer-card .company {
+    font-size: 0.98rem;
+}
+
+.tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 14px 0 16px;
+}
+
+.tag {
+    padding: 7px 12px;
+    border-radius: 999px;
+    font-size: 0.88rem;
+    font-weight: 600;
+}
+
+.pagination {
+    margin-top: 24px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.page {
+    min-width: 38px;
+    min-height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+.offers-page {
+    padding: 34px 0 56px;
+}
+
+.offers-layout {
+    align-items: start;
+    gap: 28px;
+}
+
+.filters {
+    padding: 22px;
+    border-radius: 20px;
+}
+
+.filters h3 {
+    font-size: 1.2rem;
+    margin-bottom: 18px;
+}
+
+.filters label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.94rem;
+    font-weight: 600;
+}
+
+.filters form {
+    display: grid;
+    gap: 16px;
+}
+
+.filter-btn {
+    width: 100%;
+}
+
+.offers-list h1 {
+    margin-bottom: 22px;
+}
+
+.offers-grid {
+    gap: 18px;
+}
+
+.offer-card {
+    padding: 20px;
+    min-height: 250px;
+}
+
+.offer-header h3 {
+    font-size: 1.16rem;
+}
+
+.offer-card p,
+.offer-card .company {
+    font-size: 0.98rem;
+}
+
+.tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 14px 0 16px;
+}
+
+.tag {
+    padding: 7px 12px;
+    border-radius: 999px;
+    font-size: 0.88rem;
+    font-weight: 600;
+}
+
+.offer-button {
+    min-width: 120px;
+}
+
+.pagination {
+    margin-top: 24px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.page {
+    min-width: 38px;
+    min-height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    font-weight: 600;
+}

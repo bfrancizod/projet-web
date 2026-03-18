@@ -40,10 +40,17 @@
                     <article class="student-row">
                         <div class="student-main">
                             <h3>{{ student.prenom }} {{ student.nom }}</h3>
+
                             <p>
-                                {{ student.promotion_label ?: 'Promotion non définie' }}
-                                {% if student.formation %}• {{ student.formation }}{% endif %}
-                                • {{ student.email }}
+                                {% if student.promotion_label and student.formation and student.promotion_label != student.formation %}
+                                    {{ student.promotion_label }} • {{ student.formation }} • {{ student.email }}
+                                {% elseif student.promotion_label %}
+                                    {{ student.promotion_label }} • {{ student.email }}
+                                {% elseif student.formation %}
+                                    {{ student.formation }} • {{ student.email }}
+                                {% else %}
+                                    Promotion non définie • {{ student.email }}
+                                {% endif %}
                             </p>
 
                             <div class="student-meta">

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller;
 
 use App\Database;
@@ -16,7 +18,7 @@ class PilotApplicationsController
 
     public function index(): string
     {
-        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'pilote') {
+        if (!isset($_SESSION['user']) || ($_SESSION['user']['role'] ?? null) !== 'pilote') {
             header('Location: /connexion');
             exit;
         }
@@ -35,15 +37,21 @@ class PilotApplicationsController
             FROM candidatures c
             INNER JOIN users u ON u.id = c.student_user_id
             INNER JOIN offres o ON o.id = c.offre_id
-            ORDER BY c.created_at DESC
+            ORDER BY
+                CASE
+                    WHEN c.status = 'en_etude' THEN 1
+                    WHEN c.status = 'envoyee' THEN 2
+                    WHEN c.status = 'acceptee' THEN 3
+                    WHEN c.status = 'refusee' THEN 4
+                    ELSE 5
+                END,
+                c.created_at DESC
         ");
 
         $applications = $stmt->fetchAll();
 
         return $this->twig->render('pilot-applications.html.twig', [
-            'site_name' => 'Help Me Stage',
-            'user' => $_SESSION['user'],
-            'applications' => $applications
+            'applications' => $applications,
         ]);
     }
 }

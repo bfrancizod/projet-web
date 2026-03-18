@@ -36,15 +36,71 @@ class PilotApplicationActionController
 
         $pdo = Database::getConnection();
 
-        $stmt = $pdo->prepare("
-            UPDATE candidatures
-            SET status = :status
-            WHERE id = :id
-        ");
-        $stmt->execute([
-            'status' => $status,
-            'id' => $applicationId,
-        ]);
+        try {
+            $pdo->beginTransaction();
+
+            $stmt = $pdo->prepare("
+                UPDATE candidatures
+                SET status = :status
+                WHERE id = :id
+            ");
+            $stmt->execute([
+                'status' => $status,
+                'id' => $applicationId,
+            ]);
+
+            $stmt = $pdo->prepare("
+                SELECT student_user_id
+                FROM candidatures
+                WHERE id = :id
+                LIMIT 1
+            ");
+            $stmt->execute(['id' => $applicationId]);
+            $studentUserId = $stmt->fetchColumn();
+
+            if ($studentUserId) {
+                $stmt = $pdo->prepare("
+                    SELECT
+                        MAX(CASE WHEN status = 'acceptee' THEN 1 ELSE 0 END) AS has_accepted,
+                        MAX(CASE WHEN status = 'en_etude' THEN 1 ELSE 0 END) AS has_in_progress,
+                        MAX(CASE WHEN status = 'envoyee' THEN 1 ELSE 0 END) AS has_sent
+                    FROM candidatures
+                    WHERE student_user_id = :student_user_id
+                ");
+                $stmt->execute(['student_user_id' => $studentUserId]);
+                $summary = $stmt->fetch();
+
+                $newStudentStatus = 'sans_stage';
+
+                if ((int) ($summary['has_accepted'] ?? 0) === 1) {
+                    $newStudentStatus = 'stage_valide';
+                } elseif ((int) ($summary['has_in_progress'] ?? 0) === 1) {
+                    $newStudentStatus = 'stage_trouve';
+                } elseif ((int) ($summary['has_sent'] ?? 0) === 1) {
+                    $newStudentStatus = 'en_recherche';
+                }
+
+                $stmt = $pdo->prepare("
+                    UPDATE student_profiles
+                    SET status = :status,
+                        last_activity = CURDATE()
+                    WHERE user_id = :user_id
+                ");
+                $stmt->execute([
+                    'status' => $newStudentStatus,
+                    'user_id' => $studentUserId,
+                ]);
+            }
+
+            $pdo->commit();
+        } catch (\Throwable $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+
+            http_response_code(500);
+            exit('Erreur lors de la mise à jour.');
+        }
 
         header('Location: /pilot-candidatures');
         exit;

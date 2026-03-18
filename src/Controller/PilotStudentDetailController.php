@@ -52,25 +52,40 @@ class PilotStudentDetailController
 
         $stmt = $pdo->prepare("
             SELECT
+                c.id,
                 c.status,
                 c.created_at,
                 c.lettre_motivation,
                 c.cv_filename,
+                o.id AS offre_id,
                 o.titre,
-                o.entreprise
+                o.entreprise,
+                o.lieu,
+                o.remuneration,
+                o.duree_semaines
             FROM candidatures c
             INNER JOIN offres o ON o.id = c.offre_id
             WHERE c.student_user_id = :id
-            ORDER BY c.created_at DESC
+            ORDER BY
+                CASE
+                    WHEN c.status = 'acceptee' THEN 1
+                    WHEN c.status = 'en_etude' THEN 2
+                    WHEN c.status = 'envoyee' THEN 3
+                    WHEN c.status = 'refusee' THEN 4
+                    ELSE 5
+                END,
+                c.created_at DESC
         ");
         $stmt->execute(['id' => $studentId]);
         $applications = $stmt->fetchAll();
 
         $stmt = $pdo->prepare("
             SELECT
+                o.id,
                 o.titre,
                 o.entreprise,
-                o.lieu
+                o.lieu,
+                sw.created_at
             FROM student_wishlist sw
             INNER JOIN offres o ON o.id = sw.offre_id
             WHERE sw.user_id = :id
@@ -79,10 +94,30 @@ class PilotStudentDetailController
         $stmt->execute(['id' => $studentId]);
         $wishlist = $stmt->fetchAll();
 
+        $acceptedOffer = null;
+        $inProgressOffers = [];
+        $sentOffers = [];
+
+        foreach ($applications as $application) {
+            if ($application['status'] === 'acceptee' && $acceptedOffer === null) {
+                $acceptedOffer = $application;
+            } elseif ($application['status'] === 'en_etude') {
+                $inProgressOffers[] = $application;
+            } elseif ($application['status'] === 'envoyee') {
+                $sentOffers[] = $application;
+            }
+        }
+
+        $hasFoundStage = $acceptedOffer !== null;
+
         return $this->twig->render('pilot-student-detail.html.twig', [
             'student' => $student,
             'applications' => $applications,
             'wishlist' => $wishlist,
+            'accepted_offer' => $acceptedOffer,
+            'in_progress_offers' => $inProgressOffers,
+            'sent_offers' => $sentOffers,
+            'has_found_stage' => $hasFoundStage,
         ]);
     }
 }

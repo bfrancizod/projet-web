@@ -26,18 +26,83 @@
         </section>
 
         <section class="student-section">
-            <h2>Candidatures</h2>
+            <h2>Synthèse stage</h2>
+
+            {% if has_found_stage and accepted_offer %}
+                <div class="student-list">
+                    <article class="student-row">
+                        <div class="student-main">
+                            <h3>Stage trouvé / accepté</h3>
+                            <p><strong>Offre :</strong> {{ accepted_offer.titre }}</p>
+                            <p><strong>Entreprise :</strong> {{ accepted_offer.entreprise }}</p>
+                            <p><strong>Lieu :</strong> {{ accepted_offer.lieu }}</p>
+                            <p><strong>Rémunération :</strong> {{ accepted_offer.remuneration }} €</p>
+                            <small>Acceptée le {{ accepted_offer.created_at|date('d/m/Y') }}</small>
+                        </div>
+                        <span class="badge badge-green">Acceptée</span>
+                    </article>
+                </div>
+            {% else %}
+                <p class="empty-state">Aucun stage accepté pour le moment.</p>
+            {% endif %}
+
+            <h3 style="margin-top: 20px;">Offres en cours d'étude</h3>
+            <div class="student-list">
+                {% for application in in_progress_offers %}
+                    <article class="student-row">
+                        <div class="student-main">
+                            <h3>{{ application.titre }}</h3>
+                            <p>{{ application.entreprise }} • {{ application.lieu }}</p>
+                            <small>En cours depuis le {{ application.created_at|date('d/m/Y') }}</small>
+                        </div>
+                        <span class="badge badge-yellow">En étude</span>
+                    </article>
+                {% else %}
+                    <p class="empty-state">Aucune offre actuellement en cours d'étude.</p>
+                {% endfor %}
+            </div>
+
+            <h3 style="margin-top: 20px;">Candidatures envoyées</h3>
+            <div class="student-list">
+                {% for application in sent_offers %}
+                    <article class="student-row">
+                        <div class="student-main">
+                            <h3>{{ application.titre }}</h3>
+                            <p>{{ application.entreprise }} • {{ application.lieu }}</p>
+                            <small>Envoyée le {{ application.created_at|date('d/m/Y') }}</small>
+                        </div>
+                        <span class="badge badge-blue">Envoyée</span>
+                    </article>
+                {% else %}
+                    <p class="empty-state">Aucune candidature simplement envoyée.</p>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="student-section">
+            <h2>Toutes les candidatures</h2>
             <div class="student-list">
                 {% for application in applications %}
                     <article class="student-row">
                         <div class="student-main">
                             <h3>{{ application.titre }}</h3>
-                            <p>{{ application.entreprise }}</p>
+                            <p>{{ application.entreprise }} • {{ application.lieu }}</p>
                             <small>{{ application.created_at|date('d/m/Y') }}</small>
                             <p><strong>CV :</strong> {{ application.cv_filename ?: 'Non renseigné' }}</p>
                             <p><strong>Lettre :</strong> {{ application.lettre_motivation ?: 'Non renseignée' }}</p>
                         </div>
-                        <span class="badge badge-blue">{{ application.status }}</span>
+
+                        {% if application.status == 'acceptee' %}
+                            <span class="badge badge-green">Acceptée</span>
+                        {% elseif application.status == 'en_etude' %}
+                            <span class="badge badge-yellow">En étude</span>
+                        {% elseif application.status == 'envoyee' %}
+                            <span class="badge badge-blue">Envoyée</span>
+                        {% elseif application.status == 'refusee' %}
+                            <span class="badge badge-red">Refusée</span>
+                        {% else %}
+                            <span class="badge">{{ application.status }}</span>
+                        {% endif %}
                     </article>
                 {% else %}
                     <p class="empty-state">Aucune candidature.</p>
@@ -53,6 +118,7 @@
                         <div class="student-main">
                             <h3>{{ offer.titre }}</h3>
                             <p>{{ offer.entreprise }} • {{ offer.lieu }}</p>
+                            <small>Ajoutée le {{ offer.created_at|date('d/m/Y') }}</small>
                         </div>
                     </article>
                 {% else %}

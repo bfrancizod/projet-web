@@ -341,3 +341,19 @@
     min-width: 150px;
     text-align: center;
 }
+
+.application-status-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+}
+
+.application-status-select {
+    min-width: 170px;
+    width: 100%;
+}
+
+.student-actions-vertical .badge {
+    align-self: flex-end;
+}

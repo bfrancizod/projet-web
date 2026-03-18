@@ -94,3 +94,9 @@
     font-size: 0.95rem;
     margin-top: 18px;
 }
+
+.demo-admin {
+    background: #efe3ff;
+    border: 1px solid #8b5cf6;
+    color: #4c1d95;
+}

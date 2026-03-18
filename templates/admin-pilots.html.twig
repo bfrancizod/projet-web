@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des pilotes{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="/assets/css/pilot-dashboard.css">
+{% endblock %}
+
+{% block body %}
+<main class="pilot-page">
+    <div class="pilot-container">
+        <section class="activity-section">
+            <div class="activity-header">
+                <h2>Gestion des pilotes</h2>
+                <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                    <a href="/admin-pilote-create" class="student-button">Créer un pilote</a>
+                    <a href="/espace-admin">Retour au dashboard</a>
+                </div>
+            </div>
+
+            <div class="student-list">
+                {% for pilot in pilots %}
+                    <article class="student-row">
+                        <div class="student-main">
+                            <h3>{{ pilot.prenom }} {{ pilot.nom }}</h3>
+                            <p>{{ pilot.email }}</p>
+                            <small>Créé le {{ pilot.created_at|date('d/m/Y') }}</small>
+                        </div>
+
+                        <div class="student-actions student-actions-vertical">
+                            <a href="/admin-pilotes/{{ pilot.id }}/editer" class="student-button">Modifier</a>
+
+                            <form method="POST" action="/admin-pilotes/{{ pilot.id }}/supprimer" onsubmit="return confirm('Confirmer la suppression ?');">
+                                <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+                                <button type="submit" class="student-button">Supprimer</button>
+                            </form>
+                        </div>
+                    </article>
+                {% else %}
+                    <p class="empty-state">Aucun pilote trouvé.</p>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+</main>
+{% endblock %}

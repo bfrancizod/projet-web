@@ -28,6 +28,10 @@ use App\Controller\StudentWishlistController;
 use App\Controller\WishlistController;
 use App\Database;
 use App\Security\Csrf;
+use App\Controller\AdminDashboardController;
+use App\Controller\AdminPilotsController;
+use App\Controller\AdminPilotFormController;
+use App\Controller\AdminPilotDeleteController;
 
 $https = (
     (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
@@ -179,6 +183,21 @@ if ($uri === '/cookies/consent' && $method === 'POST') {
     exit;
 }
 
+if ($uri === '/admin-pilote-create' && in_array($method, ['GET', 'POST'], true)) {
+    echo (new AdminPilotFormController($twig))->create();
+    exit;
+}
+
+if (preg_match('#^/admin-pilotes/([0-9]+)/editer$#', $uri, $matches) && in_array($method, ['GET', 'POST'], true)) {
+    echo (new AdminPilotFormController($twig))->edit((int) $matches[1]);
+    exit;
+}
+
+if ($method === 'POST' && preg_match('#^/admin-pilotes/([0-9]+)/supprimer$#', $uri, $matches)) {
+    (new AdminPilotDeleteController())->delete((int) $matches[1]);
+    exit;
+}
+
 /*
 |--------------------------------------------------------------------------
 | Routes statiques
@@ -240,9 +259,18 @@ switch ($uri) {
     case '/politique-confidentialite':
         echo (new PrivacyController($twig))->index();
         exit;
+        
+    case '/espace-admin':
+        echo (new AdminDashboardController($twig))->index();
+        exit;
+
+    case '/admin-pilotes':
+        echo (new AdminPilotsController($twig))->index();
+        exit;
 
     default:
         http_response_code(404);
         echo 'Page non trouvée';
         exit;
+
 }

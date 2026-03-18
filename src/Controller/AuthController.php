@@ -67,6 +67,11 @@ class AuthController
                         exit;
                     }
 
+                    if ($user['role'] === 'administrateur') {
+                        header('Location: /espace-admin');
+                        exit;
+                    }
+
                     unset($_SESSION['user']);
                     $error = 'Rôle utilisateur non autorisé.';
                 } else {

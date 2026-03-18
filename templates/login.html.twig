@@ -24,6 +24,12 @@
                 Mot de passe : pilote2026
             </div>
 
+            <div class="demo-box demo-admin">
+                <strong>🛠️ Compte Administrateur :</strong><br>
+                Email : admin@helpmestage.fr<br>
+                Mot de passe : admin2026
+            </div>
+
             {% if error %}
                 <p class="login-error">{{ error }}</p>
             {% endif %}
@@ -36,7 +42,7 @@
                     id="email"
                     name="email"
                     type="email"
-                    placeholder="etudiant@helpmestage.fr"
+                    placeholder="admin@helpmestage.fr"
                     required
                     maxlength="255"
                     autocomplete="email"

@@ -1,0 +1,71 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+    {% if is_edit %}
+        Modifier le pilote
+    {% else %}
+        Créer un pilote
+    {% endif %}
+{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="/assets/css/student-dashboard.css">
+{% endblock %}
+
+{% block body %}
+<main class="student-page">
+    <div class="student-container">
+        <section class="student-section">
+            <div class="student-section-header">
+                <h2>
+                    {% if is_edit %}
+                        Modifier le pilote
+                    {% else %}
+                        Créer un pilote
+                    {% endif %}
+                </h2>
+                <a href="/admin-pilotes">Retour</a>
+            </div>
+
+            {% if error %}
+                <p class="empty-state" style="color:#b91c1c;">{{ error }}</p>
+            {% endif %}
+
+            {% if success %}
+                <p class="empty-state" style="color:#15803d;">{{ success }}</p>
+            {% endif %}
+
+            <form
+                method="POST"
+                action="{% if is_edit %}/admin-pilotes/{{ pilot.id }}/editer{% else %}/admin-pilote-create{% endif %}"
+                class="apply-form"
+                novalidate
+            >
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+
+                <label for="nom">Nom *</label>
+                <input id="nom" type="text" name="nom" value="{{ pilot.nom }}" required maxlength="100">
+
+                <label for="prenom">Prénom *</label>
+                <input id="prenom" type="text" name="prenom" value="{{ pilot.prenom }}" required maxlength="100">
+
+                <label for="email">Email *</label>
+                <input id="email" type="email" name="email" value="{{ pilot.email }}" required maxlength="255">
+
+                {% if not is_edit %}
+                    <label for="password">Mot de passe initial *</label>
+                    <input id="password" type="password" name="password" required minlength="8">
+                {% endif %}
+
+                <button type="submit" class="cta-button">
+                    {% if is_edit %}
+                        Enregistrer les modifications
+                    {% else %}
+                        Créer le pilote
+                    {% endif %}
+                </button>
+            </form>
+        </section>
+    </div>
+</main>
+{% endblock %}

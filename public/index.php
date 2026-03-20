@@ -32,6 +32,9 @@ use App\Controller\AdminDashboardController;
 use App\Controller\AdminPilotsController;
 use App\Controller\AdminPilotFormController;
 use App\Controller\AdminPilotDeleteController;
+use App\Controller\AdminCompaniesController;
+use App\Controller\AdminCompanyFormController;
+use App\Controller\AdminCompanyDeleteController;
 
 $https = (
     (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
@@ -198,6 +201,20 @@ if ($method === 'POST' && preg_match('#^/admin-pilotes/([0-9]+)/supprimer$#', $u
     exit;
 }
 
+if ($uri === '/admin-entreprise-create' && in_array($method, ['GET', 'POST'], true)) {
+    echo (new AdminCompanyFormController($twig))->create();
+    exit;
+}
+
+if (preg_match('#^/admin-entreprises/([0-9]+)/editer$#', $uri, $matches) && in_array($method, ['GET', 'POST'], true)) {
+    echo (new AdminCompanyFormController($twig))->edit((int) $matches[1]);
+    exit;
+}
+
+if ($method === 'POST' && preg_match('#^/admin-entreprises/([0-9]+)/supprimer$#', $uri, $matches)) {
+    (new AdminCompanyDeleteController())->delete((int) $matches[1]);
+    exit;
+}
 /*
 |--------------------------------------------------------------------------
 | Routes statiques
@@ -266,6 +283,10 @@ switch ($uri) {
 
     case '/admin-pilotes':
         echo (new AdminPilotsController($twig))->index();
+        exit;
+
+    case '/admin-entreprises':
+        echo (new AdminCompaniesController($twig))->index();
         exit;
 
     default:

@@ -1,0 +1,75 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+    {% if is_edit %}
+        Modifier l’entreprise
+    {% else %}
+        Créer une entreprise
+    {% endif %}
+{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="/assets/css/student-dashboard.css">
+{% endblock %}
+
+{% block body %}
+<main class="student-page">
+    <div class="student-container">
+        <section class="student-section">
+            <div class="student-section-header">
+                <h2>
+                    {% if is_edit %}
+                        Modifier / Évaluer l’entreprise
+                    {% else %}
+                        Créer une entreprise
+                    {% endif %}
+                </h2>
+                <a href="/admin-entreprises">Retour</a>
+            </div>
+
+            {% if error %}
+                <p class="empty-state" style="color:#b91c1c;">{{ error }}</p>
+            {% endif %}
+
+            {% if success %}
+                <p class="empty-state" style="color:#15803d;">{{ success }}</p>
+            {% endif %}
+
+            <form
+                method="POST"
+                action="{% if is_edit %}/admin-entreprises/{{ company.id }}/editer{% else %}/admin-entreprise-create{% endif %}"
+                class="apply-form"
+                novalidate
+            >
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+
+                <label for="nom">Nom de l’entreprise *</label>
+                <input id="nom" type="text" name="nom" value="{{ company.nom }}" required maxlength="150">
+
+                <label for="secteur">Secteur</label>
+                <input id="secteur" type="text" name="secteur" value="{{ company.secteur }}" maxlength="150">
+
+                <label for="ville">Ville</label>
+                <input id="ville" type="text" name="ville" value="{{ company.ville }}" maxlength="150">
+
+                <label for="site_web">Site web</label>
+                <input id="site_web" type="url" name="site_web" value="{{ company.site_web }}" maxlength="255">
+
+                <label for="note">Évaluation (sur 5)</label>
+                <input id="note" type="number" name="note" value="{{ company.note }}" min="0" max="5" step="0.1">
+
+                <label for="commentaire">Commentaire</label>
+                <textarea id="commentaire" name="commentaire">{{ company.commentaire }}</textarea>
+
+                <button type="submit" class="cta-button">
+                    {% if is_edit %}
+                        Enregistrer les modifications
+                    {% else %}
+                        Créer l’entreprise
+                    {% endif %}
+                </button>
+            </form>
+        </section>
+    </div>
+</main>
+{% endblock %}

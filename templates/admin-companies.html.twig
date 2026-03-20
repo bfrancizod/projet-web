@@ -1,0 +1,71 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des entreprises{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="/assets/css/pilot-dashboard.css">
+{% endblock %}
+
+{% block body %}
+<main class="pilot-page">
+    <div class="pilot-container">
+        <section class="activity-section">
+            <div class="activity-header">
+                <h2>Gestion des entreprises</h2>
+                <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                    <a href="/admin-entreprise-create" class="student-button">Créer une entreprise</a>
+                    <a href="/espace-admin">Retour au dashboard</a>
+                </div>
+            </div>
+
+            <form method="GET" action="/admin-entreprises" class="apply-form" style="margin-bottom: 18px;">
+                <label for="q">Rechercher une entreprise</label>
+                <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                    <input id="q" name="q" type="text" value="{{ search }}" placeholder="Nom, secteur, ville">
+                    <button type="submit" class="student-button">Rechercher</button>
+                    <a href="/admin-entreprises" class="student-button">Réinitialiser</a>
+                </div>
+            </form>
+
+            <div class="student-list">
+                {% for company in companies %}
+                    <article class="student-row">
+                        <div class="student-main">
+                            <h3>{{ company.nom }}</h3>
+                            <p>
+                                {{ company.secteur ?: 'Secteur non défini' }}
+                                • {{ company.ville ?: 'Ville non définie' }}
+                            </p>
+
+                            <div class="student-meta">
+                                {% if company.note is not null %}
+                                    <span class="badge badge-blue">Note : {{ company.note }}/5</span>
+                                {% else %}
+                                    <span class="badge badge-yellow">Non évaluée</span>
+                                {% endif %}
+
+                                <small>{{ company.site_web ?: 'Aucun site web' }}</small>
+                            </div>
+
+                            {% if company.commentaire %}
+                                <p style="margin-top:8px;">{{ company.commentaire }}</p>
+                            {% endif %}
+                        </div>
+
+                        <div class="student-actions student-actions-vertical">
+                            <a href="/admin-entreprises/{{ company.id }}/editer" class="student-button">Modifier / Évaluer</a>
+
+                            <form method="POST" action="/admin-entreprises/{{ company.id }}/supprimer" onsubmit="return confirm('Confirmer la suppression ?');">
+                                <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+                                <button type="submit" class="student-button">Supprimer</button>
+                            </form>
+                        </div>
+                    </article>
+                {% else %}
+                    <p class="empty-state">Aucune entreprise trouvée.</p>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+</main>
+{% endblock %}

@@ -9,124 +9,122 @@
 {% block body %}
 <main class="offers-page">
     <div class="container offers-layout">
-
         <aside class="filters">
             <h3>Filtres</h3>
 
             <form method="GET" action="/offres">
-                <label for="q">Recherche</label>
-                <input
-                    id="q"
-                    name="q"
-                    type="text"
-                    placeholder="Titre, entreprise, mot-clé..."
-                    value="{{ search_query|default('') }}"
-                    maxlength="100"
-                >
+                <div>
+                    <label for="search_query">Recherche</label>
+                    <input
+                        id="search_query"
+                        type="text"
+                        name="search_query"
+                        value="{{ search_query }}"
+                        placeholder="Titre, entreprise, mot-clé..."
+                    >
+                </div>
 
-                <label for="skills">Compétences</label>
-                <input
-                    id="skills"
-                    name="skills"
-                    type="text"
-                    placeholder="Ex: React, Python, JS"
-                    value="{{ selected_skill|default('') }}"
-                    maxlength="100"
-                >
+                <div>
+                    <label for="skills">Compétences</label>
+                    <input
+                        id="skills"
+                        type="text"
+                        name="skills"
+                        value="{{ selected_skill }}"
+                        placeholder="Ex: React, Python, JS"
+                    >
+                </div>
 
-                <label for="location">Lieu</label>
-                <input
-                    id="location"
-                    name="location"
-                    type="text"
-                    placeholder="Ex: Paris, Lyon"
-                    value="{{ selected_location|default('') }}"
-                    maxlength="100"
-                >
+                <div>
+                    <label for="location">Lieu</label>
+                    <input
+                        id="location"
+                        type="text"
+                        name="location"
+                        value="{{ selected_location }}"
+                        placeholder="Ex: Paris, Lyon"
+                    >
+                </div>
 
-                <label for="duration">Durée maximum</label>
-                <select id="duration" name="duration">
-                    <option value="">Toutes les durées</option>
-                    <option value="8" {% if selected_duration == '8' %}selected{% endif %}>8 semaines max</option>
-                    <option value="10" {% if selected_duration == '10' %}selected{% endif %}>10 semaines max</option>
-                    <option value="12" {% if selected_duration == '12' %}selected{% endif %}>12 semaines max</option>
-                    <option value="16" {% if selected_duration == '16' %}selected{% endif %}>16 semaines max</option>
-                </select>
+                <div>
+                    <label for="duration">Durée maximum</label>
+                    <select id="duration" name="duration">
+                        <option value="">Toutes les durées</option>
+                        <option value="8" {% if selected_duration == '8' %}selected{% endif %}>8 semaines max</option>
+                        <option value="10" {% if selected_duration == '10' %}selected{% endif %}>10 semaines max</option>
+                        <option value="12" {% if selected_duration == '12' %}selected{% endif %}>12 semaines max</option>
+                        <option value="16" {% if selected_duration == '16' %}selected{% endif %}>16 semaines max</option>
+                    </select>
+                </div>
 
-                <label for="salary">Rémunération minimum</label>
-                <select id="salary" name="salary">
-                    <option value="">Toutes les rémunérations</option>
-                    <option value="550" {% if selected_salary == '550' %}selected{% endif %}>550 € minimum</option>
-                    <option value="600" {% if selected_salary == '600' %}selected{% endif %}>600 € minimum</option>
-                    <option value="650" {% if selected_salary == '650' %}selected{% endif %}>650 € minimum</option>
-                    <option value="700" {% if selected_salary == '700' %}selected{% endif %}>700 € minimum</option>
-                </select>
+                <div>
+                    <label for="salary">Rémunération minimum</label>
+                    <select id="salary" name="salary">
+                        <option value="">Toutes les rémunérations</option>
+                        <option value="500" {% if selected_salary == '500' %}selected{% endif %}>500 €</option>
+                        <option value="600" {% if selected_salary == '600' %}selected{% endif %}>600 €</option>
+                        <option value="700" {% if selected_salary == '700' %}selected{% endif %}>700 €</option>
+                        <option value="800" {% if selected_salary == '800' %}selected{% endif %}>800 €</option>
+                    </select>
+                </div>
 
-                <label for="sort">Trier par</label>
-                <select id="sort" name="sort">
-                    <option value="recent" {% if selected_sort == 'recent' %}selected{% endif %}>Plus récentes</option>
-                    <option value="salary_desc" {% if selected_sort == 'salary_desc' %}selected{% endif %}>Salaire décroissant</option>
-                    <option value="salary_asc" {% if selected_sort == 'salary_asc' %}selected{% endif %}>Salaire croissant</option>
-                    <option value="duration_asc" {% if selected_sort == 'duration_asc' %}selected{% endif %}>Durée croissante</option>
-                </select>
+                <div>
+                    <label for="sort">Trier par</label>
+                    <select id="sort" name="sort">
+                        <option value="recent" {% if selected_sort == 'recent' %}selected{% endif %}>Plus récentes</option>
+                        <option value="salary_asc" {% if selected_sort == 'salary_asc' %}selected{% endif %}>Salaire croissant</option>
+                        <option value="salary_desc" {% if selected_sort == 'salary_desc' %}selected{% endif %}>Salaire décroissant</option>
+                        <option value="duration_asc" {% if selected_sort == 'duration_asc' %}selected{% endif %}>Durée croissante</option>
+                        <option value="duration_desc" {% if selected_sort == 'duration_desc' %}selected{% endif %}>Durée décroissante</option>
+                    </select>
+                </div>
 
                 <button type="submit" class="cta-button filter-btn">Filtrer</button>
+                <a href="/offres" class="student-link">Réinitialiser</a>
             </form>
-
-            <a href="/offres" class="reset-filters">Réinitialiser</a>
         </aside>
 
         <section class="offers-list">
             <h1>Offres de stage</h1>
-
-            {% if offers is empty %}
-                <p class="no-results">Aucune offre ne correspond à votre recherche.</p>
-            {% endif %}
 
             <div class="offers-grid">
                 {% for offer in offers %}
                     <article class="offer-card">
                         <div class="offer-header">
                             <h3>{{ offer.titre }}</h3>
-                            <span class="star">☆</span>
                         </div>
 
-                        <p class="company">{{ offer.entreprise }}</p>
-                        <p>📍 {{ offer.lieu }}</p>
-                        <p>⏱ {{ offer.duree_semaines }} semaines</p>
+                        <p class="company">{{ offer.entreprise_nom ?: 'Entreprise non définie' }}</p>
+                        <p>📍 {{ offer.lieu ?: 'Lieu non défini' }}</p>
+                        <p>◦ {{ offer.duree_semaines }} semaines</p>
                         <p>💰 {{ offer.remuneration }} €</p>
 
-                        {% if offer.skills is not empty %}
-                            <div class="tags">
-                                {% for skill in offer.skills %}
-                                    <span class="tag">{{ skill.nom }}</span>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
+                        <div class="tags">
+                            {% for skill in offer.skills %}
+                                <span class="tag">{{ skill.nom }}</span>
+                            {% endfor %}
+                        </div>
 
-                        <a href="/offres/{{ offer.id }}" class="cta-button offer-button">Voir l'offre</a>
+                        <a href="/offres/{{ offer.id }}" class="offer-button">Voir l'offre</a>
                     </article>
+                {% else %}
+                    <p class="empty-state">Aucune offre trouvée.</p>
                 {% endfor %}
             </div>
 
             {% if total_pages > 1 %}
                 <div class="pagination">
-                    {% for i in 1..total_pages %}
-                        {% if i == page %}
-                            <span class="page active">{{ i }}</span>
-                        {% else %}
-                            <a
-                                class="page"
-                                href="/offres?page={{ i }}&q={{ search_query|url_encode }}&skills={{ selected_skill|url_encode }}&location={{ selected_location|url_encode }}&duration={{ selected_duration|url_encode }}&salary={{ selected_salary|url_encode }}&sort={{ selected_sort|url_encode }}"
-                            >
-                                {{ i }}
-                            </a>
-                        {% endif %}
+                    {% for p in 1..total_pages %}
+                        <a
+                            class="page {% if p == page %}active{% endif %}"
+                            href="/offres?page={{ p }}&search_query={{ search_query|url_encode }}&skills={{ selected_skill|url_encode }}&location={{ selected_location|url_encode }}&duration={{ selected_duration|url_encode }}&salary={{ selected_salary|url_encode }}&sort={{ selected_sort|url_encode }}"
+                        >
+                            {{ p }}
+                        </a>
                     {% endfor %}
                 </div>
             {% endif %}
         </section>
-
     </div>
 </main>
 {% endblock %}

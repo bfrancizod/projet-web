@@ -21,9 +21,24 @@ class OfferDetailController
         $pdo = Database::getConnection();
 
         $stmt = $pdo->prepare("
-            SELECT *
-            FROM offres
-            WHERE id = :id
+            SELECT
+                o.id,
+                o.titre,
+                o.lieu,
+                o.duree_semaines,
+                o.remuneration,
+                o.description,
+                o.created_at,
+                o.entreprise_id,
+                COALESCE(e.nom, o.entreprise) AS entreprise_nom,
+                e.secteur AS entreprise_secteur,
+                e.ville AS entreprise_ville,
+                e.site_web AS entreprise_site_web,
+                e.note AS entreprise_note,
+                e.commentaire AS entreprise_commentaire
+            FROM offres o
+            LEFT JOIN entreprises e ON e.id = o.entreprise_id
+            WHERE o.id = :id
             LIMIT 1
         ");
         $stmt->execute(['id' => $id]);
@@ -41,7 +56,8 @@ class OfferDetailController
             $stmtWishlist = $pdo->prepare("
                 SELECT 1
                 FROM student_wishlist
-                WHERE user_id = :user_id AND offre_id = :offre_id
+                WHERE user_id = :user_id
+                  AND offre_id = :offre_id
                 LIMIT 1
             ");
             $stmtWishlist->execute([
@@ -53,7 +69,6 @@ class OfferDetailController
         }
 
         return $this->twig->render('offer-detail.html.twig', [
-            'site_name' => 'Help Me Stage',
             'offer' => $offer,
             'is_in_wishlist' => $isInWishlist,
         ]);

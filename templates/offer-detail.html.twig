@@ -3,13 +3,12 @@
 {% block title %}{{ offer.titre }} - Help Me Stage{% endblock %}
 
 {% block stylesheets %}
-<link rel="stylesheet" href="/assets/css/offer-detail.css">
+    <link rel="stylesheet" href="/assets/css/offer-detail.css">
 {% endblock %}
 
 {% block body %}
 <main class="offer-detail-page">
     <div class="container">
-
         <nav class="breadcrumb">
             <a href="/">Accueil</a>
             <span>/</span>
@@ -21,7 +20,7 @@
         <section class="offer-detail-card">
             <h1>{{ offer.titre }}</h1>
 
-            <p class="detail-company">{{ offer.entreprise }}</p>
+            <p class="detail-company">{{ offer.entreprise_nom ?: 'Entreprise non définie' }}</p>
 
             <div class="detail-info-grid">
                 <div class="detail-info-item">
@@ -31,7 +30,7 @@
 
                 <div class="detail-info-item">
                     <span class="detail-label">Lieu</span>
-                    <strong>{{ offer.lieu }}</strong>
+                    <strong>{{ offer.lieu ?: 'Non défini' }}</strong>
                 </div>
 
                 <div class="detail-info-item">
@@ -47,6 +46,48 @@
 
             <h2>Description de l'offre</h2>
             <p class="detail-description">{{ offer.description }}</p>
+
+            <h2>Entreprise</h2>
+            <div class="detail-info-grid">
+                <div class="detail-info-item">
+                    <span class="detail-label">Nom</span>
+                    <strong>{{ offer.entreprise_nom ?: 'Non défini' }}</strong>
+                </div>
+
+                <div class="detail-info-item">
+                    <span class="detail-label">Secteur</span>
+                    <strong>{{ offer.entreprise_secteur ?: 'Non défini' }}</strong>
+                </div>
+
+                <div class="detail-info-item">
+                    <span class="detail-label">Ville</span>
+                    <strong>{{ offer.entreprise_ville ?: 'Non définie' }}</strong>
+                </div>
+
+                <div class="detail-info-item">
+                    <span class="detail-label">Note</span>
+                    <strong>
+                        {% if offer.entreprise_note is not null %}
+                            {{ offer.entreprise_note }}/5
+                        {% else %}
+                            Non évaluée
+                        {% endif %}
+                    </strong>
+                </div>
+            </div>
+
+            {% if offer.entreprise_site_web %}
+                <p>
+                    <strong>Site web :</strong>
+                    <a href="{{ offer.entreprise_site_web }}" target="_blank" rel="noopener noreferrer">
+                        {{ offer.entreprise_site_web }}
+                    </a>
+                </p>
+            {% endif %}
+
+            {% if offer.entreprise_commentaire %}
+                <p><strong>Commentaire :</strong> {{ offer.entreprise_commentaire }}</p>
+            {% endif %}
 
             {% if current_user and current_user.role == 'etudiant' %}
                 <div class="detail-actions">

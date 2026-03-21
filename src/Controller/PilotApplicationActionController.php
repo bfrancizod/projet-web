@@ -19,7 +19,10 @@ class PilotApplicationActionController
 
     public function updateStatus(int $applicationId): void
     {
-        if (!isset($_SESSION['user']) || ($_SESSION['user']['role'] ?? null) !== 'pilote') {
+        if (
+            !isset($_SESSION['user'])
+            || !in_array($_SESSION['user']['role'] ?? null, ['pilote', 'administrateur'], true)
+        ) {
             header('Location: /connexion');
             exit;
         }

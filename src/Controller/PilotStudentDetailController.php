@@ -18,7 +18,10 @@ class PilotStudentDetailController
 
     public function show(int $studentId): string
     {
-        if (!isset($_SESSION['user']) || ($_SESSION['user']['role'] ?? null) !== 'pilote') {
+        if (
+            !isset($_SESSION['user'])
+            || !in_array($_SESSION['user']['role'] ?? null, ['pilote', 'administrateur'], true)
+        ) {
             header('Location: /connexion');
             exit;
         }
@@ -59,12 +62,13 @@ class PilotStudentDetailController
                 c.cv_filename,
                 o.id AS offre_id,
                 o.titre,
-                o.entreprise,
                 o.lieu,
                 o.remuneration,
-                o.duree_semaines
+                o.duree_semaines,
+                COALESCE(e.nom, o.entreprise) AS entreprise_nom
             FROM candidatures c
             INNER JOIN offres o ON o.id = c.offre_id
+            LEFT JOIN entreprises e ON e.id = o.entreprise_id
             WHERE c.student_user_id = :id
             ORDER BY
                 CASE
@@ -83,11 +87,12 @@ class PilotStudentDetailController
             SELECT
                 o.id,
                 o.titre,
-                o.entreprise,
                 o.lieu,
-                sw.created_at
+                sw.created_at,
+                COALESCE(e.nom, o.entreprise) AS entreprise_nom
             FROM student_wishlist sw
             INNER JOIN offres o ON o.id = sw.offre_id
+            LEFT JOIN entreprises e ON e.id = o.entreprise_id
             WHERE sw.user_id = :id
             ORDER BY sw.created_at DESC
         ");
@@ -109,6 +114,7 @@ class PilotStudentDetailController
         }
 
         $hasFoundStage = $acceptedOffer !== null;
+        $hasInProgressStage = count($inProgressOffers) > 0;
 
         return $this->twig->render('pilot-student-detail.html.twig', [
             'student' => $student,
@@ -118,6 +124,7 @@ class PilotStudentDetailController
             'in_progress_offers' => $inProgressOffers,
             'sent_offers' => $sentOffers,
             'has_found_stage' => $hasFoundStage,
+            'has_in_progress_stage' => $hasInProgressStage,
         ]);
     }
 }

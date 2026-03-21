@@ -6,20 +6,15 @@ namespace App\Controller;
 
 use App\Database;
 use App\Security\Csrf;
-use Twig\Environment;
 
 class PilotStudentDeleteController
 {
-    private Environment $twig;
-
-    public function __construct(Environment $twig)
-    {
-        $this->twig = $twig;
-    }
-
     public function delete(int $studentId): void
     {
-        if (!isset($_SESSION['user']) || ($_SESSION['user']['role'] ?? null) !== 'pilote') {
+        if (
+            !isset($_SESSION['user'])
+            || !in_array($_SESSION['user']['role'] ?? null, ['pilote', 'administrateur'], true)
+        ) {
             header('Location: /connexion');
             exit;
         }
@@ -31,10 +26,10 @@ class PilotStudentDeleteController
         try {
             $pdo->beginTransaction();
 
-            $stmt = $pdo->prepare("DELETE FROM candidatures WHERE student_user_id = :id");
+            $stmt = $pdo->prepare("DELETE FROM student_wishlist WHERE user_id = :id");
             $stmt->execute(['id' => $studentId]);
 
-            $stmt = $pdo->prepare("DELETE FROM student_wishlist WHERE user_id = :id");
+            $stmt = $pdo->prepare("DELETE FROM candidatures WHERE student_user_id = :id");
             $stmt->execute(['id' => $studentId]);
 
             $stmt = $pdo->prepare("DELETE FROM student_profiles WHERE user_id = :id");
@@ -42,7 +37,8 @@ class PilotStudentDeleteController
 
             $stmt = $pdo->prepare("
                 DELETE FROM users
-                WHERE id = :id AND role = 'etudiant'
+                WHERE id = :id
+                  AND role = 'etudiant'
             ");
             $stmt->execute(['id' => $studentId]);
 
@@ -51,9 +47,11 @@ class PilotStudentDeleteController
             if ($pdo->inTransaction()) {
                 $pdo->rollBack();
             }
+        }
 
-            http_response_code(500);
-            exit('Erreur lors de la suppression.');
+        if (($_SESSION['user']['role'] ?? null) === 'administrateur') {
+            header('Location: /pilot-etudiants');
+            exit;
         }
 
         header('Location: /pilot-etudiants');

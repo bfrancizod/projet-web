@@ -18,7 +18,10 @@ class PilotOffersController
 
     public function index(): string
     {
-        if (!isset($_SESSION['user']) || ($_SESSION['user']['role'] ?? null) !== 'pilote') {
+        if (
+            !isset($_SESSION['user'])
+            || !in_array($_SESSION['user']['role'] ?? null, ['pilote', 'administrateur'], true)
+        ) {
             header('Location: /connexion');
             exit;
         }
@@ -26,14 +29,22 @@ class PilotOffersController
         $pdo = Database::getConnection();
 
         $stmt = $pdo->query("
-            SELECT *
-            FROM offres
-            ORDER BY created_at DESC
+            SELECT
+                o.id,
+                o.titre,
+                o.lieu,
+                o.remuneration,
+                o.duree_semaines,
+                o.created_at,
+                COALESCE(e.nom, o.entreprise) AS entreprise_nom
+            FROM offres o
+            LEFT JOIN entreprises e ON e.id = o.entreprise_id
+            ORDER BY o.created_at DESC, o.id DESC
         ");
+
         $offers = $stmt->fetchAll();
 
         return $this->twig->render('pilot-offers.html.twig', [
-            'site_name' => 'Help Me Stage',
             'offers' => $offers,
         ]);
     }

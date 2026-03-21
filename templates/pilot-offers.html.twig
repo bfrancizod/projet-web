@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Offres - Espace pilote{% endblock %}
+{% block title %}Gestion des offres{% endblock %}
 
 {% block stylesheets %}
     <link rel="stylesheet" href="/assets/css/pilot-dashboard.css">
@@ -9,10 +9,17 @@
 {% block body %}
 <main class="pilot-page">
     <div class="pilot-container">
-        <div class="activity-section">
+        <section class="activity-section">
             <div class="activity-header">
-                <h2>Offres disponibles</h2>
-                <a href="/espace-pilote">Retour au dashboard</a>
+                <h2>Gestion des offres</h2>
+                <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                    <a href="/pilot-offre-create" class="student-button">Créer une offre</a>
+                    {% if current_user.role == 'administrateur' %}
+                        <a href="/espace-admin">Retour au dashboard</a>
+                    {% else %}
+                        <a href="/espace-pilote">Retour au dashboard</a>
+                    {% endif %}
+                </div>
             </div>
 
             <div class="student-list">
@@ -20,19 +27,27 @@
                     <article class="student-row">
                         <div class="student-main">
                             <h3>{{ offer.titre }}</h3>
-                            <p>{{ offer.entreprise }} • {{ offer.lieu }}</p>
-                            <div class="student-meta">
-                                <small>{{ offer.duree_semaines }} semaines • {{ offer.remuneration }} €</small>
-                            </div>
+                            <p>{{ offer.entreprise_nom ?: 'Entreprise non définie' }} • {{ offer.lieu }}</p>
+                            <small>
+                                {{ offer.duree_semaines }} semaines • {{ offer.remuneration }} € • publiée le {{ offer.created_at|date('d/m/Y') }}
+                            </small>
                         </div>
 
-                        <a href="/offres/{{ offer.id }}" class="student-button">Voir l'offre</a>
+                        <div class="student-actions student-actions-vertical">
+                            <a href="/offres/{{ offer.id }}" class="student-button">Voir</a>
+                            <a href="/pilot-offres/{{ offer.id }}/editer" class="student-button">Modifier</a>
+
+                            <form method="POST" action="/pilot-offres/{{ offer.id }}/supprimer" onsubmit="return confirm('Confirmer la suppression ?');">
+                                <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+                                <button type="submit" class="student-button">Supprimer</button>
+                            </form>
+                        </div>
                     </article>
                 {% else %}
-                    <p class="empty-state">Aucune offre disponible.</p>
+                    <p class="empty-state">Aucune offre trouvée.</p>
                 {% endfor %}
             </div>
-        </div>
+        </section>
     </div>
 </main>
 {% endblock %}

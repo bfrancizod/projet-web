@@ -1,0 +1,82 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+    {% if is_edit %}
+        Modifier l’offre
+    {% else %}
+        Créer une offre
+    {% endif %}
+{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="/assets/css/student-dashboard.css">
+{% endblock %}
+
+{% block body %}
+<main class="student-page">
+    <div class="student-container">
+        <section class="student-section">
+            <div class="student-section-header">
+                <h2>
+                    {% if is_edit %}
+                        Modifier l’offre
+                    {% else %}
+                        Créer une offre
+                    {% endif %}
+                </h2>
+                <a href="/pilot-offres">Retour</a>
+            </div>
+
+            {% if error %}
+                <p class="empty-state" style="color:#b91c1c;">{{ error }}</p>
+            {% endif %}
+
+            {% if success %}
+                <p class="empty-state" style="color:#15803d;">{{ success }}</p>
+            {% endif %}
+
+            <form
+                method="POST"
+                action="{% if is_edit %}/pilot-offres/{{ offer.id }}/editer{% else %}/pilot-offre-create{% endif %}"
+                class="apply-form"
+                novalidate
+            >
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+
+                <label for="titre">Titre *</label>
+                <input id="titre" type="text" name="titre" value="{{ offer.titre }}" required maxlength="255">
+
+                <label for="entreprise_id">Entreprise *</label>
+                <select id="entreprise_id" name="entreprise_id" required>
+                    <option value="">Choisir une entreprise</option>
+                    {% for company in companies %}
+                        <option value="{{ company.id }}" {% if offer.entreprise_id == company.id %}selected{% endif %}>
+                            {{ company.nom }}
+                        </option>
+                    {% endfor %}
+                </select>
+
+                <label for="lieu">Lieu *</label>
+                <input id="lieu" type="text" name="lieu" value="{{ offer.lieu }}" required maxlength="150">
+
+                <label for="remuneration">Rémunération (€) *</label>
+                <input id="remuneration" type="number" name="remuneration" value="{{ offer.remuneration }}" min="0" step="0.01" required>
+
+                <label for="duree_semaines">Durée (semaines) *</label>
+                <input id="duree_semaines" type="number" name="duree_semaines" value="{{ offer.duree_semaines }}" min="1" step="1" required>
+
+                <label for="description">Description *</label>
+                <textarea id="description" name="description" required>{{ offer.description }}</textarea>
+
+                <button type="submit" class="cta-button">
+                    {% if is_edit %}
+                        Enregistrer les modifications
+                    {% else %}
+                        Créer l’offre
+                    {% endif %}
+                </button>
+            </form>
+        </section>
+    </div>
+</main>
+{% endblock %}

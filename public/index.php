@@ -35,6 +35,8 @@ use App\Controller\AdminPilotDeleteController;
 use App\Controller\AdminCompaniesController;
 use App\Controller\AdminCompanyFormController;
 use App\Controller\AdminCompanyDeleteController;
+use App\Controller\PilotOfferFormController;
+use App\Controller\PilotOfferDeleteController;
 
 $https = (
     (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
@@ -213,6 +215,20 @@ if (preg_match('#^/admin-entreprises/([0-9]+)/editer$#', $uri, $matches) && in_a
 
 if ($method === 'POST' && preg_match('#^/admin-entreprises/([0-9]+)/supprimer$#', $uri, $matches)) {
     (new AdminCompanyDeleteController())->delete((int) $matches[1]);
+    exit;
+}
+if ($uri === '/pilot-offre-create' && in_array($method, ['GET', 'POST'], true)) {
+    echo (new PilotOfferFormController($twig))->create();
+    exit;
+}
+
+if (preg_match('#^/pilot-offres/([0-9]+)/editer$#', $uri, $matches) && in_array($method, ['GET', 'POST'], true)) {
+    echo (new PilotOfferFormController($twig))->edit((int) $matches[1]);
+    exit;
+}
+
+if ($method === 'POST' && preg_match('#^/pilot-offres/([0-9]+)/supprimer$#', $uri, $matches)) {
+    (new PilotOfferDeleteController())->delete((int) $matches[1]);
     exit;
 }
 /*

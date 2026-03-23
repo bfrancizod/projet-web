@@ -14,11 +14,27 @@
                 <h2>Liste des étudiants</h2>
                 <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
                     <a href="/pilot-etudiant-create" class="student-button">Créer un étudiant</a>
-                    <a href="/espace-pilote">Retour au dashboard</a>
+
+                    {% if current_user.role == 'administrateur' %}
+                        <a href="/espace-admin">Retour au dashboard</a>
+                    {% else %}
+                        <a href="/espace-pilote">Retour au dashboard</a>
+                    {% endif %}
                 </div>
             </div>
 
             <form method="GET" action="/pilot-etudiants" class="apply-form" style="margin-bottom: 18px;">
+                <label for="q">Rechercher un étudiant</label>
+                <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom: 14px;">
+                    <input
+                        id="q"
+                        name="q"
+                        type="text"
+                        value="{{ search }}"
+                        placeholder="Nom, prénom ou email"
+                    >
+                </div>
+
                 <label for="promotion_id">Filtrer par promotion</label>
                 <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
                     <select id="promotion_id" name="promotion_id">

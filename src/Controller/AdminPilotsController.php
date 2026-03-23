@@ -25,7 +25,9 @@ class AdminPilotsController
 
         $pdo = Database::getConnection();
 
-        $stmt = $pdo->query("
+        $search = trim((string) ($_GET['q'] ?? ''));
+
+        $sql = "
             SELECT
                 id,
                 nom,
@@ -34,13 +36,32 @@ class AdminPilotsController
                 created_at
             FROM users
             WHERE role = 'pilote'
-            ORDER BY nom ASC, prenom ASC
-        ");
+        ";
 
+        $params = [];
+
+        if ($search !== '') {
+            $sql .= "
+                AND (
+                    nom LIKE :search
+                    OR prenom LIKE :search
+                    OR email LIKE :search
+                    OR CONCAT(prenom, ' ', nom) LIKE :search
+                    OR CONCAT(nom, ' ', prenom) LIKE :search
+                )
+            ";
+            $params['search'] = '%' . $search . '%';
+        }
+
+        $sql .= " ORDER BY nom ASC, prenom ASC ";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
         $pilots = $stmt->fetchAll();
 
         return $this->twig->render('admin-pilots.html.twig', [
             'pilots' => $pilots,
+            'search' => $search,
         ]);
     }
 }

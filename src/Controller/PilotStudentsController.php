@@ -32,6 +32,8 @@ class PilotStudentsController
             ? (int) $_GET['promotion_id']
             : null;
 
+        $search = trim((string) ($_GET['q'] ?? ''));
+
         $promotionsStmt = $pdo->query("
             SELECT id, label
             FROM promotions
@@ -63,6 +65,19 @@ class PilotStudentsController
             $params['promotion_id'] = $selectedPromotionId;
         }
 
+        if ($search !== '') {
+            $sql .= "
+                AND (
+                    u.nom LIKE :search
+                    OR u.prenom LIKE :search
+                    OR u.email LIKE :search
+                    OR CONCAT(u.prenom, ' ', u.nom) LIKE :search
+                    OR CONCAT(u.nom, ' ', u.prenom) LIKE :search
+                )
+            ";
+            $params['search'] = '%' . $search . '%';
+        }
+
         $sql .= " ORDER BY u.nom ASC, u.prenom ASC ";
 
         $stmt = $pdo->prepare($sql);
@@ -73,6 +88,7 @@ class PilotStudentsController
             'students' => $students,
             'promotions' => $promotions,
             'selected_promotion_id' => $selectedPromotionId,
+            'search' => $search,
         ]);
     }
 }

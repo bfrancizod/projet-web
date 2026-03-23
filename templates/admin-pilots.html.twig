@@ -18,6 +18,21 @@
                 </div>
             </div>
 
+            <form method="GET" action="/admin-pilotes" class="apply-form" style="margin-bottom: 18px;">
+                <label for="q">Rechercher un pilote</label>
+                <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                    <input
+                        id="q"
+                        name="q"
+                        type="text"
+                        value="{{ search }}"
+                        placeholder="Nom, prénom ou email"
+                    >
+                    <button type="submit" class="student-button">Rechercher</button>
+                    <a href="/admin-pilotes" class="student-button">Réinitialiser</a>
+                </div>
+            </form>
+
             <div class="student-list">
                 {% for pilot in pilots %}
                     <article class="student-row">

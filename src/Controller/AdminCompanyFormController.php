@@ -29,7 +29,10 @@ class AdminCompanyFormController
 
     private function handleForm(?int $companyId): string
     {
-        if (!isset($_SESSION['user']) || ($_SESSION['user']['role'] ?? null) !== 'administrateur') {
+        if (
+            !isset($_SESSION['user'])
+            || !in_array($_SESSION['user']['role'] ?? null, ['administrateur', 'pilote'], true)
+        ) {
             header('Location: /connexion');
             exit;
         }

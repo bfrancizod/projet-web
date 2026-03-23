@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller;
 
 use App\Database;
@@ -16,14 +18,14 @@ class PilotDashboardController
 
     public function index(): string
     {
-        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'pilote') {
+        if (!isset($_SESSION['user']) || ($_SESSION['user']['role'] ?? null) !== 'pilote') {
             header('Location: /connexion');
             exit;
         }
 
         $pdo = Database::getConnection();
 
-        $studentsWithoutInternship = (int) $pdo->query("
+        $studentsWithoutStage = (int) $pdo->query("
             SELECT COUNT(*)
             FROM student_profiles
             WHERE status = 'sans_stage'
@@ -39,13 +41,13 @@ class PilotDashboardController
             FROM candidatures
         ")->fetchColumn();
 
-        $validatedInternships = (int) $pdo->query("
+        $validatedStages = (int) $pdo->query("
             SELECT COUNT(*)
             FROM student_profiles
             WHERE status = 'stage_valide'
         ")->fetchColumn();
 
-        $stmt = $pdo->query("
+        $recentStudentsStmt = $pdo->query("
             SELECT
                 u.id,
                 u.nom,
@@ -53,25 +55,22 @@ class PilotDashboardController
                 u.email,
                 sp.formation,
                 sp.status,
-                sp.last_activity
+                sp.last_activity,
+                p.label AS promotion_label
             FROM users u
             INNER JOIN student_profiles sp ON sp.user_id = u.id
+            LEFT JOIN promotions p ON p.id = sp.promotion_id
             WHERE u.role = 'etudiant'
-            ORDER BY sp.last_activity DESC
-            LIMIT 4
+            ORDER BY sp.last_activity DESC, u.id DESC
+            LIMIT 5
         ");
-
-        $recentStudents = $stmt->fetchAll();
+        $recentStudents = $recentStudentsStmt->fetchAll();
 
         return $this->twig->render('pilot-dashboard.html.twig', [
-            'site_name' => 'Help Me Stage',
-            'user' => $_SESSION['user'],
-            'stats' => [
-                'sans_stage' => $studentsWithoutInternship,
-                'offres' => $offersCount,
-                'candidatures' => $applicationsCount,
-                'valides' => $validatedInternships,
-            ],
+            'students_without_stage' => $studentsWithoutStage,
+            'offers_count' => $offersCount,
+            'applications_count' => $applicationsCount,
+            'validated_stages' => $validatedStages,
             'recent_students' => $recentStudents,
         ]);
     }

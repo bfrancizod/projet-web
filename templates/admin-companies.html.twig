@@ -14,7 +14,12 @@
                 <h2>Gestion des entreprises</h2>
                 <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
                     <a href="/admin-entreprise-create" class="student-button">Créer une entreprise</a>
-                    <a href="/espace-admin">Retour au dashboard</a>
+
+                    {% if current_user.role == 'administrateur' %}
+                        <a href="/espace-admin">Retour au dashboard</a>
+                    {% else %}
+                        <a href="/espace-pilote">Retour au dashboard</a>
+                    {% endif %}
                 </div>
             </div>
 

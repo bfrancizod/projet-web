@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Espace pilote - Help Me Stage{% endblock %}
+{% block title %}Espace pilote{% endblock %}
 
 {% block stylesheets %}
     <link rel="stylesheet" href="/assets/css/pilot-dashboard.css">
@@ -9,66 +9,65 @@
 {% block body %}
 <main class="pilot-page">
     <div class="pilot-container">
-
         <div class="pilot-header">
-            <div>
-                <h1>Tableau de bord Pilote</h1>
-                <p>Vue d’ensemble de la promotion</p>
-            </div>
+            <h1>Tableau de bord Pilote</h1>
+            <p>Vue d’ensemble de la promotion</p>
         </div>
 
         <section class="stats-grid">
-            <article class="stat-card stat-red">
-                <div class="stat-icon">❗</div>
+            <article class="stat-card">
                 <div class="stat-content">
-                    <strong>{{ stats.sans_stage }}</strong>
+                    <strong>{{ students_without_stage }}</strong>
                     <span>Étudiants sans stage</span>
                 </div>
             </article>
 
-            <article class="stat-card stat-yellow">
-                <div class="stat-icon">💼</div>
+            <article class="stat-card">
                 <div class="stat-content">
-                    <strong>{{ stats.offres }}</strong>
+                    <strong>{{ offers_count }}</strong>
                     <span>Offres disponibles</span>
                 </div>
             </article>
 
-            <article class="stat-card stat-blue">
-                <div class="stat-icon">📄</div>
+            <article class="stat-card">
                 <div class="stat-content">
-                    <strong>{{ stats.candidatures }}</strong>
+                    <strong>{{ applications_count }}</strong>
                     <span>Candidatures envoyées</span>
                 </div>
             </article>
 
-            <article class="stat-card stat-green">
-                <div class="stat-icon">✅</div>
+            <article class="stat-card">
                 <div class="stat-content">
-                    <strong>{{ stats.valides }}</strong>
+                    <strong>{{ validated_stages }}</strong>
                     <span>Stages validés</span>
                 </div>
             </article>
         </section>
 
         <section class="quick-actions">
-            <a href="/pilot-etudiants" class="action-card">
-                <div class="action-icon">👥</div>
+            <article class="action-card">
                 <h3>Gérer les étudiants</h3>
                 <p>Consulter la liste complète et suivre leur progression</p>
-            </a>
+                <a href="/pilot-etudiants" class="student-button">Accéder</a>
+            </article>
 
-            <a href="/pilot-offres" class="action-card">
-                <div class="action-icon">💼</div>
+            <article class="action-card">
+                <h3>Gestion des entreprises</h3>
+                <p>Créer, modifier, évaluer, supprimer et consulter les entreprises.</p>
+                <a href="/admin-entreprises" class="student-button">Accéder</a>
+            </article>
+
+            <article class="action-card">
                 <h3>Voir les offres</h3>
                 <p>Parcourir toutes les offres de stage disponibles</p>
-            </a>
+                <a href="/pilot-offres" class="student-button">Accéder</a>
+            </article>
 
-            <a href="/pilot-candidatures" class="action-card">
-                <div class="action-icon">📋</div>
+            <article class="action-card">
                 <h3>Suivre les candidatures</h3>
                 <p>Voir toutes les candidatures de la promotion</p>
-            </a>
+                <a href="/pilot-candidatures" class="student-button">Accéder</a>
+            </article>
         </section>
 
         <section class="activity-section">
@@ -82,7 +81,17 @@
                     <article class="student-row">
                         <div class="student-main">
                             <h3>{{ student.prenom }} {{ student.nom }}</h3>
-                            <p>{{ student.formation }} • {{ student.email }}</p>
+                            <p>
+                                {% if student.promotion_label and student.formation and student.promotion_label != student.formation %}
+                                    {{ student.promotion_label }} • {{ student.formation }} • {{ student.email }}
+                                {% elseif student.promotion_label %}
+                                    {{ student.promotion_label }} • {{ student.email }}
+                                {% elseif student.formation %}
+                                    {{ student.formation }} • {{ student.email }}
+                                {% else %}
+                                    Promotion non définie • {{ student.email }}
+                                {% endif %}
+                            </p>
 
                             <div class="student-meta">
                                 {% if student.status == 'sans_stage' %}
@@ -99,12 +108,15 @@
                             </div>
                         </div>
 
-                        <a href="/pilot-etudiants" class="student-button">Voir le dossier</a>
+                        <div class="student-actions">
+                            <a href="/pilot-etudiants/{{ student.id }}" class="student-button">Voir le dossier</a>
+                        </div>
                     </article>
+                {% else %}
+                    <p class="empty-state">Aucun étudiant trouvé.</p>
                 {% endfor %}
             </div>
         </section>
-
     </div>
 </main>
 {% endblock %}

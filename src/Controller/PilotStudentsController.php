@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use App\Database;
 use Twig\Environment;
+use PDO;
 
 class PilotStudentsController
 {
@@ -34,6 +35,12 @@ class PilotStudentsController
 
         $search = trim((string) ($_GET['q'] ?? ''));
 
+        $currentPage = isset($_GET['page']) && ctype_digit((string) $_GET['page']) && (int) $_GET['page'] > 0
+            ? (int) $_GET['page']
+            : 1;
+
+        $perPage = 10;
+
         $promotionsStmt = $pdo->query("
             SELECT id, label
             FROM promotions
@@ -41,6 +48,46 @@ class PilotStudentsController
             ORDER BY label ASC
         ");
         $promotions = $promotionsStmt->fetchAll();
+
+        $countSql = "
+            SELECT COUNT(*)
+            FROM users u
+            INNER JOIN student_profiles sp ON sp.user_id = u.id
+            LEFT JOIN promotions p ON p.id = sp.promotion_id
+            WHERE u.role = 'etudiant'
+        ";
+
+        $countParams = [];
+
+        if ($selectedPromotionId !== null) {
+            $countSql .= " AND sp.promotion_id = :promotion_id ";
+            $countParams['promotion_id'] = $selectedPromotionId;
+        }
+
+        if ($search !== '') {
+            $countSql .= "
+                AND (
+                    u.nom LIKE :search
+                    OR u.prenom LIKE :search
+                    OR u.email LIKE :search
+                    OR CONCAT(u.prenom, ' ', u.nom) LIKE :search
+                    OR CONCAT(u.nom, ' ', u.prenom) LIKE :search
+                )
+            ";
+            $countParams['search'] = '%' . $search . '%';
+        }
+
+        $countStmt = $pdo->prepare($countSql);
+        $countStmt->execute($countParams);
+        $totalStudents = (int) $countStmt->fetchColumn();
+
+        $totalPages = max(1, (int) ceil($totalStudents / $perPage));
+
+        if ($currentPage > $totalPages) {
+            $currentPage = $totalPages;
+        }
+
+        $offset = ($currentPage - 1) * $perPage;
 
         $sql = "
             SELECT
@@ -78,10 +125,22 @@ class PilotStudentsController
             $params['search'] = '%' . $search . '%';
         }
 
-        $sql .= " ORDER BY u.nom ASC, u.prenom ASC ";
+        $sql .= " ORDER BY u.nom ASC, u.prenom ASC LIMIT :limit OFFSET :offset ";
 
         $stmt = $pdo->prepare($sql);
-        $stmt->execute($params);
+
+        if ($selectedPromotionId !== null) {
+            $stmt->bindValue(':promotion_id', $selectedPromotionId, PDO::PARAM_INT);
+        }
+
+        if ($search !== '') {
+            $stmt->bindValue(':search', '%' . $search . '%', PDO::PARAM_STR);
+        }
+
+        $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+
+        $stmt->execute();
         $students = $stmt->fetchAll();
 
         return $this->twig->render('pilot-students.html.twig', [
@@ -89,6 +148,8 @@ class PilotStudentsController
             'promotions' => $promotions,
             'selected_promotion_id' => $selectedPromotionId,
             'search' => $search,
+            'current_page' => $currentPage,
+            'total_pages' => $totalPages,
         ]);
     }
 }

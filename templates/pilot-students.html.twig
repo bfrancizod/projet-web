@@ -98,6 +98,43 @@
                     <p class="empty-state">Aucun étudiant trouvé.</p>
                 {% endfor %}
             </div>
+
+            {% if total_pages > 1 %}
+                <div style="display:flex; gap:8px; justify-content:center; align-items:center; flex-wrap:wrap; margin-top:24px;">
+                    {% if current_page > 1 %}
+                        <a
+                            href="/pilot-etudiants?page={{ current_page - 1 }}{% if selected_promotion_id %}&promotion_id={{ selected_promotion_id }}{% endif %}{% if search %}&q={{ search|url_encode }}{% endif %}"
+                            class="student-button"
+                        >
+                            Précédent
+                        </a>
+                    {% endif %}
+
+                    {% for page in 1..total_pages %}
+                        {% if page == current_page %}
+                            <span class="student-button" style="opacity:0.7; pointer-events:none;">
+                                {{ page }}
+                            </span>
+                        {% else %}
+                            <a
+                                href="/pilot-etudiants?page={{ page }}{% if selected_promotion_id %}&promotion_id={{ selected_promotion_id }}{% endif %}{% if search %}&q={{ search|url_encode }}{% endif %}"
+                                class="student-button"
+                            >
+                                {{ page }}
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if current_page < total_pages %}
+                        <a
+                            href="/pilot-etudiants?page={{ current_page + 1 }}{% if selected_promotion_id %}&promotion_id={{ selected_promotion_id }}{% endif %}{% if search %}&q={{ search|url_encode }}{% endif %}"
+                            class="student-button"
+                        >
+                            Suivant
+                        </a>
+                    {% endif %}
+                </div>
+            {% endif %}
         </div>
     </div>
 </main>

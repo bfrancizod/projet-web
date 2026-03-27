@@ -53,15 +53,29 @@ class OfferController
             $params['salary'] = (float) $selectedSalary;
         }
 
-        if ($selectedSkill !== '') {
-            $where[] = "EXISTS (
-                SELECT 1
-                FROM offre_competence oc
-                INNER JOIN competences c ON c.id = oc.competence_id
-                WHERE oc.offre_id = o.id
-                  AND c.nom LIKE :skill
-            )";
-            $params['skill'] = '%' . $selectedSkill . '%';
+        $skillTerms = array_values(array_filter(array_map(
+            static fn(string $skill): string => trim($skill),
+            explode(',', $selectedSkill)
+        )));
+
+        if (!empty($skillTerms)) {
+            $skillConditions = [];
+
+            foreach ($skillTerms as $index => $skillTerm) {
+                $paramName = 'skill_' . $index;
+
+                $skillConditions[] = "EXISTS (
+                    SELECT 1
+                    FROM offre_competence oc
+                    INNER JOIN competences c ON c.id = oc.competence_id
+                    WHERE oc.offre_id = o.id
+                      AND c.nom LIKE :$paramName
+                )";
+
+                $params[$paramName] = '%' . $skillTerm . '%';
+            }
+
+            $where[] = '(' . implode(' OR ', $skillConditions) . ')';
         }
 
         $whereSql = '';
@@ -91,6 +105,11 @@ class OfferController
         $countStmt->execute($params);
         $totalOffers = (int) $countStmt->fetchColumn();
         $totalPages = max(1, (int) ceil($totalOffers / $perPage));
+
+        if ($page > $totalPages) {
+            $page = $totalPages;
+            $offset = ($page - 1) * $perPage;
+        }
 
         $sql = "
             SELECT

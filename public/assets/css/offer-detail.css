@@ -228,3 +228,27 @@ color: #6b7280;
         padding: 20px;
     }
 }
+
+.detail-tags {
+    margin: 0 0 24px 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.offer-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: #e8d79c;
+    color: #3b3220;
+    font-size: 14px;
+    font-weight: 600;
+}

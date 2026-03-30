@@ -26,7 +26,22 @@
             <form method="GET" action="/admin-entreprises" class="apply-form" style="margin-bottom: 18px;">
                 <label for="q">Rechercher une entreprise</label>
                 <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-                    <input id="q" name="q" type="text" value="{{ search }}" placeholder="Nom, secteur, ville">
+                    <input
+                        id="q"
+                        name="q"
+                        type="text"
+                        value="{{ search }}"
+                        placeholder="Nom, secteur, ville"
+                        list="company-suggestions"
+                        autocomplete="off"
+                    >
+
+                    <datalist id="company-suggestions">
+                        {% for companyName in companyNames %}
+                            <option value="{{ companyName }}">
+                        {% endfor %}
+                    </datalist>
+
                     <button type="submit" class="student-button">Rechercher</button>
                     <a href="/admin-entreprises" class="student-button">Réinitialiser</a>
                 </div>

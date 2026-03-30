@@ -131,10 +131,10 @@ class PilotApplicationsController
         $sql .= "
             ORDER BY
                 CASE
-                    WHEN c.status = 'en_etude' THEN 1
-                    WHEN c.status = 'envoyee' THEN 2
-                    WHEN c.status = 'acceptee' THEN 3
-                    WHEN c.status = 'refusee' THEN 4
+                    WHEN c.status = 'envoyee' THEN 1
+                    WHEN c.status = 'acceptee' THEN 2
+                    WHEN c.status = 'refusee' THEN 3
+                    WHEN c.status = 'en_etude' THEN 4
                     ELSE 5
                 END,
                 c.created_at DESC

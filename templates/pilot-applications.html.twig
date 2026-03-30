@@ -77,24 +77,18 @@
                         </div>
 
                         <div class="student-actions student-actions-vertical">
-                            {% if application.status == 'envoyee' %}
-                                <span class="badge badge-blue">Envoyée</span>
-                            {% elseif application.status == 'en_etude' %}
-                                <span class="badge badge-yellow">En étude</span>
-                            {% elseif application.status == 'acceptee' %}
+                            {% if application.status == 'acceptee' %}
                                 <span class="badge badge-green">Acceptée</span>
                             {% elseif application.status == 'refusee' %}
                                 <span class="badge badge-red">Refusée</span>
                             {% else %}
-                                <span class="badge">{{ application.status }}</span>
+                                <span class="badge badge-yellow">En attente</span>
                             {% endif %}
 
                             <form method="POST" action="/pilot-candidature/{{ application.id }}/status" class="application-status-form">
                                 <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
 
                                 <select name="status" class="application-status-select">
-                                    <option value="envoyee" {% if application.status == 'envoyee' %}selected{% endif %}>Envoyée</option>
-                                    <option value="en_etude" {% if application.status == 'en_etude' %}selected{% endif %}>En étude</option>
                                     <option value="acceptee" {% if application.status == 'acceptee' %}selected{% endif %}>Acceptée</option>
                                     <option value="refusee" {% if application.status == 'refusee' %}selected{% endif %}>Refusée</option>
                                 </select>

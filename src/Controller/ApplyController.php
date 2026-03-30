@@ -46,17 +46,7 @@ class ApplyController
             return 'Offre introuvable.';
         }
 
-        $stmt = $pdo->prepare("
-            SELECT id
-            FROM candidatures
-            WHERE student_user_id = :user_id
-              AND offre_id = :offer_id
-            LIMIT 1
-        ");
-        $stmt->execute([
-            'user_id' => $userId,
-            'offer_id' => $offerId,
-        ]);
+        $userId = $_SESSION['user_id'];
 
         $alreadyApplied = (bool) $stmt->fetchColumn();
         $error = null;
@@ -72,29 +62,48 @@ class ApplyController
 
                 if ($lettreMotivation === '' || mb_strlen($lettreMotivation) < 20) {
                     $error = 'La lettre de motivation doit contenir au moins 20 caractères.';
-                } elseif ($cvFilename === '') {
-                    $error = 'Le nom du CV est requis.';
-                } elseif (mb_strlen($cvFilename) > 255) {
-                    $error = 'Nom de CV trop long.';
-                } elseif (!preg_match('/^[a-zA-Z0-9._-]+\.pdf$/', $cvFilename)) {
-                    $error = 'Le CV doit être un fichier PDF valide.';
-                } else {
-                    $stmt = $pdo->prepare("
-                        INSERT INTO candidatures (
-                            student_user_id,
-                            offre_id,
-                            status,
-                            lettre_motivation,
-                            cv_filename
-                        )
-                        VALUES (
-                            :user_id,
-                            :offer_id,
-                            'envoyee',
-                            :lettre_motivation,
-                            :cv_filename
-                        )
-                    ");
+              } elseif (empty($_FILES['cv_file']['name'])) {
+    $error = 'Veuillez sélectionner un fichier PDF pour votre CV.';
+} elseif ($_FILES['cv_file']['error'] !== UPLOAD_ERR_OK) {
+    $error = 'Une erreur est survenue lors du téléversement.';
+} elseif ($_FILES['cv_file']['size'] > 2 * 1024 * 1024) {
+    $error = 'Le fichier dépasse 2 Mo.';
+} else {
+    $originalName = basename($_FILES['cv_file']['name']);
+    $extension    = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+    $finfo        = new \finfo(FILEINFO_MIME_TYPE);
+    $mimeType     = $finfo->file($_FILES['cv_file']['tmp_name']);
+
+    if ($extension !== 'pdf' || $mimeType !== 'application/pdf') {
+        $error = 'Le CV doit être un fichier PDF valide.';
+    } else {
+        $safeName   = preg_replace('/[^a-zA-Z0-9._-]/', '-', pathinfo($originalName, PATHINFO_FILENAME));
+        $cvFilename = $safeName . '_' . uniqid() . '.pdf';
+
+        $uploadDir = dirname(__DIR__, 2) . '/public/uploads/cvs/';
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
+
+        if (!move_uploaded_file($_FILES['cv_file']['tmp_name'], $uploadDir . $cvFilename)) {
+            $error = 'Impossible de sauvegarder le fichier.';
+        } else {
+            $stmt = $pdo->prepare("
+                INSERT INTO candidatures (
+                    student_user_id,
+                    offre_id,
+                    status,
+                    lettre_motivation,
+                    cv_filename
+                )
+                VALUES (
+                    :user_id,
+                    :offer_id,
+                    'envoyee',
+                    :lettre_motivation,
+                    :cv_filename
+                )
+            ");
 
                     $stmt->execute([
                         'user_id' => $userId,

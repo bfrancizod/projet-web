@@ -10,6 +10,7 @@ use Twig\Environment;
 class PilotOffersController
 {
     private Environment $twig;
+    private const PER_PAGE = 10;
 
     public function __construct(Environment $twig)
     {
@@ -28,7 +29,24 @@ class PilotOffersController
 
         $pdo = Database::getConnection();
 
-        $stmt = $pdo->query("
+        $page = filter_input(INPUT_GET, 'page', FILTER_VALIDATE_INT);
+        $page = ($page !== false && $page !== null && $page > 0) ? $page : 1;
+
+        $countStmt = $pdo->query("
+            SELECT COUNT(*) 
+            FROM offres
+        ");
+        $totalOffers = (int) $countStmt->fetchColumn();
+
+        $totalPages = max(1, (int) ceil($totalOffers / self::PER_PAGE));
+
+        if ($page > $totalPages) {
+            $page = $totalPages;
+        }
+
+        $offset = ($page - 1) * self::PER_PAGE;
+
+        $stmt = $pdo->prepare("
             SELECT
                 o.id,
                 o.titre,
@@ -40,12 +58,20 @@ class PilotOffersController
             FROM offres o
             LEFT JOIN entreprises e ON e.id = o.entreprise_id
             ORDER BY o.created_at DESC, o.id DESC
+            LIMIT :limit OFFSET :offset
         ");
+
+        $stmt->bindValue(':limit', self::PER_PAGE, \PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, \PDO::PARAM_INT);
+        $stmt->execute();
 
         $offers = $stmt->fetchAll();
 
         return $this->twig->render('pilot-offers.html.twig', [
             'offers' => $offers,
+            'currentPage' => $page,
+            'totalPages' => $totalPages,
+            'totalOffers' => $totalOffers,
         ]);
     }
 }

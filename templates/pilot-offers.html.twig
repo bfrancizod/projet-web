@@ -22,6 +22,12 @@
                 </div>
             </div>
 
+            {% if totalOffers > 0 %}
+                <p style="margin-bottom: 15px;">
+                    {{ totalOffers }} offre{{ totalOffers > 1 ? 's' : '' }} au total — page {{ currentPage }} sur {{ totalPages }}
+                </p>
+            {% endif %}
+
             <div class="student-list">
                 {% for offer in offers %}
                     <article class="student-row">
@@ -47,6 +53,30 @@
                     <p class="empty-state">Aucune offre trouvée.</p>
                 {% endfor %}
             </div>
+
+            {% if totalPages > 1 %}
+                <nav style="margin-top: 25px; display: flex; justify-content: center; align-items: center; gap: 8px; flex-wrap: wrap;">
+                    {% if currentPage > 1 %}
+                        <a href="/pilot-offres?page={{ currentPage - 1 }}" class="student-button">Précédent</a>
+                    {% endif %}
+
+                    {% for pageNumber in 1..totalPages %}
+                        {% if pageNumber == currentPage %}
+                            <span class="student-button" style="pointer-events: none; opacity: 0.7;">
+                                {{ pageNumber }}
+                            </span>
+                        {% else %}
+                            <a href="/pilot-offres?page={{ pageNumber }}" class="student-button">
+                                {{ pageNumber }}
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if currentPage < totalPages %}
+                        <a href="/pilot-offres?page={{ currentPage + 1 }}" class="student-button">Suivant</a>
+                    {% endif %}
+                </nav>
+            {% endif %}
         </section>
     </div>
 </main>

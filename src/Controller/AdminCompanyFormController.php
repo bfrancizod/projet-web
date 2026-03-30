@@ -45,6 +45,7 @@ class AdminCompanyFormController
         $company = [
             'id' => null,
             'nom' => '',
+            'siret' => '',
             'secteur' => '',
             'ville' => '',
             'site_web' => '',
@@ -57,6 +58,7 @@ class AdminCompanyFormController
                 SELECT
                     id,
                     nom,
+                    siret,
                     secteur,
                     ville,
                     site_web,
@@ -81,6 +83,7 @@ class AdminCompanyFormController
             Csrf::requireValidToken($_POST['_csrf_token'] ?? null);
 
             $nom = trim((string) ($_POST['nom'] ?? ''));
+            $siret = preg_replace('/\D+/', '', (string) ($_POST['siret'] ?? ''));
             $secteur = trim((string) ($_POST['secteur'] ?? ''));
             $ville = trim((string) ($_POST['ville'] ?? ''));
             $siteWeb = trim((string) ($_POST['site_web'] ?? ''));
@@ -100,6 +103,7 @@ class AdminCompanyFormController
             }
 
             $company['nom'] = $nom;
+            $company['siret'] = $siret;
             $company['secteur'] = $secteur;
             $company['ville'] = $ville;
             $company['site_web'] = $siteWeb;
@@ -108,6 +112,10 @@ class AdminCompanyFormController
 
             if ($error === null && $nom === '') {
                 $error = 'Le nom de l’entreprise est obligatoire.';
+            }
+
+            if ($error === null && $siret !== '' && !preg_match('/^\d{14}$/', $siret)) {
+                $error = 'Le numéro de SIRET doit contenir exactement 14 chiffres.';
             }
 
             if ($error === null && $siteWeb !== '' && !filter_var($siteWeb, FILTER_VALIDATE_URL)) {
@@ -145,6 +153,7 @@ class AdminCompanyFormController
                             $stmt = $pdo->prepare("
                                 UPDATE entreprises
                                 SET nom = :nom,
+                                    siret = :siret,
                                     secteur = :secteur,
                                     ville = :ville,
                                     site_web = :site_web,
@@ -155,6 +164,7 @@ class AdminCompanyFormController
                             $stmt->execute([
                                 'id' => $companyId,
                                 'nom' => $nom,
+                                'siret' => $siret !== '' ? $siret : null,
                                 'secteur' => $secteur !== '' ? $secteur : null,
                                 'ville' => $ville !== '' ? $ville : null,
                                 'site_web' => $siteWeb !== '' ? $siteWeb : null,
@@ -167,6 +177,7 @@ class AdminCompanyFormController
                             $stmt = $pdo->prepare("
                                 INSERT INTO entreprises (
                                     nom,
+                                    siret,
                                     secteur,
                                     ville,
                                     site_web,
@@ -175,6 +186,7 @@ class AdminCompanyFormController
                                 )
                                 VALUES (
                                     :nom,
+                                    :siret,
                                     :secteur,
                                     :ville,
                                     :site_web,
@@ -184,6 +196,7 @@ class AdminCompanyFormController
                             ");
                             $stmt->execute([
                                 'nom' => $nom,
+                                'siret' => $siret !== '' ? $siret : null,
                                 'secteur' => $secteur !== '' ? $secteur : null,
                                 'ville' => $ville !== '' ? $ville : null,
                                 'site_web' => $siteWeb !== '' ? $siteWeb : null,
@@ -200,6 +213,7 @@ class AdminCompanyFormController
                             SELECT
                                 id,
                                 nom,
+                                siret,
                                 secteur,
                                 ville,
                                 site_web,

@@ -20,14 +20,11 @@
         <section class="offer-detail-card">
             <h1>{{ offer.titre }}</h1>
 
-            <p class="detail-company">{{ offer.entreprise_nom ?: 'Entreprise non définie' }}</p>
+            <p class="detail-company">
+                {{ offer.entreprise_nom ?: offer.entreprise ?: 'Entreprise non définie' }}
+            </p>
 
             <div class="detail-info-grid">
-                <div class="detail-info-item">
-                    <span class="detail-label">Rémunération</span>
-                    <strong>{{ offer.remuneration }} € / mois</strong>
-                </div>
-
                 <div class="detail-info-item">
                     <span class="detail-label">Lieu</span>
                     <strong>{{ offer.lieu ?: 'Non défini' }}</strong>
@@ -35,7 +32,12 @@
 
                 <div class="detail-info-item">
                     <span class="detail-label">Durée</span>
-                    <strong>{{ offer.duree_semaines }} semaines</strong>
+                    <strong>{{ offer.duree_semaines ?: 'Non définie' }} semaines</strong>
+                </div>
+
+                <div class="detail-info-item">
+                    <span class="detail-label">Rémunération</span>
+                    <strong>{{ offer.remuneration ?: 'Non définie' }} € / mois</strong>
                 </div>
 
                 <div class="detail-info-item">
@@ -44,14 +46,30 @@
                 </div>
             </div>
 
-            <h2>Description de l'offre</h2>
-            <p class="detail-description">{{ offer.description }}</p>
+            {% if skills is not empty %}
+                <h2>Compétences</h2>
+                <div class="offer-tags">
+                    {% for skill in skills %}
+                        <span class="tag">{{ skill.nom }}</span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <h2>Description</h2>
+            <p class="detail-description">
+                {{ offer.description ?: 'Aucune description renseignée.' }}
+            </p>
 
             <h2>Entreprise</h2>
             <div class="detail-info-grid">
                 <div class="detail-info-item">
                     <span class="detail-label">Nom</span>
-                    <strong>{{ offer.entreprise_nom ?: 'Non défini' }}</strong>
+                    <strong>{{ offer.entreprise_nom ?: offer.entreprise ?: 'Non défini' }}</strong>
+                </div>
+
+                <div class="detail-info-item">
+                    <span class="detail-label">SIRET</span>
+                    <strong>{{ offer.entreprise_siret ?: 'Non renseigné' }}</strong>
                 </div>
 
                 <div class="detail-info-item">
@@ -89,10 +107,10 @@
                 <p><strong>Commentaire :</strong> {{ offer.entreprise_commentaire }}</p>
             {% endif %}
 
-            {% if current_user and current_user.role == 'etudiant' %}
-                <div class="detail-actions">
+            <div class="detail-actions">
+                {% if current_user and current_user.role == 'etudiant' %}
                     {% if is_in_wishlist %}
-                        <form method="POST" action="/offres/{{ offer.id }}/wishlist/supprimer">
+                        <form method="POST" action="/offres/{{ offer.id }}/wishlist/supprimer" onsubmit="return confirm('Retirer cette offre de la wishlist ?');">
                             <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
                             <button type="submit" class="secondary-button">Retirer de ma wishlist</button>
                         </form>
@@ -102,19 +120,14 @@
                             <button type="submit" class="secondary-button">Ajouter à ma wishlist</button>
                         </form>
                     {% endif %}
-                </div>
-            {% endif %}
+                {% endif %}
 
-            <div class="detail-actions">
                 {% if current_user is null %}
                     <a href="/connexion" class="apply-button">Se connecter pour postuler</a>
-                    <p class="detail-note">Connexion requise pour postuler à cette offre</p>
                 {% elseif current_user.role != 'etudiant' %}
                     <button class="apply-button disabled-button" disabled>Postuler</button>
-                    <p class="detail-note">Seuls les étudiants peuvent postuler à cette offre</p>
                 {% else %}
                     <a href="/offres/{{ offer.id }}/postuler" class="apply-button">Postuler</a>
-                    <p class="detail-note">Votre candidature sera ajoutée à votre espace étudiant</p>
                 {% endif %}
             </div>
         </section>

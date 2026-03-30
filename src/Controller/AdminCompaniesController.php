@@ -34,6 +34,7 @@ class AdminCompaniesController
             SELECT
                 id,
                 nom,
+                siret,
                 secteur,
                 ville,
                 site_web,
@@ -49,6 +50,7 @@ class AdminCompaniesController
         if ($search !== '') {
             $sql .= " AND (
                 nom LIKE :search
+                OR siret LIKE :search
                 OR secteur LIKE :search
                 OR ville LIKE :search
             ) ";
@@ -61,21 +63,9 @@ class AdminCompaniesController
         $stmt->execute($params);
         $companies = $stmt->fetchAll();
 
-        // Récupération de tous les noms pour l'autocomplétion
-        $suggestionsStmt = $pdo->query("
-            SELECT nom
-            FROM entreprises
-            WHERE nom IS NOT NULL
-              AND nom <> ''
-            ORDER BY nom ASC
-        ");
-
-        $companyNames = $suggestionsStmt->fetchAll(\PDO::FETCH_COLUMN);
-
         return $this->twig->render('admin-companies.html.twig', [
-            'companies'    => $companies,
-            'search'       => $search,
-            'companyNames' => $companyNames,
+            'companies' => $companies,
+            'search' => $search,
         ]);
     }
 }

@@ -46,6 +46,9 @@
                 <label for="nom">Nom de l’entreprise *</label>
                 <input id="nom" type="text" name="nom" value="{{ company.nom }}" required maxlength="150">
 
+                <label for="siret">Numéro de SIRET</label>
+                <input id="siret" type="text" name="siret" value="{{ company.siret }}" maxlength="14" inputmode="numeric" placeholder="14 chiffres">
+
                 <label for="secteur">Secteur</label>
                 <input id="secteur" type="text" name="secteur" value="{{ company.secteur }}" maxlength="150">
 
@@ -53,13 +56,13 @@
                 <input id="ville" type="text" name="ville" value="{{ company.ville }}" maxlength="150">
 
                 <label for="site_web">Site web</label>
-                <input id="site_web" type="url" name="site_web" value="{{ company.site_web }}" maxlength="255">
+                <input id="site_web" type="url" name="site_web" value="{{ company.site_web }}" maxlength="255" placeholder="https://...">
 
-                <label for="note">Évaluation (sur 5)</label>
+                <label for="note">Note /5</label>
                 <input id="note" type="number" name="note" value="{{ company.note }}" min="0" max="5" step="0.1">
 
                 <label for="commentaire">Commentaire</label>
-                <textarea id="commentaire" name="commentaire">{{ company.commentaire }}</textarea>
+                <textarea id="commentaire" name="commentaire" rows="5" maxlength="2000">{{ company.commentaire }}</textarea>
 
                 <button type="submit" class="cta-button">
                     {% if is_edit %}

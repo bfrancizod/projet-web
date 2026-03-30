@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use App\Database;
 use Twig\Environment;
+use PDO;
 
 class OfferController
 {
@@ -20,12 +21,13 @@ class OfferController
     {
         $pdo = Database::getConnection();
 
-        $search = trim((string) ($_GET['search_query'] ?? ''));
-        $selectedSkill = trim((string) ($_GET['skills'] ?? ''));
-        $selectedLocation = trim((string) ($_GET['location'] ?? ''));
-        $selectedDuration = trim((string) ($_GET['duration'] ?? ''));
-        $selectedSalary = trim((string) ($_GET['salary'] ?? ''));
-        $selectedSort = trim((string) ($_GET['sort'] ?? 'recent'));
+        $searchQuery = trim((string) ($_GET['search_query'] ?? ''));
+        $skillsQuery = trim((string) ($_GET['skills'] ?? ''));
+        $locationQuery = trim((string) ($_GET['location'] ?? ''));
+        $durationQuery = trim((string) ($_GET['duration'] ?? ''));
+        $salaryQuery = trim((string) ($_GET['salary'] ?? ''));
+        $sortQuery = trim((string) ($_GET['sort'] ?? 'recent'));
+
         $page = max(1, (int) ($_GET['page'] ?? 1));
         $perPage = 6;
         $offset = ($page - 1) * $perPage;
@@ -33,129 +35,150 @@ class OfferController
         $where = [];
         $params = [];
 
-        if ($search !== '') {
-            $where[] = "(o.titre LIKE :search OR COALESCE(e.nom, o.entreprise) LIKE :search)";
-            $params['search'] = '%' . $search . '%';
+        if ($searchQuery !== '') {
+            $where[] = '(o.titre LIKE :search OR o.entreprise LIKE :search OR o.description LIKE :search)';
+            $params['search'] = '%' . $searchQuery . '%';
         }
 
-        if ($selectedLocation !== '') {
-            $where[] = "o.lieu LIKE :location";
-            $params['location'] = '%' . $selectedLocation . '%';
+        if ($locationQuery !== '') {
+            $where[] = 'o.lieu LIKE :location';
+            $params['location'] = '%' . $locationQuery . '%';
         }
 
-        if ($selectedDuration !== '') {
-            $where[] = "o.duree_semaines <= :duration";
-            $params['duration'] = (int) $selectedDuration;
-        }
-
-        if ($selectedSalary !== '') {
-            $where[] = "o.remuneration >= :salary";
-            $params['salary'] = (float) $selectedSalary;
-        }
-
-        $skillTerms = array_values(array_filter(array_map(
-            static fn(string $skill): string => trim($skill),
-            explode(',', $selectedSkill)
-        )));
-
-        if (!empty($skillTerms)) {
-            $skillConditions = [];
-
-            foreach ($skillTerms as $index => $skillTerm) {
-                $paramName = 'skill_' . $index;
-
-                $skillConditions[] = "EXISTS (
-                    SELECT 1
-                    FROM offre_competence oc
-                    INNER JOIN competences c ON c.id = oc.competence_id
-                    WHERE oc.offre_id = o.id
-                      AND c.nom LIKE :$paramName
-                )";
-
-                $params[$paramName] = '%' . $skillTerm . '%';
+        if ($durationQuery !== '') {
+            if (ctype_digit($durationQuery)) {
+                $where[] = 'o.duree_semaines <= :duration';
+                $params['duration'] = (int) $durationQuery;
             }
-
-            $where[] = '(' . implode(' OR ', $skillConditions) . ')';
         }
 
-        $whereSql = '';
-        if (!empty($where)) {
-            $whereSql = 'WHERE ' . implode(' AND ', $where);
+        if ($salaryQuery !== '') {
+            if (is_numeric($salaryQuery)) {
+                $where[] = 'o.remuneration >= :salary';
+                $params['salary'] = (float) $salaryQuery;
+            }
         }
 
-        $orderBy = "o.created_at DESC";
-        if ($selectedSort === 'salary_asc') {
-            $orderBy = "o.remuneration ASC";
-        } elseif ($selectedSort === 'salary_desc') {
-            $orderBy = "o.remuneration DESC";
-        } elseif ($selectedSort === 'duration_asc') {
-            $orderBy = "o.duree_semaines ASC";
-        } elseif ($selectedSort === 'duration_desc') {
-            $orderBy = "o.duree_semaines DESC";
+        if ($skillsQuery !== '') {
+            $skillWords = array_filter(array_map('trim', explode(',', $skillsQuery)));
+
+            if ($skillWords !== []) {
+                $skillConditions = [];
+                foreach ($skillWords as $index => $skillWord) {
+                    $paramName = 'skill_' . $index;
+                    $skillConditions[] = "EXISTS (
+                        SELECT 1
+                        FROM offre_competence oc_filter
+                        INNER JOIN competences c_filter ON c_filter.id = oc_filter.competence_id
+                        WHERE oc_filter.offre_id = o.id
+                          AND c_filter.nom LIKE :$paramName
+                    )";
+                    $params[$paramName] = '%' . $skillWord . '%';
+                }
+
+                $where[] = '(' . implode(' AND ', $skillConditions) . ')';
+            }
+        }
+
+        $whereSql = $where ? 'WHERE ' . implode(' AND ', $where) : '';
+
+        $orderBy = 'o.created_at DESC';
+        if ($sortQuery === 'salary_asc') {
+            $orderBy = 'o.remuneration ASC';
+        } elseif ($sortQuery === 'salary_desc') {
+            $orderBy = 'o.remuneration DESC';
+        } elseif ($sortQuery === 'duration_asc') {
+            $orderBy = 'o.duree_semaines ASC';
+        } elseif ($sortQuery === 'duration_desc') {
+            $orderBy = 'o.duree_semaines DESC';
         }
 
         $countSql = "
-            SELECT COUNT(*)
+            SELECT COUNT(DISTINCT o.id)
             FROM offres o
-            LEFT JOIN entreprises e ON e.id = o.entreprise_id
             $whereSql
         ";
 
         $countStmt = $pdo->prepare($countSql);
-        $countStmt->execute($params);
+        foreach ($params as $key => $value) {
+            if (is_int($value)) {
+                $countStmt->bindValue(':' . $key, $value, PDO::PARAM_INT);
+            } else {
+                $countStmt->bindValue(':' . $key, $value);
+            }
+        }
+        $countStmt->execute();
         $totalOffers = (int) $countStmt->fetchColumn();
         $totalPages = max(1, (int) ceil($totalOffers / $perPage));
-
-        if ($page > $totalPages) {
-            $page = $totalPages;
-            $offset = ($page - 1) * $perPage;
-        }
 
         $sql = "
             SELECT
                 o.id,
                 o.titre,
+                o.entreprise,
                 o.lieu,
                 o.duree_semaines,
                 o.remuneration,
                 o.description,
                 o.created_at,
-                o.entreprise_id,
-                COALESCE(e.nom, o.entreprise) AS entreprise_nom
+                GROUP_CONCAT(DISTINCT c.nom ORDER BY c.nom SEPARATOR '||') AS skills_concat
             FROM offres o
-            LEFT JOIN entreprises e ON e.id = o.entreprise_id
+            LEFT JOIN offre_competence oc ON oc.offre_id = o.id
+            LEFT JOIN competences c ON c.id = oc.competence_id
             $whereSql
+            GROUP BY
+                o.id,
+                o.titre,
+                o.entreprise,
+                o.lieu,
+                o.duree_semaines,
+                o.remuneration,
+                o.description,
+                o.created_at
             ORDER BY $orderBy
-            LIMIT $perPage OFFSET $offset
+            LIMIT :limit OFFSET :offset
         ";
 
         $stmt = $pdo->prepare($sql);
-        $stmt->execute($params);
+
+        foreach ($params as $key => $value) {
+            if (is_int($value)) {
+                $stmt->bindValue(':' . $key, $value, PDO::PARAM_INT);
+            } else {
+                $stmt->bindValue(':' . $key, $value);
+            }
+        }
+
+        $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+
+        $stmt->execute();
         $offers = $stmt->fetchAll();
 
-        $skillsStmt = $pdo->prepare("
-            SELECT c.nom
-            FROM offre_competence oc
-            INNER JOIN competences c ON c.id = oc.competence_id
-            WHERE oc.offre_id = :offre_id
-            ORDER BY c.nom ASC
-        ");
-
         foreach ($offers as &$offer) {
-            $skillsStmt->execute(['offre_id' => $offer['id']]);
-            $offer['skills'] = $skillsStmt->fetchAll();
+            $offer['skills'] = [];
+
+            if (!empty($offer['skills_concat'])) {
+                $skillNames = explode('||', (string) $offer['skills_concat']);
+                foreach ($skillNames as $skillName) {
+                    $skillName = trim($skillName);
+                    if ($skillName !== '') {
+                        $offer['skills'][] = ['nom' => $skillName];
+                    }
+                }
+            }
         }
         unset($offer);
 
         return $this->twig->render('offers.html.twig', [
             'offers' => $offers,
-            'search_query' => $search,
-            'selected_skill' => $selectedSkill,
-            'selected_location' => $selectedLocation,
-            'selected_duration' => $selectedDuration,
-            'selected_salary' => $selectedSalary,
-            'selected_sort' => $selectedSort,
-            'page' => $page,
+            'search_query' => $searchQuery,
+            'skills_query' => $skillsQuery,
+            'location_query' => $locationQuery,
+            'duration_query' => $durationQuery,
+            'salary_query' => $salaryQuery,
+            'sort_query' => $sortQuery,
+            'current_page' => $page,
             'total_pages' => $totalPages,
         ]);
     }

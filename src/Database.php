@@ -9,11 +9,11 @@ use PDOException;
 
 class Database
 {
-    private static ?PDO $instance = null; // création du singleton
+    private static ?PDO $instance = null;
 
     public static function getConnection(): PDO
     {
-        if (self::$instance === null) { //crée l'instance une seule fois
+        if (self::$instance === null) {
             try {
                 $host = $_ENV['DB_HOST'] ?? '';
                 $port = $_ENV['DB_PORT'] ?? '';
@@ -21,25 +21,29 @@ class Database
                 $user = $_ENV['DB_USER'] ?? '';
                 $pass = $_ENV['DB_PASS'] ?? '';
 
-                if (!$host || !$port || !$dbname || !$user || !$pass) {
-                    die('Erreur : variables .env manquantes');
+                if ($host === '' || $port === '' || $dbname === '' || $user === '' || $pass === '') {
+                    throw new PDOException('Variables de connexion BDD manquantes dans le fichier .env');
                 }
 
-                $dsn = "mysql:host={$host};port={$port};dbname={$dbname};charset=utf8mb4";
+                $dsn = sprintf(
+                    'mysql:host=%s;port=%s;dbname=%s;charset=utf8mb4',
+                    $host,
+                    $port,
+                    $dbname
+                );
 
-                $pdo = new PDO($dsn, $user, $pass);
+                $pdo = new PDO($dsn, $user, $pass, [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                    PDO::ATTR_EMULATE_PREPARES => false,
+                ]);
 
-                $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-                $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-
-                self::$instance = $pdo; // singleton
-
+                self::$instance = $pdo;
             } catch (PDOException $e) {
                 die('Erreur connexion DB : ' . $e->getMessage());
             }
-
         }
 
-        return self::$instance; // si l'instance existe déjà
+        return self::$instance;
     }
 }

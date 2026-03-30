@@ -10,10 +10,13 @@
 <main class="pilot-page">
     <div class="pilot-container">
         <section class="activity-section">
+
             <div class="activity-header">
                 <h2>Gestion des offres</h2>
+
                 <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
                     <a href="/pilot-offre-create" class="student-button">Créer une offre</a>
+
                     {% if current_user.role == 'administrateur' %}
                         <a href="/espace-admin">Retour au dashboard</a>
                     {% else %}
@@ -22,20 +25,56 @@
                 </div>
             </div>
 
+            {# 🔎 RECHERCHE AVEC AUTOCOMPLETE #}
+            <form method="GET" action="/pilot-offres" class="apply-form" style="margin-bottom: 18px;">
+                <label for="q">Rechercher une offre</label>
+
+                <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                    <input
+                        id="q"
+                        name="q"
+                        type="text"
+                        value="{{ search }}"
+                        placeholder="Titre, entreprise, lieu"
+                        list="offer-suggestions"
+                        autocomplete="off"
+                    >
+
+                    <datalist id="offer-suggestions">
+                        {% for offerSuggestion in offerSuggestions %}
+                            <option value="{{ offerSuggestion }}">
+                        {% endfor %}
+                    </datalist>
+
+                    <button type="submit" class="student-button">Rechercher</button>
+                    <a href="/pilot-offres" class="student-button">Réinitialiser</a>
+                </div>
+            </form>
+
+            {# 📊 INFOS PAGINATION #}
             {% if totalOffers > 0 %}
                 <p style="margin-bottom: 15px;">
-                    {{ totalOffers }} offre{{ totalOffers > 1 ? 's' : '' }} au total — page {{ currentPage }} sur {{ totalPages }}
+                    {{ totalOffers }} offre{{ totalOffers > 1 ? 's' : '' }}
+                    — page {{ currentPage }} sur {{ totalPages }}
                 </p>
             {% endif %}
 
+            {# 📋 LISTE DES OFFRES #}
             <div class="student-list">
                 {% for offer in offers %}
                     <article class="student-row">
                         <div class="student-main">
                             <h3>{{ offer.titre }}</h3>
-                            <p>{{ offer.entreprise_nom ?: 'Entreprise non définie' }} • {{ offer.lieu }}</p>
+
+                            <p>
+                                {{ offer.entreprise_nom ?: 'Entreprise non définie' }}
+                                • {{ offer.lieu }}
+                            </p>
+
                             <small>
-                                {{ offer.duree_semaines }} semaines • {{ offer.remuneration }} € • publiée le {{ offer.created_at|date('d/m/Y') }}
+                                {{ offer.duree_semaines }} semaines
+                                • {{ offer.remuneration }} €
+                                • publiée le {{ offer.created_at|date('d/m/Y') }}
                             </small>
                         </div>
 
@@ -43,7 +82,9 @@
                             <a href="/offres/{{ offer.id }}" class="student-button">Voir</a>
                             <a href="/pilot-offres/{{ offer.id }}/editer" class="student-button">Modifier</a>
 
-                            <form method="POST" action="/pilot-offres/{{ offer.id }}/supprimer" onsubmit="return confirm('Confirmer la suppression ?');">
+                            <form method="POST"
+                                  action="/pilot-offres/{{ offer.id }}/supprimer"
+                                  onsubmit="return confirm('Confirmer la suppression ?');">
                                 <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
                                 <button type="submit" class="student-button">Supprimer</button>
                             </form>
@@ -54,10 +95,15 @@
                 {% endfor %}
             </div>
 
+            {# 🔢 PAGINATION #}
             {% if totalPages > 1 %}
                 <nav style="margin-top: 25px; display: flex; justify-content: center; align-items: center; gap: 8px; flex-wrap: wrap;">
+
                     {% if currentPage > 1 %}
-                        <a href="/pilot-offres?page={{ currentPage - 1 }}" class="student-button">Précédent</a>
+                        <a href="/pilot-offres?page={{ currentPage - 1 }}{% if search %}&q={{ search|url_encode }}{% endif %}"
+                           class="student-button">
+                            Précédent
+                        </a>
                     {% endif %}
 
                     {% for pageNumber in 1..totalPages %}
@@ -66,17 +112,23 @@
                                 {{ pageNumber }}
                             </span>
                         {% else %}
-                            <a href="/pilot-offres?page={{ pageNumber }}" class="student-button">
+                            <a href="/pilot-offres?page={{ pageNumber }}{% if search %}&q={{ search|url_encode }}{% endif %}"
+                               class="student-button">
                                 {{ pageNumber }}
                             </a>
                         {% endif %}
                     {% endfor %}
 
                     {% if currentPage < totalPages %}
-                        <a href="/pilot-offres?page={{ currentPage + 1 }}" class="student-button">Suivant</a>
+                        <a href="/pilot-offres?page={{ currentPage + 1 }}{% if search %}&q={{ search|url_encode }}{% endif %}"
+                           class="student-button">
+                            Suivant
+                        </a>
                     {% endif %}
+
                 </nav>
             {% endif %}
+
         </section>
     </div>
 </main>

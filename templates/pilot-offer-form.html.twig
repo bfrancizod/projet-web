@@ -16,6 +16,7 @@
 <main class="student-page">
     <div class="student-container">
         <section class="student-section">
+
             <div class="student-section-header">
                 <h2>
                     {% if is_edit %}
@@ -43,31 +44,86 @@
             >
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
 
+                {# ---------- TITRE ---------- #}
                 <label for="titre">Titre *</label>
                 <input id="titre" type="text" name="titre" value="{{ offer.titre }}" required maxlength="255">
 
-                <label for="entreprise_id">Entreprise *</label>
-                <select id="entreprise_id" name="entreprise_id" required>
-                    <option value="">Choisir une entreprise</option>
+                {# ---------- ENTREPRISE ---------- #}
+                <label for="entreprise_nom">Entreprise *</label>
+                <input
+                    id="entreprise_nom"
+                    type="text"
+                    name="entreprise_nom"
+                    list="entreprises-list"
+                    value="{{ offer.entreprise_nom }}"
+                    placeholder="Rechercher une entreprise"
+                    required
+                    autocomplete="off"
+                >
+                <datalist id="entreprises-list">
                     {% for company in companies %}
-                        <option value="{{ company.id }}" {% if offer.entreprise_id == company.id %}selected{% endif %}>
-                            {{ company.nom }}
-                        </option>
+                        <option value="{{ company.nom }}"></option>
                     {% endfor %}
-                </select>
+                </datalist>
 
+                {# ---------- LIEU ---------- #}
                 <label for="lieu">Lieu *</label>
                 <input id="lieu" type="text" name="lieu" value="{{ offer.lieu }}" required maxlength="150">
 
+                {# ---------- REMUNERATION ---------- #}
                 <label for="remuneration">Rémunération (€) *</label>
                 <input id="remuneration" type="number" name="remuneration" value="{{ offer.remuneration }}" min="0" step="0.01" required>
 
+                {# ---------- DUREE ---------- #}
                 <label for="duree_semaines">Durée (semaines) *</label>
                 <input id="duree_semaines" type="number" name="duree_semaines" value="{{ offer.duree_semaines }}" min="1" step="1" required>
 
+                {# ---------- COMPETENCES ---------- #}
+                <div class="skills-box">
+
+                    <div class="skills-box-header">
+                        <h3 class="skills-box-title">Compétences</h3>
+                    </div>
+
+                    {# ===== CHECKBOXES ===== #}
+                    <label>Compétences existantes</label>
+                    <div style="border:1px solid #d1d5db; border-radius:10px; padding:12px; max-height:220px; overflow-y:auto; background:#fff;">
+
+                        {% for skill in skills %}
+                            <label style="display:flex; align-items:center; gap:8px; margin-bottom:8px; cursor:pointer;">
+                                <input
+                                    type="checkbox"
+                                    name="competence_ids[]"
+                                    value="{{ skill.id }}"
+                                    {% if skill.id in offer.competence_ids %}checked{% endif %}
+                                >
+                                <span>{{ skill.nom }}</span>
+                            </label>
+                        {% endfor %}
+
+                    </div>
+
+                    {# ===== NOUVELLE COMPETENCE ===== #}
+                    <label for="new_skill_names" style="margin-top:16px;">Nouvelle compétence</label>
+                    <input
+                        id="new_skill_names"
+                        type="text"
+                        name="new_skill_names[]"
+                        value="{% if offer.new_skill_names is not empty %}{{ offer.new_skill_names|join(', ') }}{% endif %}"
+                        placeholder="Ex : Docker, Kubernetes"
+                    >
+
+                    <p style="margin-top:8px; font-size:14px; color:#6b7280;">
+                        Vous pouvez saisir plusieurs compétences séparées par des virgules.
+                    </p>
+
+                </div>
+
+                {# ---------- DESCRIPTION ---------- #}
                 <label for="description">Description *</label>
                 <textarea id="description" name="description" required>{{ offer.description }}</textarea>
 
+                {# ---------- SUBMIT ---------- #}
                 <button type="submit" class="cta-button">
                     {% if is_edit %}
                         Enregistrer les modifications
@@ -75,6 +131,7 @@
                         Créer l’offre
                     {% endif %}
                 </button>
+
             </form>
         </section>
     </div>

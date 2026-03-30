@@ -46,7 +46,17 @@ class ApplyController
             return 'Offre introuvable.';
         }
 
-        $userId = $_SESSION['user_id'];
+        $stmt = $pdo->prepare("
+            SELECT id
+            FROM candidatures
+            WHERE student_user_id = :user_id
+              AND offre_id = :offer_id
+            LIMIT 1
+        ");
+        $stmt->execute([
+            'user_id' => $userId,
+            'offer_id' => $offerId,
+        ]);
 
         $alreadyApplied = (bool) $stmt->fetchColumn();
         $error = null;
@@ -58,62 +68,68 @@ class ApplyController
                 $error = 'Vous avez déjà postulé à cette offre.';
             } else {
                 $lettreMotivation = trim((string) ($_POST['lettre_motivation'] ?? ''));
-                $cvFilename = trim((string) ($_POST['cv_filename'] ?? ''));
 
                 if ($lettreMotivation === '' || mb_strlen($lettreMotivation) < 20) {
                     $error = 'La lettre de motivation doit contenir au moins 20 caractères.';
-              } elseif (empty($_FILES['cv_file']['name'])) {
-    $error = 'Veuillez sélectionner un fichier PDF pour votre CV.';
-} elseif ($_FILES['cv_file']['error'] !== UPLOAD_ERR_OK) {
-    $error = 'Une erreur est survenue lors du téléversement.';
-} elseif ($_FILES['cv_file']['size'] > 2 * 1024 * 1024) {
-    $error = 'Le fichier dépasse 2 Mo.';
-} else {
-    $originalName = basename($_FILES['cv_file']['name']);
-    $extension    = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
-    $finfo        = new \finfo(FILEINFO_MIME_TYPE);
-    $mimeType     = $finfo->file($_FILES['cv_file']['tmp_name']);
+                } elseif (!isset($_FILES['cv']) || $_FILES['cv']['error'] !== UPLOAD_ERR_OK) {
+                    $error = 'Erreur lors de l\'upload du CV.';
+                } else {
+                    $file = $_FILES['cv'];
 
-    if ($extension !== 'pdf' || $mimeType !== 'application/pdf') {
-        $error = 'Le CV doit être un fichier PDF valide.';
-    } else {
-        $safeName   = preg_replace('/[^a-zA-Z0-9._-]/', '-', pathinfo($originalName, PATHINFO_FILENAME));
-        $cvFilename = $safeName . '_' . uniqid() . '.pdf';
+                    // Vérif taille (2 Mo max)
+                    if ($file['size'] > 2 * 1024 * 1024) {
+                        $error = 'Le CV ne doit pas dépasser 2 Mo.';
+                    } else {
+                        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                        $mimeType = finfo_file($finfo, $file['tmp_name']);
+                        finfo_close($finfo);
 
-        $uploadDir = dirname(__DIR__, 2) . '/public/uploads/cvs/';
-        if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0755, true);
-        }
+                        if ($mimeType !== 'application/pdf') {
+                            $error = 'Le fichier doit être un PDF.';
+                        } else {
+                            // Création dossier si nécessaire
+                            $uploadDir = __DIR__ . '/../../public/uploads/cv/';
+                            if (!is_dir($uploadDir)) {
+                                mkdir($uploadDir, 0777, true);
+                            }
 
-        if (!move_uploaded_file($_FILES['cv_file']['tmp_name'], $uploadDir . $cvFilename)) {
-            $error = 'Impossible de sauvegarder le fichier.';
-        } else {
-            $stmt = $pdo->prepare("
-                INSERT INTO candidatures (
-                    student_user_id,
-                    offre_id,
-                    status,
-                    lettre_motivation,
-                    cv_filename
-                )
-                VALUES (
-                    :user_id,
-                    :offer_id,
-                    'envoyee',
-                    :lettre_motivation,
-                    :cv_filename
-                )
-            ");
+                            // Nom sécurisé
+                            $filename = uniqid('cv_', true) . '.pdf';
+                            $destination = $uploadDir . $filename;
 
-                    $stmt->execute([
-                        'user_id' => $userId,
-                        'offer_id' => $offerId,
-                        'lettre_motivation' => $lettreMotivation,
-                        'cv_filename' => $cvFilename,
-                    ]);
+                            if (move_uploaded_file($file['tmp_name'], $destination)) {
 
-                    header('Location: /espace-etudiant?success=application_sent');
-                    exit;
+                                $stmt = $pdo->prepare("
+                                    INSERT INTO candidatures (
+                                        student_user_id,
+                                        offre_id,
+                                        status,
+                                        lettre_motivation,
+                                        cv_filename
+                                    )
+                                    VALUES (
+                                        :user_id,
+                                        :offer_id,
+                                        'envoyee',
+                                        :lettre_motivation,
+                                        :cv_filename
+                                    )
+                                ");
+
+                                $stmt->execute([
+                                    'user_id' => $userId,
+                                    'offer_id' => $offerId,
+                                    'lettre_motivation' => $lettreMotivation,
+                                    'cv_filename' => $filename,
+                                ]);
+
+                                header('Location: /espace-etudiant?success=application_sent');
+                                exit;
+                            } else {
+                                $error = 'Impossible de sauvegarder le fichier.';
+                            }
+                        }
+                    }
                 }
             }
         }

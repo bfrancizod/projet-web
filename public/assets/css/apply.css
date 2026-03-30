@@ -135,3 +135,53 @@
         text-align: center;
     }
 }
+
+.cv-drop-zone {
+    position: relative;
+    border: 2px dashed #d1d5db;
+    border-radius: 12px;
+    padding: 32px 20px;
+    background: #f9fafb;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.cv-drop-zone input[type="file"] {
+    display: none;
+}
+
+.cv-drop-zone svg {
+    color: #9ca3af;
+    margin-bottom: 10px;
+}
+
+.cv-drop-zone p {
+    margin: 0 0 4px;
+    color: #4b5563;
+    font-weight: 500;
+}
+
+.cv-drop-zone p span {
+    color: #f59e0b;
+    text-decoration: underline;
+}
+
+.cv-drop-zone small {
+    color: #9ca3af;
+}
+
+.cv-drop-zone.dragging {
+    border-color: #f59e0b;
+    background: #fffbeb;
+}
+
+.cv-drop-zone.has-file {
+    border-style: solid;
+    border-color: #22c55e;
+    background: #f0fdf4;
+}
+
+.cv-drop-zone.has-file p {
+    color: #15803d;
+}

@@ -3,85 +3,51 @@
 {% block title %}Postuler - {{ offer.titre }}{% endblock %}
 
 {% block stylesheets %}
-    <link rel="stylesheet" href="/assets/css/apply.css">
+<link rel="stylesheet" href="/assets/css/apply.css">
 {% endblock %}
 
 {% block body %}
 <main class="apply-page">
     <div class="apply-container">
 
-        <nav class="breadcrumb">
-            <a href="/offres">Offres</a>
-            <span>/</span>
-            <a href="/offres/{{ offer.id }}">{{ offer.titre }}</a>
-            <span>/</span>
-            <span>Postuler</span>
-        </nav>
+        <h1>Postuler à cette offre</h1>
 
-        <section class="apply-card">
-            <h1>Postuler à cette offre</h1>
-            <p class="apply-subtitle">{{ offer.titre }} - {{ offer.entreprise }}</p>
+        {% if already_applied %}
+            <div class="apply-alert apply-alert-warning">
+                Vous avez déjà postulé à cette offre.
+            </div>
+        {% else %}
 
-            {% if already_applied %}
-                <div class="apply-alert apply-alert-warning">
-                    Vous avez déjà postulé à cette offre.
+            {% if error %}
+                <div class="apply-alert apply-alert-error">
+                    {{ error }}
                 </div>
+            {% endif %}
+
+            <form method="POST"
+                  action="/offres/{{ offer.id }}/postuler"
+                  enctype="multipart/form-data"
+                  class="apply-form">
+
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+
+                <label>Lettre de motivation *</label>
+                <textarea name="lettre_motivation" required minlength="20"></textarea>
+
+                <label>CV (PDF - max 2Mo) *</label>
+                <input type="file"
+                       name="cv"
+                       accept="application/pdf"
+                       required>
 
                 <div class="apply-actions-row">
-                    <a href="/espace-etudiant" class="cta-button">Voir mon espace étudiant</a>
-                    <a href="/offres/{{ offer.id }}" class="secondary-button">Retour à l'offre</a>
+                    <button type="submit" class="cta-button">
+                        Envoyer ma candidature
+                    </button>
                 </div>
-            {% else %}
-                {% if error %}
-                    <div class="apply-alert apply-alert-error">
-                        {{ error }}
-                    </div>
-                {% endif %}
 
-                <form method="POST" action="/offres/{{ offer.id }}/postuler" class="apply-form" novalidate>
-                    <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
-
-                    <label for="lettre_motivation">Lettre de motivation *</label>
-                    <textarea
-                        id="lettre_motivation"
-                        name="lettre_motivation"
-                        rows="10"
-                        placeholder="Expliquez pourquoi vous êtes le candidat idéal pour ce stage..."
-                        required
-                        minlength="20"
-                        maxlength="5000"
-                    ></textarea>
-
-                    <small class="field-help">
-                        Personnalisez votre message pour cette offre.
-                    </small>
-
-                    <label for="cv_filename">Nom de votre CV (PDF) *</label>
-                    <input
-                        id="cv_filename"
-                        name="cv_filename"
-                        type="text"
-                        placeholder="Ex: cv-alice-dupont.pdf"
-                        required
-                        maxlength="255"
-                    >
-
-                    <div class="apply-note">
-                        <strong>Note :</strong> Assurez-vous que votre CV est à jour et que votre lettre de motivation est personnalisée pour cette offre.
-                    </div>
-
-                    <div class="apply-actions-row">
-                        <button type="submit" class="cta-button">
-                            Envoyer ma candidature
-                        </button>
-
-                        <a href="/offres/{{ offer.id }}" class="secondary-button">
-                            Annuler
-                        </a>
-                    </div>
-                </form>
-            {% endif %}
-        </section>
+            </form>
+        {% endif %}
     </div>
 </main>
 {% endblock %}

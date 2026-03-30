@@ -87,39 +87,44 @@ $twig = new Environment($loader, [
 |--------------------------------------------------------------------------
 */
 $showCookieBanner = true;
-$cookieConsentToken = $_COOKIE['cookie_consent_token'] ?? null;
 
-if (is_string($cookieConsentToken) && $cookieConsentToken !== '') {
-    try {
-        $pdo = Database::getConnection();
+if (!empty($_SESSION['cookie_consent_set']) || (($_COOKIE['cookie_consent_status'] ?? '') === '1')) {
+    $showCookieBanner = false;
+} else {
+    $cookieConsentToken = $_COOKIE['cookie_consent_token'] ?? null;
 
-        $stmt = $pdo->prepare("
-            SELECT id, analytics, marketing
-            FROM cookie_consents
-            WHERE consent_token = :consent_token
-            LIMIT 1
-        ");
-        $stmt->execute(['consent_token' => $cookieConsentToken]);
-        $cookieConsent = $stmt->fetch();
+    if (is_string($cookieConsentToken) && $cookieConsentToken !== '') {
+        try {
+            $pdo = Database::getConnection();
 
-        if ($cookieConsent) {
-            $showCookieBanner = false;
+            $stmt = $pdo->prepare("
+                SELECT id, analytics, marketing
+                FROM cookie_consents
+                WHERE consent_token = :consent_token
+                LIMIT 1
+            ");
+            $stmt->execute(['consent_token' => $cookieConsentToken]);
+            $cookieConsent = $stmt->fetch();
 
-            if (isset($_SESSION['user']['id'])) {
-                $stmt = $pdo->prepare("
-                    UPDATE cookie_consents
-                    SET user_id = :user_id
-                    WHERE consent_token = :consent_token
-                      AND (user_id IS NULL OR user_id != :user_id)
-                ");
-                $stmt->execute([
-                    'user_id' => (int) $_SESSION['user']['id'],
-                    'consent_token' => $cookieConsentToken,
-                ]);
+            if ($cookieConsent) {
+                $showCookieBanner = false;
+
+                if (isset($_SESSION['user']['id'])) {
+                    $stmt = $pdo->prepare("
+                        UPDATE cookie_consents
+                        SET user_id = :user_id
+                        WHERE consent_token = :consent_token
+                          AND (user_id IS NULL OR user_id != :user_id)
+                    ");
+                    $stmt->execute([
+                        'user_id' => (int) $_SESSION['user']['id'],
+                        'consent_token' => $cookieConsentToken,
+                    ]);
+                }
             }
+        } catch (\Throwable $e) {
+            $showCookieBanner = true;
         }
-    } catch (\Throwable $e) {
-        $showCookieBanner = true;
     }
 }
 

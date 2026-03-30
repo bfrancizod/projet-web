@@ -51,6 +51,14 @@ class CookieConsentController
             'samesite' => 'Lax',
         ]);
 
+        setcookie('cookie_consent_status', '1', [
+            'expires' => time() + (365 * 24 * 60 * 60),
+            'path' => '/',
+            'secure' => $https,
+            'httponly' => false,
+            'samesite' => 'Lax',
+        ]);
+
         $pdo = Database::getConnection();
 
         $stmt = $pdo->prepare("

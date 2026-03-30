@@ -54,9 +54,6 @@
 
                 <fieldset style="border:1px solid #d6d3d1; border-radius:12px; padding:16px; margin:16px 0;">
                     <legend style="padding:0 8px; font-weight:700;">Promotions rattachées *</legend>
-                    <p style="margin:0 0 12px 0; color:#57534e;">
-                        Coche une ou plusieurs promotions pour ce pilote.
-                    </p>
 
                     <div style="display:grid; gap:10px;">
                         {% for promotion in promotions %}
@@ -67,7 +64,7 @@
                                     value="{{ promotion.id }}"
                                     {% if promotion.id in pilot.promotion_ids %}checked{% endif %}
                                 >
-                                <span>{{ promotion.label }}</span>
+                                <span>{{ promotion.label }} — {{ promotion.academic_year }}</span>
                             </label>
                         {% else %}
                             <p class="empty-state">Aucune promotion active disponible.</p>

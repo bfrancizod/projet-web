@@ -5,6 +5,9 @@ declare(strict_types=1);
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 
+use App\Database;
+use App\Security\Csrf;
+
 use App\Controller\ApplyController;
 use App\Controller\AuthController;
 use App\Controller\ContactController;
@@ -17,6 +20,8 @@ use App\Controller\PilotApplicationActionController;
 use App\Controller\PilotApplicationsController;
 use App\Controller\PilotDashboardController;
 use App\Controller\PilotOffersController;
+use App\Controller\PilotOfferFormController;
+use App\Controller\PilotOfferDeleteController;
 use App\Controller\PilotStudentDeleteController;
 use App\Controller\PilotStudentDetailController;
 use App\Controller\PilotStudentFormController;
@@ -26,8 +31,7 @@ use App\Controller\StudentApplicationsController;
 use App\Controller\StudentDashboardController;
 use App\Controller\StudentWishlistController;
 use App\Controller\WishlistController;
-use App\Database;
-use App\Security\Csrf;
+
 use App\Controller\AdminDashboardController;
 use App\Controller\AdminPilotsController;
 use App\Controller\AdminPilotFormController;
@@ -35,8 +39,9 @@ use App\Controller\AdminPilotDeleteController;
 use App\Controller\AdminCompaniesController;
 use App\Controller\AdminCompanyFormController;
 use App\Controller\AdminCompanyDeleteController;
-use App\Controller\PilotOfferFormController;
-use App\Controller\PilotOfferDeleteController;
+use App\Controller\AdminPromotionsController;
+use App\Controller\AdminPromotionFormController;
+use App\Controller\AdminPromotionDeleteController;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -63,8 +68,6 @@ if (!isset($_SESSION['_initiated'])) {
     session_regenerate_id(true);
     $_SESSION['_initiated'] = time();
 }
-
-require_once __DIR__ . '/../vendor/autoload.php';
 
 header('X-Frame-Options: SAMEORIGIN');
 header('X-Content-Type-Options: nosniff');
@@ -171,7 +174,7 @@ if ($method === 'GET' && preg_match('#^/pilot-etudiants/([0-9]+)$#', $uri, $matc
 
 // Suppression étudiant côté pilote
 if ($method === 'POST' && preg_match('#^/pilot-etudiants/([0-9]+)/supprimer$#', $uri, $matches)) {
-    (new PilotStudentDeleteController($twig))->delete((int) $matches[1]);
+    (new PilotStudentDeleteController())->delete((int) $matches[1]);
     exit;
 }
 
@@ -193,6 +196,7 @@ if ($uri === '/cookies/consent' && $method === 'POST') {
     exit;
 }
 
+// Admin pilotes
 if ($uri === '/admin-pilote-create' && in_array($method, ['GET', 'POST'], true)) {
     echo (new AdminPilotFormController($twig))->create();
     exit;
@@ -208,6 +212,7 @@ if ($method === 'POST' && preg_match('#^/admin-pilotes/([0-9]+)/supprimer$#', $u
     exit;
 }
 
+// Admin entreprises
 if ($uri === '/admin-entreprise-create' && in_array($method, ['GET', 'POST'], true)) {
     echo (new AdminCompanyFormController($twig))->create();
     exit;
@@ -222,6 +227,8 @@ if ($method === 'POST' && preg_match('#^/admin-entreprises/([0-9]+)/supprimer$#'
     (new AdminCompanyDeleteController())->delete((int) $matches[1]);
     exit;
 }
+
+// Offres
 if ($uri === '/pilot-offre-create' && in_array($method, ['GET', 'POST'], true)) {
     echo (new PilotOfferFormController($twig))->create();
     exit;
@@ -236,6 +243,23 @@ if ($method === 'POST' && preg_match('#^/pilot-offres/([0-9]+)/supprimer$#', $ur
     (new PilotOfferDeleteController())->delete((int) $matches[1]);
     exit;
 }
+
+// Admin promotions
+if ($uri === '/admin-promotion-create' && in_array($method, ['GET', 'POST'], true)) {
+    echo (new AdminPromotionFormController($twig))->create();
+    exit;
+}
+
+if (preg_match('#^/admin-promotions/([0-9]+)/editer$#', $uri, $matches) && in_array($method, ['GET', 'POST'], true)) {
+    echo (new AdminPromotionFormController($twig))->edit((int) $matches[1]);
+    exit;
+}
+
+if ($method === 'POST' && preg_match('#^/admin-promotions/([0-9]+)/supprimer$#', $uri, $matches)) {
+    (new AdminPromotionDeleteController())->delete((int) $matches[1]);
+    exit;
+}
+
 /*
 |--------------------------------------------------------------------------
 | Routes statiques
@@ -298,7 +322,7 @@ switch ($uri) {
     case '/politique-confidentialite':
         echo (new PrivacyController($twig))->index();
         exit;
-        
+
     case '/espace-admin':
         echo (new AdminDashboardController($twig))->index();
         exit;
@@ -307,13 +331,24 @@ switch ($uri) {
         echo (new AdminPilotsController($twig))->index();
         exit;
 
+    case '/admin-promotions':
+        echo (new AdminPromotionsController($twig))->index();
+        exit;
+
     case '/admin-entreprises':
         echo (new AdminCompaniesController($twig))->index();
+        exit;
+
+    case '/admin-offres':
+        echo (new PilotOffersController($twig))->index();
+        exit;
+
+    case '/admin-etudiants':
+        echo (new PilotStudentsController($twig))->index();
         exit;
 
     default:
         http_response_code(404);
         echo 'Page non trouvée';
         exit;
-
 }

@@ -1,113 +1,94 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Espace administrateur{% endblock %}
+{% block title %}Tableau de bord Administrateur{% endblock %}
 
 {% block stylesheets %}
-    <link rel="stylesheet" href="/assets/css/pilot-dashboard.css">
+    <link rel="stylesheet" href="/assets/css/admin-dashboard.css">
 {% endblock %}
 
 {% block body %}
-<main class="pilot-page">
-    <div class="pilot-container">
-        <div class="pilot-header">
-            <h1>Tableau de bord Administrateur</h1>
-            <p>Vue globale de la plateforme</p>
-        </div>
+<main class="admin-dashboard-page">
+    <h1 class="admin-dashboard-title">Tableau de bord Administrateur</h1>
+    <p class="admin-dashboard-subtitle">Vue globale de la plateforme</p>
 
-        <section class="stats-grid">
-            <article class="stat-card">
-                <div class="stat-content">
-                    <strong>{{ stats.offers }}</strong>
-                    <span>Offres</span>
-                </div>
-            </article>
+    <section class="admin-stats-grid">
+        <article class="admin-stat-card">
+            <strong>{{ offers_count }}</strong>
+            <span>Offres</span>
+        </article>
 
-            <article class="stat-card">
-                <div class="stat-content">
-                    <strong>{{ stats.students }}</strong>
-                    <span>Étudiants</span>
-                </div>
-            </article>
+        <article class="admin-stat-card">
+            <strong>{{ students_count }}</strong>
+            <span>Étudiants</span>
+        </article>
 
-            <article class="stat-card">
-                <div class="stat-content">
-                    <strong>{{ stats.pilots }}</strong>
-                    <span>Pilotes</span>
-                </div>
-            </article>
+        <article class="admin-stat-card">
+            <strong>{{ pilots_count }}</strong>
+            <span>Pilotes</span>
+        </article>
 
-            <article class="stat-card">
-                <div class="stat-content">
-                    <strong>{{ stats.applications }}</strong>
-                    <span>Candidatures</span>
-                </div>
-            </article>
-        </section>
+        <article class="admin-stat-card">
+            <strong>{{ applications_count }}</strong>
+            <span>Candidatures</span>
+        </article>
+    </section>
 
-        <section class="quick-actions">
-            <article class="action-card">
-                <h3>Gestion des entreprises</h3>
+    <section class="admin-actions-grid">
+        <article class="admin-action-card">
+            <div>
+                <h2>Gestion des entreprises</h2>
                 <p>Créer, modifier, évaluer, supprimer et consulter les entreprises.</p>
-                <a href="/admin-entreprises" class="student-button">Accéder</a>
-            </article>
+            </div>
+            <a href="/admin-entreprises" class="admin-action-button">Accéder</a>
+        </article>
 
-            <article class="action-card">
-                <h3>Gestion des pilotes</h3>
+        <article class="admin-action-card">
+            <div>
+                <h2>Gestion des pilotes</h2>
                 <p>Créer, modifier, supprimer et consulter les comptes pilotes.</p>
-                <a href="/admin-pilotes" class="student-button">Accéder</a>
-            </article>
+            </div>
+            <a href="/admin-pilotes" class="admin-action-button">Accéder</a>
+        </article>
 
-            <article class="action-card">
-                <h3>Gestion des étudiants</h3>
+        <article class="admin-action-card">
+            <div>
+                <h2>Gestion des étudiants</h2>
                 <p>Créer, modifier, supprimer et consulter les comptes étudiants.</p>
-                <a href="/pilot-etudiants" class="student-button">Accéder</a>
-            </article>
+            </div>
+            <a href="/admin-etudiants" class="admin-action-button">Accéder</a>
+        </article>
 
-            <article class="action-card">
-                <h3>Gestion des offres</h3>
+        <article class="admin-action-card">
+            <div>
+                <h2>Gestion des offres</h2>
                 <p>Accéder aux offres et aux candidatures.</p>
-                <a href="/pilot-offres" class="student-button">Accéder</a>
-            </article>
-        </section>
-
-        <section class="activity-section">
-            <div class="activity-header">
-                <h2>Étudiants récents</h2>
             </div>
+            <a href="/admin-offres" class="admin-action-button">Accéder</a>
+        </article>
 
-            <div class="student-list">
-                {% for student in recent_students %}
-                    <article class="student-row">
-                        <div class="student-main">
-                            <h3>{{ student.prenom }} {{ student.nom }}</h3>
-                            <p>{{ student.formation }} • {{ student.email }}</p>
-                            <small>Dernière activité : {{ student.last_activity|date('d/m/Y') }}</small>
-                        </div>
-                    </article>
-                {% else %}
-                    <p class="empty-state">Aucun étudiant trouvé.</p>
-                {% endfor %}
+        <article class="admin-action-card">
+            <div>
+                <h2>Gestion des promotions</h2>
+                <p>Créer, modifier, supprimer et gérer les promotions par année.</p>
             </div>
-        </section>
+            <a href="/admin-promotions" class="admin-action-button">Accéder</a>
+        </article>
+    </section>
 
-        <section class="activity-section">
-            <div class="activity-header">
-                <h2>Pilotes récents</h2>
-            </div>
+    <section class="admin-recent-section">
+        <h2>Étudiants récents</h2>
 
-            <div class="student-list">
-                {% for pilot in recent_pilots %}
-                    <article class="student-row">
-                        <div class="student-main">
-                            <h3>{{ pilot.prenom }} {{ pilot.nom }}</h3>
-                            <p>{{ pilot.email }}</p>
-                        </div>
-                    </article>
-                {% else %}
-                    <p class="empty-state">Aucun pilote trouvé.</p>
-                {% endfor %}
-            </div>
-        </section>
-    </div>
+        <div class="admin-student-list">
+            {% for student in recent_students %}
+                <article class="admin-student-row">
+                    <h3>{{ student.prenom }} {{ student.nom }}</h3>
+                    <p>{{ student.formation }} • {{ student.email }}</p>
+                    <small>Dernière activité : {{ student.last_activity|date('d/m/Y') }}</small>
+                </article>
+            {% else %}
+                <p class="admin-empty">Aucun étudiant récent.</p>
+            {% endfor %}
+        </div>
+    </section>
 </main>
 {% endblock %}

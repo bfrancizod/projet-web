@@ -13,12 +13,12 @@ final class PilotPromotionAccess
      */
     public static function getAssignedPromotionIds(PDO $pdo, int $pilotId): array
     {
-        $stmt = $pdo->prepare('
+        $stmt = $pdo->prepare("
             SELECT promotion_id
             FROM pilot_promotions
             WHERE pilot_user_id = :pilot_user_id
             ORDER BY promotion_id ASC
-        ');
+        ");
         $stmt->execute([
             'pilot_user_id' => $pilotId,
         ]);
@@ -41,11 +41,10 @@ final class PilotPromotionAccess
         $placeholders = implode(',', array_fill(0, count($promotionIds), '?'));
 
         $stmt = $pdo->prepare("
-            SELECT id, label
+            SELECT id, label, academic_year, is_active
             FROM promotions
             WHERE id IN ($placeholders)
-              AND is_active = 1
-            ORDER BY label ASC
+            ORDER BY academic_year DESC, label ASC
         ");
 
         foreach (array_values($promotionIds) as $index => $promotionId) {
@@ -59,14 +58,14 @@ final class PilotPromotionAccess
 
     public static function pilotCanAccessStudent(PDO $pdo, int $pilotId, int $studentId): bool
     {
-        $stmt = $pdo->prepare('
+        $stmt = $pdo->prepare("
             SELECT 1
             FROM student_profiles sp
             INNER JOIN pilot_promotions pp ON pp.promotion_id = sp.promotion_id
             WHERE sp.user_id = :student_id
               AND pp.pilot_user_id = :pilot_user_id
             LIMIT 1
-        ');
+        ");
         $stmt->execute([
             'student_id' => $studentId,
             'pilot_user_id' => $pilotId,

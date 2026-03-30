@@ -25,17 +25,10 @@ class AdminDashboardController
 
         $pdo = Database::getConnection();
 
-        $stats = [
-            'offers' => 0,
-            'students' => 0,
-            'pilots' => 0,
-            'applications' => 0,
-        ];
-
-        $stats['offers'] = (int) $pdo->query("SELECT COUNT(*) FROM offres")->fetchColumn();
-        $stats['students'] = (int) $pdo->query("SELECT COUNT(*) FROM users WHERE role = 'etudiant'")->fetchColumn();
-        $stats['pilots'] = (int) $pdo->query("SELECT COUNT(*) FROM users WHERE role = 'pilote'")->fetchColumn();
-        $stats['applications'] = (int) $pdo->query("SELECT COUNT(*) FROM candidatures")->fetchColumn();
+        $offersCount = (int) $pdo->query("SELECT COUNT(*) FROM offres")->fetchColumn();
+        $studentsCount = (int) $pdo->query("SELECT COUNT(*) FROM users WHERE role = 'etudiant'")->fetchColumn();
+        $pilotsCount = (int) $pdo->query("SELECT COUNT(*) FROM users WHERE role = 'pilote'")->fetchColumn();
+        $applicationsCount = (int) $pdo->query("SELECT COUNT(*) FROM candidatures")->fetchColumn();
 
         $recentStudentsStmt = $pdo->query("
             SELECT
@@ -44,7 +37,6 @@ class AdminDashboardController
                 u.prenom,
                 u.email,
                 sp.formation,
-                sp.status,
                 sp.last_activity
             FROM users u
             INNER JOIN student_profiles sp ON sp.user_id = u.id
@@ -52,26 +44,13 @@ class AdminDashboardController
             ORDER BY sp.last_activity DESC, u.id DESC
             LIMIT 5
         ");
-        $recentStudents = $recentStudentsStmt->fetchAll();
-
-        $recentPilotsStmt = $pdo->query("
-            SELECT
-                id,
-                nom,
-                prenom,
-                email,
-                created_at
-            FROM users
-            WHERE role = 'pilote'
-            ORDER BY id DESC
-            LIMIT 5
-        ");
-        $recentPilots = $recentPilotsStmt->fetchAll();
 
         return $this->twig->render('admin-dashboard.html.twig', [
-            'stats' => $stats,
-            'recent_students' => $recentStudents,
-            'recent_pilots' => $recentPilots,
+            'offers_count' => $offersCount,
+            'students_count' => $studentsCount,
+            'pilots_count' => $pilotsCount,
+            'applications_count' => $applicationsCount,
+            'recent_students' => $recentStudentsStmt->fetchAll(),
         ]);
     }
 }

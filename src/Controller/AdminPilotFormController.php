@@ -41,10 +41,10 @@ class AdminPilotFormController
         $success = null;
 
         $promotionsStmt = $pdo->query("
-            SELECT id, label
+            SELECT id, label, academic_year
             FROM promotions
             WHERE is_active = 1
-            ORDER BY label ASC
+            ORDER BY academic_year DESC, label ASC
         ");
         $promotions = $promotionsStmt->fetchAll();
         $availablePromotionIds = array_map(static fn(array $promotion): int => (int) $promotion['id'], $promotions);

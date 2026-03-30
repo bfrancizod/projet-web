@@ -56,10 +56,9 @@ class PilotStudentsController
             $promotions = PilotPromotionAccess::getPromotionsByIds($pdo, $allowedPromotionIds);
         } else {
             $promotionsStmt = $pdo->query("
-                SELECT id, label
+                SELECT id, label, academic_year
                 FROM promotions
-                WHERE is_active = 1
-                ORDER BY label ASC
+                ORDER BY academic_year DESC, label ASC
             ");
             $promotions = $promotionsStmt->fetchAll();
         }
@@ -68,7 +67,6 @@ class PilotStudentsController
             SELECT COUNT(*)
             FROM users u
             INNER JOIN student_profiles sp ON sp.user_id = u.id
-            LEFT JOIN promotions p ON p.id = sp.promotion_id
             WHERE u.role = 'etudiant'
         ";
 
@@ -99,8 +97,6 @@ class PilotStudentsController
                     u.nom LIKE :search
                     OR u.prenom LIKE :search
                     OR u.email LIKE :search
-                    OR CONCAT(u.prenom, ' ', u.nom) LIKE :search
-                    OR CONCAT(u.nom, ' ', u.prenom) LIKE :search
                 )
             ";
             $countParams['search'] = '%' . $search . '%';
@@ -126,7 +122,8 @@ class PilotStudentsController
                 sp.formation,
                 sp.status,
                 sp.last_activity,
-                p.label AS promotion_label
+                p.label AS promotion_label,
+                p.academic_year
             FROM users u
             INNER JOIN student_profiles sp ON sp.user_id = u.id
             LEFT JOIN promotions p ON p.id = sp.promotion_id
@@ -160,14 +157,12 @@ class PilotStudentsController
                     u.nom LIKE :search
                     OR u.prenom LIKE :search
                     OR u.email LIKE :search
-                    OR CONCAT(u.prenom, ' ', u.nom) LIKE :search
-                    OR CONCAT(u.nom, ' ', u.prenom) LIKE :search
                 )
             ";
             $params['search'] = '%' . $search . '%';
         }
 
-        $sql .= " ORDER BY u.nom ASC, u.prenom ASC LIMIT :limit OFFSET :offset";
+        $sql .= " ORDER BY p.academic_year DESC, p.label ASC, u.nom ASC, u.prenom ASC LIMIT :limit OFFSET :offset";
 
         $stmt = $pdo->prepare($sql);
 

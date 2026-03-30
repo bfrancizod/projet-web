@@ -1,0 +1,56 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+    {% if is_edit %}Modifier la promotion{% else %}Créer une promotion{% endif %}
+{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="/assets/css/student-dashboard.css">
+{% endblock %}
+
+{% block body %}
+<main class="student-page">
+    <div class="student-container">
+        <section class="student-section">
+            <div class="student-section-header">
+                <h2>
+                    {% if is_edit %}Modifier la promotion{% else %}Créer une promotion{% endif %}
+                </h2>
+                <a href="/admin-promotions">Retour</a>
+            </div>
+
+            {% if error %}
+                <p class="empty-state" style="color:#b91c1c;">{{ error }}</p>
+            {% endif %}
+
+            {% if success %}
+                <p class="empty-state" style="color:#15803d;">{{ success }}</p>
+            {% endif %}
+
+            <form
+                method="POST"
+                action="{% if is_edit %}/admin-promotions/{{ promotion.id }}/editer{% else %}/admin-promotion-create{% endif %}"
+                class="apply-form"
+                novalidate
+            >
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+
+                <label for="label">Nom de la promotion *</label>
+                <input id="label" type="text" name="label" value="{{ promotion.label }}" required maxlength="150">
+
+                <label for="academic_year">Année *</label>
+                <input id="academic_year" type="text" name="academic_year" value="{{ promotion.academic_year }}" placeholder="2025-2026" required maxlength="20">
+
+                <label style="display:flex; gap:10px; align-items:center; margin-top:12px;">
+                    <input type="checkbox" name="is_active" value="1" {% if promotion.is_active %}checked{% endif %}>
+                    <span>Promotion active</span>
+                </label>
+
+                <button type="submit" class="cta-button">
+                    {% if is_edit %}Enregistrer les modifications{% else %}Créer la promotion{% endif %}
+                </button>
+            </form>
+        </section>
+    </div>
+</main>
+{% endblock %}

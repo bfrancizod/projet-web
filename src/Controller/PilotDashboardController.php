@@ -80,7 +80,8 @@ class PilotDashboardController
                 sp.formation,
                 sp.status,
                 sp.last_activity,
-                p.label AS promotion_label
+                p.label AS promotion_label,
+                p.academic_year
             FROM users u
             INNER JOIN student_profiles sp ON sp.user_id = u.id
             LEFT JOIN promotions p ON p.id = sp.promotion_id

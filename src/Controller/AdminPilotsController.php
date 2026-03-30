@@ -33,7 +33,14 @@ class AdminPilotsController
                 u.prenom,
                 u.email,
                 u.created_at,
-                COALESCE(GROUP_CONCAT(DISTINCT p.label ORDER BY p.label SEPARATOR ', '), '') AS promotions_labels
+                COALESCE(
+                    GROUP_CONCAT(
+                        DISTINCT CONCAT(p.label, ' (', p.academic_year, ')')
+                        ORDER BY p.academic_year DESC, p.label ASC
+                        SEPARATOR ', '
+                    ),
+                    ''
+                ) AS promotions_labels
             FROM users u
             LEFT JOIN pilot_promotions pp ON pp.pilot_user_id = u.id
             LEFT JOIN promotions p ON p.id = pp.promotion_id
@@ -48,8 +55,6 @@ class AdminPilotsController
                     u.nom LIKE :search
                     OR u.prenom LIKE :search
                     OR u.email LIKE :search
-                    OR CONCAT(u.prenom, ' ', u.nom) LIKE :search
-                    OR CONCAT(u.nom, ' ', u.prenom) LIKE :search
                 )
             ";
             $params['search'] = '%' . $search . '%';
@@ -62,10 +67,9 @@ class AdminPilotsController
 
         $stmt = $pdo->prepare($sql);
         $stmt->execute($params);
-        $pilots = $stmt->fetchAll();
 
         return $this->twig->render('admin-pilots.html.twig', [
-            'pilots' => $pilots,
+            'pilots' => $stmt->fetchAll(),
             'search' => $search,
         ]);
     }

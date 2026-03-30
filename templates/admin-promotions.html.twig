@@ -1,0 +1,49 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des promotions{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="/assets/css/admin-dashboard.css">
+{% endblock %}
+
+{% block body %}
+<main class="admin-dashboard-page">
+    <h1 class="admin-dashboard-title">Gestion des promotions</h1>
+    <p class="admin-dashboard-subtitle">Créer, modifier et supprimer les promotions.</p>
+
+    <section class="admin-actions-grid" style="grid-template-columns: 1fr;">
+        <article class="admin-action-card">
+            <div>
+                <h2>Créer une promotion</h2>
+                <p>Ajoute une nouvelle promotion et associe-la à une année académique.</p>
+            </div>
+            <a href="/admin-promotion-create" class="admin-action-button">Créer</a>
+        </article>
+    </section>
+
+    <section class="admin-recent-section">
+        <h2>Liste des promotions</h2>
+
+        <div class="admin-student-list">
+            {% for promotion in promotions %}
+                <article class="admin-student-row">
+                    <h3>{{ promotion.label }}</h3>
+                    <p>Année : {{ promotion.academic_year }} • Statut : {{ promotion.is_active ? 'Active' : 'Inactive' }}</p>
+                    <p>Étudiants : {{ promotion.students_count }} • Pilotes : {{ promotion.pilots_count }}</p>
+
+                    <div style="margin-top: 12px; display: flex; gap: 10px; flex-wrap: wrap;">
+                        <a href="/admin-promotions/{{ promotion.id }}/editer" class="admin-action-button">Modifier</a>
+
+                        <form method="POST" action="/admin-promotions/{{ promotion.id }}/supprimer" onsubmit="return confirm('Confirmer la suppression ?');">
+                            <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+                            <button type="submit" class="admin-action-button" style="border:0; cursor:pointer;">Supprimer</button>
+                        </form>
+                    </div>
+                </article>
+            {% else %}
+                <p class="admin-empty">Aucune promotion trouvée.</p>
+            {% endfor %}
+        </div>
+    </section>
+</main>
+{% endblock %}

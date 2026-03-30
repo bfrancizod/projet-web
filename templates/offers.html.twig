@@ -30,7 +30,7 @@
                         id="skills"
                         type="text"
                         name="skills"
-                        value="{{ selected_skill }}"
+                        value="{{ skills_query }}"
                         placeholder="Ex: React, Python, JS (séparées par des virgules)"
                     >
                 </div>
@@ -41,7 +41,7 @@
                         id="location"
                         type="text"
                         name="location"
-                        value="{{ selected_location }}"
+                        value="{{ location_query }}"
                         placeholder="Ex: Paris, Lyon"
                     >
                 </div>
@@ -50,10 +50,10 @@
                     <label for="duration">Durée maximum</label>
                     <select id="duration" name="duration">
                         <option value="">Toutes les durées</option>
-                        <option value="8" {% if selected_duration == '8' %}selected{% endif %}>8 semaines max</option>
-                        <option value="10" {% if selected_duration == '10' %}selected{% endif %}>10 semaines max</option>
-                        <option value="12" {% if selected_duration == '12' %}selected{% endif %}>12 semaines max</option>
-                        <option value="16" {% if selected_duration == '16' %}selected{% endif %}>16 semaines max</option>
+                        <option value="8" {% if duration_query == '8' %}selected{% endif %}>8 semaines max</option>
+                        <option value="10" {% if duration_query == '10' %}selected{% endif %}>10 semaines max</option>
+                        <option value="12" {% if duration_query == '12' %}selected{% endif %}>12 semaines max</option>
+                        <option value="16" {% if duration_query == '16' %}selected{% endif %}>16 semaines max</option>
                     </select>
                 </div>
 
@@ -61,21 +61,21 @@
                     <label for="salary">Rémunération minimum</label>
                     <select id="salary" name="salary">
                         <option value="">Toutes les rémunérations</option>
-                        <option value="500" {% if selected_salary == '500' %}selected{% endif %}>500 €</option>
-                        <option value="600" {% if selected_salary == '600' %}selected{% endif %}>600 €</option>
-                        <option value="700" {% if selected_salary == '700' %}selected{% endif %}>700 €</option>
-                        <option value="800" {% if selected_salary == '800' %}selected{% endif %}>800 €</option>
+                        <option value="500" {% if salary_query == '500' %}selected{% endif %}>500 €</option>
+                        <option value="600" {% if salary_query == '600' %}selected{% endif %}>600 €</option>
+                        <option value="700" {% if salary_query == '700' %}selected{% endif %}>700 €</option>
+                        <option value="800" {% if salary_query == '800' %}selected{% endif %}>800 €</option>
                     </select>
                 </div>
 
                 <div>
                     <label for="sort">Trier par</label>
                     <select id="sort" name="sort">
-                        <option value="recent" {% if selected_sort == 'recent' %}selected{% endif %}>Plus récentes</option>
-                        <option value="salary_asc" {% if selected_sort == 'salary_asc' %}selected{% endif %}>Salaire croissant</option>
-                        <option value="salary_desc" {% if selected_sort == 'salary_desc' %}selected{% endif %}>Salaire décroissant</option>
-                        <option value="duration_asc" {% if selected_sort == 'duration_asc' %}selected{% endif %}>Durée croissante</option>
-                        <option value="duration_desc" {% if selected_sort == 'duration_desc' %}selected{% endif %}>Durée décroissante</option>
+                        <option value="recent" {% if sort_query == 'recent' %}selected{% endif %}>Plus récentes</option>
+                        <option value="salary_asc" {% if sort_query == 'salary_asc' %}selected{% endif %}>Salaire croissant</option>
+                        <option value="salary_desc" {% if sort_query == 'salary_desc' %}selected{% endif %}>Salaire décroissant</option>
+                        <option value="duration_asc" {% if sort_query == 'duration_asc' %}selected{% endif %}>Durée croissante</option>
+                        <option value="duration_desc" {% if sort_query == 'duration_desc' %}selected{% endif %}>Durée décroissante</option>
                     </select>
                 </div>
 
@@ -116,8 +116,8 @@
                 <div class="pagination">
                     {% for p in 1..total_pages %}
                         <a
-                            class="page {% if p == page %}active{% endif %}"
-                            href="/offres?page={{ p }}&search_query={{ search_query|url_encode }}&skills={{ selected_skill|url_encode }}&location={{ selected_location|url_encode }}&duration={{ selected_duration|url_encode }}&salary={{ selected_salary|url_encode }}&sort={{ selected_sort|url_encode }}"
+                            class="page {% if p == current_page %}active{% endif %}"
+                            href="/offres?page={{ p }}&search_query={{ search_query|url_encode }}&skills={{ skills_query|url_encode }}&location={{ location_query|url_encode }}&duration={{ duration_query|url_encode }}&salary={{ salary_query|url_encode }}&sort={{ sort_query|url_encode }}"
                         >
                             {{ p }}
                         </a>

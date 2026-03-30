@@ -36,8 +36,16 @@ class OfferController
         $params = [];
 
         if ($searchQuery !== '') {
-            $where[] = '(o.titre LIKE :search OR o.entreprise LIKE :search OR o.description LIKE :search)';
-            $params['search'] = '%' . $searchQuery . '%';
+            $where[] = '(
+                o.titre LIKE :search_title
+                OR o.entreprise LIKE :search_company
+                OR o.description LIKE :search_description
+            )';
+
+            $searchValue = '%' . $searchQuery . '%';
+            $params['search_title'] = $searchValue;
+            $params['search_company'] = $searchValue;
+            $params['search_description'] = $searchValue;
         }
 
         if ($locationQuery !== '') {
@@ -45,18 +53,14 @@ class OfferController
             $params['location'] = '%' . $locationQuery . '%';
         }
 
-        if ($durationQuery !== '') {
-            if (ctype_digit($durationQuery)) {
-                $where[] = 'o.duree_semaines <= :duration';
-                $params['duration'] = (int) $durationQuery;
-            }
+        if ($durationQuery !== '' && ctype_digit($durationQuery)) {
+            $where[] = 'o.duree_semaines <= :duration';
+            $params['duration'] = (int) $durationQuery;
         }
 
-        if ($salaryQuery !== '') {
-            if (is_numeric($salaryQuery)) {
-                $where[] = 'o.remuneration >= :salary';
-                $params['salary'] = (float) $salaryQuery;
-            }
+        if ($salaryQuery !== '' && is_numeric($salaryQuery)) {
+            $where[] = 'o.remuneration >= :salary';
+            $params['salary'] = (float) $salaryQuery;
         }
 
         if ($skillsQuery !== '') {
@@ -64,6 +68,7 @@ class OfferController
 
             if ($skillWords !== []) {
                 $skillConditions = [];
+
                 foreach ($skillWords as $index => $skillWord) {
                     $paramName = 'skill_' . $index;
                     $skillConditions[] = "EXISTS (
@@ -108,8 +113,14 @@ class OfferController
             }
         }
         $countStmt->execute();
+
         $totalOffers = (int) $countStmt->fetchColumn();
         $totalPages = max(1, (int) ceil($totalOffers / $perPage));
+
+        if ($page > $totalPages) {
+            $page = $totalPages;
+            $offset = ($page - 1) * $perPage;
+        }
 
         $sql = "
             SELECT
@@ -121,6 +132,7 @@ class OfferController
                 o.remuneration,
                 o.description,
                 o.created_at,
+                COALESCE(o.entreprise, 'Entreprise non définie') AS entreprise_nom,
                 GROUP_CONCAT(DISTINCT c.nom ORDER BY c.nom SEPARATOR '||') AS skills_concat
             FROM offres o
             LEFT JOIN offre_competence oc ON oc.offre_id = o.id
@@ -153,7 +165,7 @@ class OfferController
         $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
 
         $stmt->execute();
-        $offers = $stmt->fetchAll();
+        $offers = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         foreach ($offers as &$offer) {
             $offer['skills'] = [];

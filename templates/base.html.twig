@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}Help Me Stage{% endblock %}</title>
@@ -9,11 +8,6 @@
     <link rel="stylesheet" href="/assets/css/base.css">
     {% block stylesheets %}{% endblock %}
 </head>
-
-{% block javascripts %}{% endblock %}
-</body>
-</html>
-
 <body>
 
 <header class="site-header">
@@ -44,8 +38,6 @@
 
     <nav class="mobile-menu" id="mobile-menu">
         {% if current_user %}
-            <a href="#">{{ current_user.email }}</a>
-
             {% if current_user.role == 'administrateur' %}
                 <a href="/espace-admin">Mon espace administrateur</a>
                 <a href="/admin-entreprises">Gestion des entreprises</a>
@@ -63,7 +55,7 @@
                 <a href="/etudiant-candidatures">Mes candidatures</a>
                 <a href="/etudiant-wishlist">Ma wishlist</a>
             {% endif %}
-            
+
             <a href="/offres">Voir les offres</a>
             <a href="/logout">Déconnexion</a>
         {% else %}
@@ -156,6 +148,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 </script>
+
+{% block javascripts %}{% endblock %}
 
 </body>
 </html>

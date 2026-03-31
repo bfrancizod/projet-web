@@ -28,9 +28,7 @@ use App\Controller\WishlistController;
 
 use App\Controller\AdminCompanyController;
 use App\Controller\AdminDashboardController;
-use App\Controller\AdminPilotsController;
-use App\Controller\AdminPilotFormController;
-use App\Controller\AdminPilotDeleteController;
+use App\Controller\AdminPilotController;
 use App\Controller\AdminPromotionsController;
 use App\Controller\AdminPromotionFormController;
 use App\Controller\AdminPromotionDeleteController;
@@ -73,11 +71,6 @@ $twig = new Environment($loader, [
     'autoescape' => 'html',
 ]);
 
-/*
-|--------------------------------------------------------------------------
-| Gestion du bandeau cookies
-|--------------------------------------------------------------------------
-*/
 $showCookieBanner = true;
 
 if (!empty($_SESSION['cookie_consent_set']) || (($_COOKIE['cookie_consent_status'] ?? '') === '1')) {
@@ -126,12 +119,6 @@ $twig->addGlobal('show_cookie_banner', $showCookieBanner);
 
 $uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
-
-/*
-|--------------------------------------------------------------------------
-| Routes dynamiques
-|--------------------------------------------------------------------------
-*/
 
 // Détail offre
 if ($method === 'GET' && preg_match('#^/offres/([0-9]+)$#', $uri, $matches)) {
@@ -195,17 +182,17 @@ if ($uri === '/cookies/consent' && $method === 'POST') {
 
 // Admin pilotes
 if ($uri === '/admin-pilote-create' && in_array($method, ['GET', 'POST'], true)) {
-    echo (new AdminPilotFormController($twig))->create();
+    echo (new AdminPilotController($twig))->create();
     exit;
 }
 
 if (preg_match('#^/admin-pilotes/([0-9]+)/editer$#', $uri, $matches) && in_array($method, ['GET', 'POST'], true)) {
-    echo (new AdminPilotFormController($twig))->edit((int) $matches[1]);
+    echo (new AdminPilotController($twig))->edit((int) $matches[1]);
     exit;
 }
 
 if ($method === 'POST' && preg_match('#^/admin-pilotes/([0-9]+)/supprimer$#', $uri, $matches)) {
-    (new AdminPilotDeleteController())->delete((int) $matches[1]);
+    (new AdminPilotController($twig))->delete((int) $matches[1]);
     exit;
 }
 
@@ -256,12 +243,6 @@ if ($method === 'POST' && preg_match('#^/admin-promotions/([0-9]+)/supprimer$#',
     (new AdminPromotionDeleteController())->delete((int) $matches[1]);
     exit;
 }
-
-/*
-|--------------------------------------------------------------------------
-| Routes statiques
-|--------------------------------------------------------------------------
-*/
 
 switch ($uri) {
     case '/':
@@ -325,7 +306,7 @@ switch ($uri) {
         exit;
 
     case '/admin-pilotes':
-        echo (new AdminPilotsController($twig))->index();
+        echo (new AdminPilotController($twig))->index();
         exit;
 
     case '/admin-promotions':

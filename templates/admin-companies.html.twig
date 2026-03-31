@@ -4,6 +4,7 @@
 
 {% block stylesheets %}
     <link rel="stylesheet" href="/assets/css/pilot-dashboard.css">
+    <link rel="stylesheet" href="/assets/css/star-rating.css">
 {% endblock %}
 
 {% block body %}
@@ -26,7 +27,22 @@
             <form method="GET" action="/admin-entreprises" class="apply-form" style="margin-bottom: 18px;">
                 <label for="q">Rechercher une entreprise</label>
                 <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-                    <input id="q" name="q" type="text" value="{{ search }}" placeholder="Nom, SIRET, secteur, ville">
+                    <input
+                        id="q"
+                        name="q"
+                        type="text"
+                        value="{{ search }}"
+                        placeholder="Nom, secteur, ville"
+                        list="company-suggestions"
+                        autocomplete="off"
+                    >
+
+                    <datalist id="company-suggestions">
+                        {% for companyName in companyNames %}
+                            <option value="{{ companyName }}">
+                        {% endfor %}
+                    </datalist>
+
                     <button type="submit" class="student-button">Rechercher</button>
                     <a href="/admin-entreprises" class="student-button">Réinitialiser</a>
                 </div>
@@ -43,22 +59,25 @@
                             </p>
 
                             <div class="student-meta">
+                                {# ===== AFFICHAGE DES ETOILES EN LECTURE SEULE ===== #}
                                 {% if company.note is not null %}
-                                    <span class="badge badge-blue">Note : {{ company.note }}/5</span>
+                                    <span class="stars-display">
+                                        {% set note_int = company.note|round(0, 'floor') %}
+                                        {% for i in 1..5 %}
+                                            <span class="star-icon {% if i <= note_int %}star-filled{% else %}star-empty{% endif %}">&#9733;</span>
+                                        {% endfor %}
+                                        <small class="stars-number">{{ note_int }}/5</small>
+                                    </span>
                                 {% else %}
                                     <span class="badge badge-yellow">Non évaluée</span>
                                 {% endif %}
+                                {# ===== FIN AFFICHAGE ETOILES ===== #}
 
                                 <small>{{ company.site_web ?: 'Aucun site web' }}</small>
                             </div>
 
-                            <p style="margin-top:8px;">
-                                <strong>SIRET :</strong>
-                                {{ company.siret ?: 'Non renseigné' }}
-                            </p>
-
                             {% if company.commentaire %}
-                                <p style="margin-top:8px;">{{ company.commentaire }}</p>
+                                <p style="margin-top:8px; color:#374151;">💬 {{ company.commentaire }}</p>
                             {% endif %}
                         </div>
 

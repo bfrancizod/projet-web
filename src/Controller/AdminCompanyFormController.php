@@ -29,6 +29,7 @@ class AdminCompanyFormController
 
     private function handleForm(?int $companyId): string
     {
+        // Seuls les administrateurs et les pilotes peuvent acceder a cette page
         if (
             !isset($_SESSION['user'])
             || !in_array($_SESSION['user']['role'] ?? null, ['administrateur', 'pilote'], true)
@@ -42,28 +43,21 @@ class AdminCompanyFormController
         $error = null;
         $success = null;
 
+        // Valeurs par defaut du formulaire
         $company = [
-            'id' => null,
-            'nom' => '',
-            'siret' => '',
-            'secteur' => '',
-            'ville' => '',
-            'site_web' => '',
-            'note' => '',
+            'id'          => null,
+            'nom'         => '',
+            'secteur'     => '',
+            'ville'       => '',
+            'site_web'    => '',
+            'note'        => '',
             'commentaire' => '',
         ];
 
+        // Si on est en mode edition, on charge les donnees existantes
         if ($isEdit) {
             $stmt = $pdo->prepare("
-                SELECT
-                    id,
-                    nom,
-                    siret,
-                    secteur,
-                    ville,
-                    site_web,
-                    note,
-                    commentaire
+                SELECT id, nom, secteur, ville, site_web, note, commentaire
                 FROM entreprises
                 WHERE id = :id
                 LIMIT 1
@@ -79,66 +73,61 @@ class AdminCompanyFormController
             $company = $existingCompany;
         }
 
+        // Traitement du formulaire quand il est soumis
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             Csrf::requireValidToken($_POST['_csrf_token'] ?? null);
 
-            $nom = trim((string) ($_POST['nom'] ?? ''));
-            $siret = preg_replace('/\D+/', '', (string) ($_POST['siret'] ?? ''));
-            $secteur = trim((string) ($_POST['secteur'] ?? ''));
-            $ville = trim((string) ($_POST['ville'] ?? ''));
-            $siteWeb = trim((string) ($_POST['site_web'] ?? ''));
-            $noteRaw = trim((string) ($_POST['note'] ?? ''));
+            $nom         = trim((string) ($_POST['nom']         ?? ''));
+            $secteur     = trim((string) ($_POST['secteur']     ?? ''));
+            $ville       = trim((string) ($_POST['ville']       ?? ''));
+            $siteWeb     = trim((string) ($_POST['site_web']    ?? ''));
+            $noteRaw     = trim((string) ($_POST['note']        ?? ''));
             $commentaire = trim((string) ($_POST['commentaire'] ?? ''));
 
+            // --- Validation de la note ---
+            // La note vient du systeme d'etoiles : c'est soit vide (pas de note),
+            // soit un entier entre 1 et 5.
             $note = null;
             if ($noteRaw !== '') {
-                if (!is_numeric($noteRaw)) {
-                    $error = 'La note doit être numérique.';
+                $noteInt = (int) $noteRaw;
+                if (!is_numeric($noteRaw) || $noteInt < 1 || $noteInt > 5) {
+                    $error = 'La note doit etre un nombre entier entre 1 et 5.';
                 } else {
-                    $note = (float) $noteRaw;
-                    if ($note < 0 || $note > 5) {
-                        $error = 'La note doit être comprise entre 0 et 5.';
-                    }
+                    $note = $noteInt;
                 }
             }
 
-            $company['nom'] = $nom;
-            $company['siret'] = $siret;
-            $company['secteur'] = $secteur;
-            $company['ville'] = $ville;
-            $company['site_web'] = $siteWeb;
-            $company['note'] = $noteRaw;
+            // On met a jour les valeurs du formulaire pour le re-affichage
+            $company['nom']         = $nom;
+            $company['secteur']     = $secteur;
+            $company['ville']       = $ville;
+            $company['site_web']    = $siteWeb;
+            $company['note']        = $noteRaw;
             $company['commentaire'] = $commentaire;
 
+            // --- Validation du nom (obligatoire) ---
             if ($error === null && $nom === '') {
-                $error = 'Le nom de l’entreprise est obligatoire.';
+                $error = "Le nom de l'entreprise est obligatoire.";
             }
 
-            if ($error === null && $siret !== '' && !preg_match('/^\d{14}$/', $siret)) {
-                $error = 'Le numéro de SIRET doit contenir exactement 14 chiffres.';
-            }
-
+            // --- Validation de l'URL ---
             if ($error === null && $siteWeb !== '' && !filter_var($siteWeb, FILTER_VALIDATE_URL)) {
-                $error = 'L’URL du site web est invalide.';
+                $error = "L'URL du site web est invalide.";
             }
 
+            // --- Sauvegarde en base de donnees ---
             if ($error === null) {
+                // On verifie qu'une autre entreprise n'a pas le meme nom
                 if ($isEdit) {
                     $stmt = $pdo->prepare("
-                        SELECT id
-                        FROM entreprises
-                        WHERE nom = :nom
-                          AND id != :id
+                        SELECT id FROM entreprises
+                        WHERE nom = :nom AND id != :id
                         LIMIT 1
                     ");
-                    $stmt->execute([
-                        'nom' => $nom,
-                        'id' => $companyId,
-                    ]);
+                    $stmt->execute(['nom' => $nom, 'id' => $companyId]);
                 } else {
                     $stmt = $pdo->prepare("
-                        SELECT id
-                        FROM entreprises
+                        SELECT id FROM entreprises
                         WHERE nom = :nom
                         LIMIT 1
                     ");
@@ -146,14 +135,14 @@ class AdminCompanyFormController
                 }
 
                 if ($stmt->fetch()) {
-                    $error = 'Une entreprise avec ce nom existe déjà.';
+                    $error = 'Une entreprise avec ce nom existe deja.';
                 } else {
                     try {
                         if ($isEdit) {
+                            // Mise a jour de l'entreprise existante
                             $stmt = $pdo->prepare("
                                 UPDATE entreprises
                                 SET nom = :nom,
-                                    siret = :siret,
                                     secteur = :secteur,
                                     ville = :ville,
                                     site_web = :site_web,
@@ -162,73 +151,50 @@ class AdminCompanyFormController
                                 WHERE id = :id
                             ");
                             $stmt->execute([
-                                'id' => $companyId,
-                                'nom' => $nom,
-                                'siret' => $siret !== '' ? $siret : null,
-                                'secteur' => $secteur !== '' ? $secteur : null,
-                                'ville' => $ville !== '' ? $ville : null,
-                                'site_web' => $siteWeb !== '' ? $siteWeb : null,
-                                'note' => $note,
+                                'id'          => $companyId,
+                                'nom'         => $nom,
+                                'secteur'     => $secteur     !== '' ? $secteur     : null,
+                                'ville'       => $ville       !== '' ? $ville       : null,
+                                'site_web'    => $siteWeb     !== '' ? $siteWeb     : null,
+                                'note'        => $note,
                                 'commentaire' => $commentaire !== '' ? $commentaire : null,
                             ]);
 
-                            $success = 'Entreprise mise à jour avec succès.';
+                            $success = 'Entreprise mise a jour avec succes.';
                         } else {
+                            // Creation d'une nouvelle entreprise
                             $stmt = $pdo->prepare("
-                                INSERT INTO entreprises (
-                                    nom,
-                                    siret,
-                                    secteur,
-                                    ville,
-                                    site_web,
-                                    note,
-                                    commentaire
-                                )
-                                VALUES (
-                                    :nom,
-                                    :siret,
-                                    :secteur,
-                                    :ville,
-                                    :site_web,
-                                    :note,
-                                    :commentaire
-                                )
+                                INSERT INTO entreprises (nom, secteur, ville, site_web, note, commentaire)
+                                VALUES (:nom, :secteur, :ville, :site_web, :note, :commentaire)
                             ");
                             $stmt->execute([
-                                'nom' => $nom,
-                                'siret' => $siret !== '' ? $siret : null,
-                                'secteur' => $secteur !== '' ? $secteur : null,
-                                'ville' => $ville !== '' ? $ville : null,
-                                'site_web' => $siteWeb !== '' ? $siteWeb : null,
-                                'note' => $note,
+                                'nom'         => $nom,
+                                'secteur'     => $secteur     !== '' ? $secteur     : null,
+                                'ville'       => $ville       !== '' ? $ville       : null,
+                                'site_web'    => $siteWeb     !== '' ? $siteWeb     : null,
+                                'note'        => $note,
                                 'commentaire' => $commentaire !== '' ? $commentaire : null,
                             ]);
 
                             $companyId = (int) $pdo->lastInsertId();
                             $isEdit = true;
-                            $success = 'Entreprise créée avec succès.';
+                            $success = 'Entreprise creee avec succes.';
                         }
 
+                        // On recharge les donnees fraichement sauvegardees
                         $stmt = $pdo->prepare("
-                            SELECT
-                                id,
-                                nom,
-                                siret,
-                                secteur,
-                                ville,
-                                site_web,
-                                note,
-                                commentaire
+                            SELECT id, nom, secteur, ville, site_web, note, commentaire
                             FROM entreprises
                             WHERE id = :id
                             LIMIT 1
                         ");
                         $stmt->execute(['id' => $companyId]);
                         $company = $stmt->fetch();
+
                     } catch (\Throwable $e) {
                         $error = $isEdit
-                            ? 'Erreur lors de la mise à jour de l’entreprise.'
-                            : 'Erreur lors de la création de l’entreprise.';
+                            ? "Erreur lors de la mise a jour de l'entreprise."
+                            : "Erreur lors de la creation de l'entreprise.";
                     }
                 }
             }
@@ -237,7 +203,7 @@ class AdminCompanyFormController
         return $this->twig->render('admin-company-form.html.twig', [
             'company' => $company,
             'is_edit' => $isEdit,
-            'error' => $error,
+            'error'   => $error,
             'success' => $success,
         ]);
     }

@@ -4,6 +4,7 @@
 
 {% block stylesheets %}
     <link rel="stylesheet" href="/assets/css/offer-detail.css">
+    <link rel="stylesheet" href="/assets/css/star-rating.css">
 {% endblock %}
 
 {% block body %}
@@ -20,11 +21,14 @@
         <section class="offer-detail-card">
             <h1>{{ offer.titre }}</h1>
 
-            <p class="detail-company">
-                {{ offer.entreprise_nom ?: offer.entreprise ?: 'Entreprise non définie' }}
-            </p>
+            <p class="detail-company">{{ offer.entreprise_nom ?: 'Entreprise non définie' }}</p>
 
             <div class="detail-info-grid">
+                <div class="detail-info-item">
+                    <span class="detail-label">Rémunération</span>
+                    <strong>{{ offer.remuneration }} € / mois</strong>
+                </div>
+
                 <div class="detail-info-item">
                     <span class="detail-label">Lieu</span>
                     <strong>{{ offer.lieu ?: 'Non défini' }}</strong>
@@ -32,12 +36,7 @@
 
                 <div class="detail-info-item">
                     <span class="detail-label">Durée</span>
-                    <strong>{{ offer.duree_semaines ?: 'Non définie' }} semaines</strong>
-                </div>
-
-                <div class="detail-info-item">
-                    <span class="detail-label">Rémunération</span>
-                    <strong>{{ offer.remuneration ?: 'Non définie' }} € / mois</strong>
+                    <strong>{{ offer.duree_semaines }} semaines</strong>
                 </div>
 
                 <div class="detail-info-item">
@@ -46,30 +45,14 @@
                 </div>
             </div>
 
-            {% if skills is not empty %}
-                <h2>Compétences recherchées</h2>
-                <div class="offer-tags detail-tags">
-                    {% for skill in skills %}
-                        <span class="tag">{{ skill.nom }}</span>
-                    {% endfor %}
-                </div>
-            {% endif %}
-
-            <h2>Description</h2>
-            <p class="detail-description">
-                {{ offer.description ?: 'Aucune description renseignée.' }}
-            </p>
+            <h2>Description de l'offre</h2>
+            <p class="detail-description">{{ offer.description }}</p>
 
             <h2>Entreprise</h2>
             <div class="detail-info-grid">
                 <div class="detail-info-item">
                     <span class="detail-label">Nom</span>
-                    <strong>{{ offer.entreprise_nom ?: offer.entreprise ?: 'Non défini' }}</strong>
-                </div>
-
-                <div class="detail-info-item">
-                    <span class="detail-label">SIRET</span>
-                    <strong>{{ offer.entreprise_siret ?: 'Non renseigné' }}</strong>
+                    <strong>{{ offer.entreprise_nom ?: 'Non défini' }}</strong>
                 </div>
 
                 <div class="detail-info-item">
@@ -82,16 +65,22 @@
                     <strong>{{ offer.entreprise_ville ?: 'Non définie' }}</strong>
                 </div>
 
+                {# ===== AFFICHAGE DES ETOILES EN LECTURE SEULE ===== #}
                 <div class="detail-info-item">
-                    <span class="detail-label">Note</span>
-                    <strong>
-                        {% if offer.entreprise_note is not null %}
-                            {{ offer.entreprise_note }}/5
-                        {% else %}
-                            Non évaluée
-                        {% endif %}
-                    </strong>
+                    <span class="detail-label">Évaluation</span>
+                    {% if offer.entreprise_note is not null %}
+                        <div class="stars-display" style="margin-top: 4px;">
+                            {% set note_int = offer.entreprise_note|round(0, 'floor') %}
+                            {% for i in 1..5 %}
+                                <span class="star-icon {% if i <= note_int %}star-filled{% else %}star-empty{% endif %}">&#9733;</span>
+                            {% endfor %}
+                            <small class="stars-number">{{ note_int }}/5</small>
+                        </div>
+                    {% else %}
+                        <strong style="color: #9ca3af;">Non évaluée</strong>
+                    {% endif %}
                 </div>
+                {# ===== FIN AFFICHAGE ETOILES ===== #}
             </div>
 
             {% if offer.entreprise_site_web %}
@@ -104,13 +93,15 @@
             {% endif %}
 
             {% if offer.entreprise_commentaire %}
-                <p><strong>Commentaire :</strong> {{ offer.entreprise_commentaire }}</p>
+                <p style="margin-top: 12px; padding: 12px 16px; background: #f9fafb; border-radius: 10px; border-left: 3px solid #e5e7eb;">
+                    <strong>Avis :</strong> {{ offer.entreprise_commentaire }}
+                </p>
             {% endif %}
 
-            <div class="detail-actions">
-                {% if current_user and current_user.role == 'etudiant' %}
+            {% if current_user and current_user.role == 'etudiant' %}
+                <div class="detail-actions">
                     {% if is_in_wishlist %}
-                        <form method="POST" action="/offres/{{ offer.id }}/wishlist/supprimer" onsubmit="return confirm('Retirer cette offre de la wishlist ?');">
+                        <form method="POST" action="/offres/{{ offer.id }}/wishlist/supprimer">
                             <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
                             <button type="submit" class="secondary-button">Retirer de ma wishlist</button>
                         </form>
@@ -120,14 +111,19 @@
                             <button type="submit" class="secondary-button">Ajouter à ma wishlist</button>
                         </form>
                     {% endif %}
-                {% endif %}
+                </div>
+            {% endif %}
 
+            <div class="detail-actions">
                 {% if current_user is null %}
                     <a href="/connexion" class="apply-button">Se connecter pour postuler</a>
+                    <p class="detail-note">Connexion requise pour postuler à cette offre</p>
                 {% elseif current_user.role != 'etudiant' %}
                     <button class="apply-button disabled-button" disabled>Postuler</button>
+                    <p class="detail-note">Seuls les étudiants peuvent postuler à cette offre</p>
                 {% else %}
                     <a href="/offres/{{ offer.id }}/postuler" class="apply-button">Postuler</a>
+                    <p class="detail-note">Votre candidature sera ajoutée à votre espace étudiant</p>
                 {% endif %}
             </div>
         </section>

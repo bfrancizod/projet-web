@@ -2,7 +2,7 @@
 
 {% block title %}
     {% if is_edit %}
-        Modifier l’entreprise
+        Modifier l'entreprise
     {% else %}
         Créer une entreprise
     {% endif %}
@@ -10,6 +10,7 @@
 
 {% block stylesheets %}
     <link rel="stylesheet" href="/assets/css/student-dashboard.css">
+    <link rel="stylesheet" href="/assets/css/star-rating.css">
 {% endblock %}
 
 {% block body %}
@@ -19,7 +20,7 @@
             <div class="student-section-header">
                 <h2>
                     {% if is_edit %}
-                        Modifier / Évaluer l’entreprise
+                        Modifier / Évaluer l'entreprise
                     {% else %}
                         Créer une entreprise
                     {% endif %}
@@ -43,11 +44,8 @@
             >
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
 
-                <label for="nom">Nom de l’entreprise *</label>
+                <label for="nom">Nom de l'entreprise *</label>
                 <input id="nom" type="text" name="nom" value="{{ company.nom }}" required maxlength="150">
-
-                <label for="siret">Numéro de SIRET</label>
-                <input id="siret" type="text" name="siret" value="{{ company.siret }}" maxlength="14" inputmode="numeric" placeholder="14 chiffres">
 
                 <label for="secteur">Secteur</label>
                 <input id="secteur" type="text" name="secteur" value="{{ company.secteur }}" maxlength="150">
@@ -56,23 +54,111 @@
                 <input id="ville" type="text" name="ville" value="{{ company.ville }}" maxlength="150">
 
                 <label for="site_web">Site web</label>
-                <input id="site_web" type="url" name="site_web" value="{{ company.site_web }}" maxlength="255" placeholder="https://...">
+                <input id="site_web" type="url" name="site_web" value="{{ company.site_web }}" maxlength="255">
 
-                <label for="note">Note /5</label>
-                <input id="note" type="number" name="note" value="{{ company.note }}" min="0" max="5" step="0.1">
+                {# ===== SYSTEME D ETOILES ===== #}
+                {# On arrondit la note existante pour obtenir un entier entre 0 et 5 #}
+                {% set current_note = company.note ? company.note|round(0, 'floor') : 0 %}
 
-                <label for="commentaire">Commentaire</label>
-                <textarea id="commentaire" name="commentaire" rows="5" maxlength="2000">{{ company.commentaire }}</textarea>
+                <label>Evaluation de l'entreprise</label>
+
+                <input type="hidden" name="note" id="note-value" value="{{ current_note > 0 ? current_note : '' }}">
+
+                <div class="star-rating-widget">
+                    <div class="stars-input" id="stars-input" data-current="{{ current_note }}">
+                        <span class="star-btn" data-value="1" title="1 etoile - Tres mauvais">&#9733;</span>
+                        <span class="star-btn" data-value="2" title="2 etoiles - Mauvais">&#9733;</span>
+                        <span class="star-btn" data-value="3" title="3 etoiles - Moyen">&#9733;</span>
+                        <span class="star-btn" data-value="4" title="4 etoiles - Bien">&#9733;</span>
+                        <span class="star-btn" data-value="5" title="5 etoiles - Excellent">&#9733;</span>
+                    </div>
+                    <span class="star-label" id="star-label">
+                        {% if current_note == 1 %}1/5 &mdash; Tres mauvais
+                        {% elseif current_note == 2 %}2/5 &mdash; Mauvais
+                        {% elseif current_note == 3 %}3/5 &mdash; Moyen
+                        {% elseif current_note == 4 %}4/5 &mdash; Bien
+                        {% elseif current_note == 5 %}5/5 &mdash; Excellent
+                        {% else %}Pas encore note
+                        {% endif %}
+                    </span>
+                </div>
+
+                <p class="star-hint">
+                    Cliquez sur une etoile pour noter. Cliquez a nouveau sur la meme etoile pour retirer la note.
+                </p>
+                {# ===== FIN DU SYSTEME D ETOILES ===== #}
+
+                <label for="commentaire">Commentaire / Avis</label>
+                <textarea id="commentaire" name="commentaire" rows="5" placeholder="Laissez un commentaire sur cette entreprise...">{{ company.commentaire }}</textarea>
 
                 <button type="submit" class="cta-button">
                     {% if is_edit %}
                         Enregistrer les modifications
                     {% else %}
-                        Créer l’entreprise
+                        Creer l'entreprise
                     {% endif %}
                 </button>
             </form>
         </section>
     </div>
 </main>
+
+<script>
+    var starsInput = document.getElementById('stars-input');
+    var noteValue  = document.getElementById('note-value');
+    var starLabel  = document.getElementById('star-label');
+    var starBtns   = starsInput.querySelectorAll('.star-btn');
+
+    var selectedNote = parseInt(starsInput.dataset.current) || 0;
+
+    var noteTexts = {
+        0: 'Pas encore note',
+        1: '1/5 - Tres mauvais',
+        2: '2/5 - Mauvais',
+        3: '3/5 - Moyen',
+        4: '4/5 - Bien',
+        5: '5/5 - Excellent'
+    };
+
+    function highlightStars(n) {
+        starBtns.forEach(function(star) {
+            if (parseInt(star.dataset.value) <= n) {
+                star.classList.add('star-active');
+            } else {
+                star.classList.remove('star-active');
+            }
+        });
+    }
+
+    starsInput.addEventListener('mouseover', function(e) {
+        var star = e.target.closest('.star-btn');
+        if (star) {
+            highlightStars(parseInt(star.dataset.value));
+        }
+    });
+
+    starsInput.addEventListener('mouseleave', function() {
+        highlightStars(selectedNote);
+    });
+
+    starsInput.addEventListener('click', function(e) {
+        var star = e.target.closest('.star-btn');
+        if (!star) return;
+
+        var clicked = parseInt(star.dataset.value);
+
+        if (clicked === selectedNote) {
+            selectedNote = 0;
+            noteValue.value = '';
+        } else {
+            selectedNote = clicked;
+            noteValue.value = clicked;
+        }
+
+        highlightStars(selectedNote);
+        starLabel.textContent = noteTexts[selectedNote];
+    });
+
+    highlightStars(selectedNote);
+</script>
 {% endblock %}

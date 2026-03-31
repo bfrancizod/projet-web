@@ -29,9 +29,7 @@ use App\Controller\WishlistController;
 use App\Controller\AdminCompanyController;
 use App\Controller\AdminDashboardController;
 use App\Controller\AdminPilotController;
-use App\Controller\AdminPromotionsController;
-use App\Controller\AdminPromotionFormController;
-use App\Controller\AdminPromotionDeleteController;
+use App\Controller\AdminPromotionController;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -230,17 +228,17 @@ if ($method === 'POST' && preg_match('#^/pilot-offres/([0-9]+)/supprimer$#', $ur
 
 // Admin promotions
 if ($uri === '/admin-promotion-create' && in_array($method, ['GET', 'POST'], true)) {
-    echo (new AdminPromotionFormController($twig))->create();
+    echo (new AdminPromotionController($twig))->create();
     exit;
 }
 
 if (preg_match('#^/admin-promotions/([0-9]+)/editer$#', $uri, $matches) && in_array($method, ['GET', 'POST'], true)) {
-    echo (new AdminPromotionFormController($twig))->edit((int) $matches[1]);
+    echo (new AdminPromotionController($twig))->edit((int) $matches[1]);
     exit;
 }
 
 if ($method === 'POST' && preg_match('#^/admin-promotions/([0-9]+)/supprimer$#', $uri, $matches)) {
-    (new AdminPromotionDeleteController())->delete((int) $matches[1]);
+    (new AdminPromotionController($twig))->delete((int) $matches[1]);
     exit;
 }
 
@@ -310,7 +308,7 @@ switch ($uri) {
         exit;
 
     case '/admin-promotions':
-        echo (new AdminPromotionsController($twig))->index();
+        echo (new AdminPromotionController($twig))->index();
         exit;
 
     case '/admin-entreprises':

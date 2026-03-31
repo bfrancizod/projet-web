@@ -16,16 +16,10 @@ use App\Controller\HomeController;
 use App\Controller\LegalController;
 use App\Controller\OfferController;
 use App\Controller\OfferDetailController;
-use App\Controller\PilotApplicationActionController;
-use App\Controller\PilotApplicationsController;
+use App\Controller\PilotApplicationController;
 use App\Controller\PilotDashboardController;
-use App\Controller\PilotOffersController;
-use App\Controller\PilotOfferFormController;
-use App\Controller\PilotOfferDeleteController;
-use App\Controller\PilotStudentDeleteController;
-use App\Controller\PilotStudentDetailController;
-use App\Controller\PilotStudentFormController;
-use App\Controller\PilotStudentsController;
+use App\Controller\PilotOfferController;
+use App\Controller\PilotStudentController;
 use App\Controller\PrivacyController;
 use App\Controller\StudentApplicationsController;
 use App\Controller\StudentDashboardController;
@@ -167,31 +161,31 @@ if ($method === 'POST' && preg_match('#^/offres/([0-9]+)/wishlist/supprimer$#', 
 
 // Mise à jour statut candidature côté pilote
 if ($method === 'POST' && preg_match('#^/pilot-candidature/([0-9]+)/status$#', $uri, $matches)) {
-    (new PilotApplicationActionController($twig))->updateStatus((int) $matches[1]);
+    (new PilotApplicationController($twig))->updateStatus((int) $matches[1]);
     exit;
 }
 
 // Détail étudiant côté pilote
 if ($method === 'GET' && preg_match('#^/pilot-etudiants/([0-9]+)$#', $uri, $matches)) {
-    echo (new PilotStudentDetailController($twig))->show((int) $matches[1]);
+    echo (new PilotStudentController($twig))->show((int) $matches[1]);
     exit;
 }
 
 // Suppression étudiant côté pilote
 if ($method === 'POST' && preg_match('#^/pilot-etudiants/([0-9]+)/supprimer$#', $uri, $matches)) {
-    (new PilotStudentDeleteController())->delete((int) $matches[1]);
+    (new PilotStudentController($twig))->delete((int) $matches[1]);
     exit;
 }
 
 // Création étudiant
 if ($uri === '/pilot-etudiant-create' && in_array($method, ['GET', 'POST'], true)) {
-    echo (new PilotStudentFormController($twig))->create();
+    echo (new PilotStudentController($twig))->create();
     exit;
 }
 
 // Édition étudiant
 if (preg_match('#^/pilot-etudiants/([0-9]+)/editer$#', $uri, $matches) && in_array($method, ['GET', 'POST'], true)) {
-    echo (new PilotStudentFormController($twig))->edit((int) $matches[1]);
+    echo (new PilotStudentController($twig))->edit((int) $matches[1]);
     exit;
 }
 
@@ -233,19 +227,19 @@ if ($method === 'POST' && preg_match('#^/admin-entreprises/([0-9]+)/supprimer$#'
     exit;
 }
 
-// Offres
+// Offres pilote/admin
 if ($uri === '/pilot-offre-create' && in_array($method, ['GET', 'POST'], true)) {
-    echo (new PilotOfferFormController($twig))->create();
+    echo (new PilotOfferController($twig))->create();
     exit;
 }
 
 if (preg_match('#^/pilot-offres/([0-9]+)/editer$#', $uri, $matches) && in_array($method, ['GET', 'POST'], true)) {
-    echo (new PilotOfferFormController($twig))->edit((int) $matches[1]);
+    echo (new PilotOfferController($twig))->edit((int) $matches[1]);
     exit;
 }
 
 if ($method === 'POST' && preg_match('#^/pilot-offres/([0-9]+)/supprimer$#', $uri, $matches)) {
-    (new PilotOfferDeleteController())->delete((int) $matches[1]);
+    (new PilotOfferController($twig))->delete((int) $matches[1]);
     exit;
 }
 
@@ -305,15 +299,15 @@ switch ($uri) {
         exit;
 
     case '/pilot-etudiants':
-        echo (new PilotStudentsController($twig))->index();
+        echo (new PilotStudentController($twig))->index();
         exit;
 
     case '/pilot-offres':
-        echo (new PilotOffersController($twig))->index();
+        echo (new PilotOfferController($twig))->index();
         exit;
 
     case '/pilot-candidatures':
-        echo (new PilotApplicationsController($twig))->index();
+        echo (new PilotApplicationController($twig))->index();
         exit;
 
     case '/mentions-legales':
@@ -345,11 +339,11 @@ switch ($uri) {
         exit;
 
     case '/admin-offres':
-        echo (new PilotOffersController($twig))->index();
+        echo (new PilotOfferController($twig))->index();
         exit;
 
     case '/admin-etudiants':
-        echo (new PilotStudentsController($twig))->index();
+        echo (new PilotStudentController($twig))->index();
         exit;
 
     default:

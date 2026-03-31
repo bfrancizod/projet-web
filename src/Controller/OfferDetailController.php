@@ -63,8 +63,11 @@ class OfferDetailController
         $skills = $skillsStmt->fetchAll(PDO::FETCH_ASSOC);
 
         $isInWishlist = false;
+        $hasApplied = false;
 
         if (isset($_SESSION['user']) && ($_SESSION['user']['role'] ?? null) === 'etudiant') {
+            $userId = (int) $_SESSION['user']['id'];
+
             $wishlistStmt = $pdo->prepare("
                 SELECT 1
                 FROM student_wishlist
@@ -73,17 +76,32 @@ class OfferDetailController
                 LIMIT 1
             ");
             $wishlistStmt->execute([
-                'user_id' => (int) $_SESSION['user']['id'],
+                'user_id' => $userId,
                 'offre_id' => $id,
             ]);
 
             $isInWishlist = (bool) $wishlistStmt->fetchColumn();
+
+            $applicationStmt = $pdo->prepare("
+                SELECT 1
+                FROM candidatures
+                WHERE student_user_id = :user_id
+                  AND offre_id = :offre_id
+                LIMIT 1
+            ");
+            $applicationStmt->execute([
+                'user_id' => $userId,
+                'offre_id' => $id,
+            ]);
+
+            $hasApplied = (bool) $applicationStmt->fetchColumn();
         }
 
         return $this->twig->render('offer-detail.html.twig', [
             'offer' => $offer,
             'skills' => $skills,
             'is_in_wishlist' => $isInWishlist,
+            'has_applied' => $hasApplied,
         ]);
     }
 }

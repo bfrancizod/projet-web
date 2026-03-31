@@ -41,6 +41,16 @@ class PilotDashboardController
             $promotionFilterSql = ' AND sp.promotion_id IN (' . implode(', ', $placeholders) . ') ';
         }
 
+        $totalStudentsStmt = $pdo->prepare("
+            SELECT COUNT(*)
+            FROM users u
+            INNER JOIN student_profiles sp ON sp.user_id = u.id
+            WHERE u.role = 'etudiant'
+            $promotionFilterSql
+        ");
+        $totalStudentsStmt->execute($promotionParams);
+        $totalStudents = (int) $totalStudentsStmt->fetchColumn();
+
         $studentsWithoutStageStmt = $pdo->prepare("
             SELECT COUNT(*)
             FROM student_profiles sp
@@ -94,6 +104,7 @@ class PilotDashboardController
         $recentStudents = $recentStudentsStmt->fetchAll();
 
         return $this->twig->render('pilot-dashboard.html.twig', [
+            'total_students' => $totalStudents,
             'students_without_stage' => $studentsWithoutStage,
             'offers_count' => $offersCount,
             'applications_count' => $applicationsCount,

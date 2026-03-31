@@ -125,7 +125,9 @@
                 {% if current_user is null %}
                     <a href="/connexion" class="apply-button">Se connecter pour postuler</a>
                 {% elseif current_user.role != 'etudiant' %}
-                    <button class="apply-button disabled-button" disabled>Postuler</button>
+                    <button class="apply-button disabled-button" disabled>Réservé aux étudiants</button>
+                {% elseif has_applied %}
+                    <button class="apply-button disabled-button" disabled>Déjà postulé</button>
                 {% else %}
                     <a href="/offres/{{ offer.id }}/postuler" class="apply-button">Postuler</a>
                 {% endif %}

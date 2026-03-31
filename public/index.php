@@ -26,13 +26,11 @@ use App\Controller\StudentDashboardController;
 use App\Controller\StudentWishlistController;
 use App\Controller\WishlistController;
 
+use App\Controller\AdminCompanyController;
 use App\Controller\AdminDashboardController;
 use App\Controller\AdminPilotsController;
 use App\Controller\AdminPilotFormController;
 use App\Controller\AdminPilotDeleteController;
-use App\Controller\AdminCompaniesController;
-use App\Controller\AdminCompanyFormController;
-use App\Controller\AdminCompanyDeleteController;
 use App\Controller\AdminPromotionsController;
 use App\Controller\AdminPromotionFormController;
 use App\Controller\AdminPromotionDeleteController;
@@ -213,17 +211,17 @@ if ($method === 'POST' && preg_match('#^/admin-pilotes/([0-9]+)/supprimer$#', $u
 
 // Admin entreprises
 if ($uri === '/admin-entreprise-create' && in_array($method, ['GET', 'POST'], true)) {
-    echo (new AdminCompanyFormController($twig))->create();
+    echo (new AdminCompanyController($twig))->create();
     exit;
 }
 
 if (preg_match('#^/admin-entreprises/([0-9]+)/editer$#', $uri, $matches) && in_array($method, ['GET', 'POST'], true)) {
-    echo (new AdminCompanyFormController($twig))->edit((int) $matches[1]);
+    echo (new AdminCompanyController($twig))->edit((int) $matches[1]);
     exit;
 }
 
 if ($method === 'POST' && preg_match('#^/admin-entreprises/([0-9]+)/supprimer$#', $uri, $matches)) {
-    (new AdminCompanyDeleteController())->delete((int) $matches[1]);
+    (new AdminCompanyController($twig))->delete((int) $matches[1]);
     exit;
 }
 
@@ -335,7 +333,7 @@ switch ($uri) {
         exit;
 
     case '/admin-entreprises':
-        echo (new AdminCompaniesController($twig))->index();
+        echo (new AdminCompanyController($twig))->index();
         exit;
 
     case '/admin-offres':

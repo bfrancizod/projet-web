@@ -41,7 +41,11 @@ class PilotStudentsController
             ? (int) $_GET['promotion_id']
             : null;
 
-        if ($currentUserRole === 'pilote' && $selectedPromotionId !== null && !in_array($selectedPromotionId, $allowedPromotionIds, true)) {
+        if (
+            $currentUserRole === 'pilote'
+            && $selectedPromotionId !== null
+            && !in_array($selectedPromotionId, $allowedPromotionIds, true)
+        ) {
             $selectedPromotionId = null;
         }
 
@@ -94,12 +98,15 @@ class PilotStudentsController
         if ($search !== '') {
             $countSql .= "
                 AND (
-                    u.nom LIKE :search
-                    OR u.prenom LIKE :search
-                    OR u.email LIKE :search
+                    u.nom LIKE :search_nom
+                    OR u.prenom LIKE :search_prenom
+                    OR u.email LIKE :search_email
                 )
             ";
-            $countParams['search'] = '%' . $search . '%';
+            $searchValue = '%' . $search . '%';
+            $countParams['search_nom'] = $searchValue;
+            $countParams['search_prenom'] = $searchValue;
+            $countParams['search_email'] = $searchValue;
         }
 
         $countStmt = $pdo->prepare($countSql);
@@ -154,12 +161,15 @@ class PilotStudentsController
         if ($search !== '') {
             $sql .= "
                 AND (
-                    u.nom LIKE :search
-                    OR u.prenom LIKE :search
-                    OR u.email LIKE :search
+                    u.nom LIKE :search_nom
+                    OR u.prenom LIKE :search_prenom
+                    OR u.email LIKE :search_email
                 )
             ";
-            $params['search'] = '%' . $search . '%';
+            $searchValue = '%' . $search . '%';
+            $params['search_nom'] = $searchValue;
+            $params['search_prenom'] = $searchValue;
+            $params['search_email'] = $searchValue;
         }
 
         $sql .= " ORDER BY p.academic_year DESC, p.label ASC, u.nom ASC, u.prenom ASC LIMIT :limit OFFSET :offset";
@@ -167,18 +177,11 @@ class PilotStudentsController
         $stmt = $pdo->prepare($sql);
 
         foreach ($params as $name => $value) {
-            if ($name === 'search') {
-                continue;
+            if (in_array($name, ['search_nom', 'search_prenom', 'search_email'], true)) {
+                $stmt->bindValue(':' . $name, $value, PDO::PARAM_STR);
+            } else {
+                $stmt->bindValue(':' . $name, (int) $value, PDO::PARAM_INT);
             }
-            $stmt->bindValue(':' . $name, (int) $value, PDO::PARAM_INT);
-        }
-
-        if ($search !== '') {
-            $stmt->bindValue(':search', '%' . $search . '%', PDO::PARAM_STR);
-        }
-
-        if ($selectedPromotionId !== null) {
-            $stmt->bindValue(':promotion_id', $selectedPromotionId, PDO::PARAM_INT);
         }
 
         $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);

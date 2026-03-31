@@ -68,14 +68,20 @@ class PilotApplicationsController
         if ($search !== '') {
             $countSql .= "
                 AND (
-                    u.nom LIKE :search
-                    OR u.prenom LIKE :search
-                    OR u.email LIKE :search
-                    OR CONCAT(u.prenom, ' ', u.nom) LIKE :search
-                    OR CONCAT(u.nom, ' ', u.prenom) LIKE :search
+                    u.nom LIKE :search_nom
+                    OR u.prenom LIKE :search_prenom
+                    OR u.email LIKE :search_email
+                    OR CONCAT(u.prenom, ' ', u.nom) LIKE :search_full_1
+                    OR CONCAT(u.nom, ' ', u.prenom) LIKE :search_full_2
                 )
             ";
-            $countParams['search'] = '%' . $search . '%';
+
+            $searchValue = '%' . $search . '%';
+            $countParams['search_nom'] = $searchValue;
+            $countParams['search_prenom'] = $searchValue;
+            $countParams['search_email'] = $searchValue;
+            $countParams['search_full_1'] = $searchValue;
+            $countParams['search_full_2'] = $searchValue;
         }
 
         $countStmt = $pdo->prepare($countSql);
@@ -118,14 +124,20 @@ class PilotApplicationsController
         if ($search !== '') {
             $sql .= "
                 AND (
-                    u.nom LIKE :search
-                    OR u.prenom LIKE :search
-                    OR u.email LIKE :search
-                    OR CONCAT(u.prenom, ' ', u.nom) LIKE :search
-                    OR CONCAT(u.nom, ' ', u.prenom) LIKE :search
+                    u.nom LIKE :search_nom
+                    OR u.prenom LIKE :search_prenom
+                    OR u.email LIKE :search_email
+                    OR CONCAT(u.prenom, ' ', u.nom) LIKE :search_full_1
+                    OR CONCAT(u.nom, ' ', u.prenom) LIKE :search_full_2
                 )
             ";
-            $params['search'] = '%' . $search . '%';
+
+            $searchValue = '%' . $search . '%';
+            $params['search_nom'] = $searchValue;
+            $params['search_prenom'] = $searchValue;
+            $params['search_email'] = $searchValue;
+            $params['search_full_1'] = $searchValue;
+            $params['search_full_2'] = $searchValue;
         }
 
         $sql .= "
@@ -143,12 +155,14 @@ class PilotApplicationsController
 
         $stmt = $pdo->prepare($sql);
 
-        if ($selectedPromotionId !== null) {
-            $stmt->bindValue(':promotion_id', $selectedPromotionId, PDO::PARAM_INT);
-        }
-
-        if ($search !== '') {
-            $stmt->bindValue(':search', '%' . $search . '%', PDO::PARAM_STR);
+        foreach ($params as $name => $value) {
+            if (
+                in_array($name, ['search_nom', 'search_prenom', 'search_email', 'search_full_1', 'search_full_2'], true)
+            ) {
+                $stmt->bindValue(':' . $name, $value, PDO::PARAM_STR);
+            } else {
+                $stmt->bindValue(':' . $name, (int) $value, PDO::PARAM_INT);
+            }
         }
 
         $stmt->bindValue(':limit', self::PER_PAGE, PDO::PARAM_INT);

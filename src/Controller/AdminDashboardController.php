@@ -27,13 +27,11 @@ class AdminDashboardController
         }
 
         return $this->twig->render('admin-dashboard.html.twig', [
-            'stats' => [
-                'students' => $this->dashboardRepository->countStudents(),
-                'pilots' => $this->dashboardRepository->countPilots(),
-                'offers' => $this->dashboardRepository->countOffers(),
-                'applications' => $this->dashboardRepository->countApplications(),
-                'promotions' => $this->dashboardRepository->countPromotions(),
-            ],
+            'offers_count' => $this->dashboardRepository->countOffers(),
+            'students_count' => $this->dashboardRepository->countStudents(),
+            'pilots_count' => $this->dashboardRepository->countPilots(),
+            'applications_count' => $this->dashboardRepository->countApplications(),
+            'promotions_count' => $this->dashboardRepository->countPromotions(),
             'recent_students' => $this->dashboardRepository->findRecentStudents(5),
         ]);
     }

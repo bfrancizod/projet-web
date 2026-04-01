@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img">
+  
+  <!-- Fond blanc propre avec arrondi -->
+  <rect width="128" height="128" rx="24" fill="#ffffff"></rect>
+
+  <!-- Main -->
+  <path d="M18 78c0-8.8 7.2-16 16-16h17.5c4.8 0 9.3 1.8 12.8 5.1l6.3 5.9h10.1c4.4 0 8 3.6 8 8s-3.6 8-8 8H61.4c-2.2 0-4 1.8-4 4s1.8 4 4 4h20.2c4.3 0 8.4-1.4 11.8-4l15.4-11.7c5.6-4.2 13.6-3.1 17.8 2.5 4.2 5.6 3.1 13.6-2.5 17.8l-18.7 14.2c-5.6 4.2-12.3 6.4-19.3 6.4H43.8c-6.3 0-12.5-1.6-18-4.6L18 113V78z" fill="#1565d8"></path>
+
+  <!-- Poignet -->
+  <rect x="12" y="73" width="18" height="42" rx="6" fill="#1565d8"></rect>
+
+  <!-- Mallette -->
+  <rect x="36" y="36" width="68" height="48" rx="8" fill="#f4b400"></rect>
+
+  <!-- Poignée -->
+  <rect x="54" y="18" width="32" height="12" rx="4" fill="#1565d8"></rect>
+
+  <!-- Ligne -->
+  <rect x="36" y="52" width="68" height="8" fill="#ffffff"></rect>
+
+  <!-- Serrure -->
+  <rect x="62" y="48" width="16" height="16" rx="4" fill="#f7f7f7"></rect>
+
+</svg>

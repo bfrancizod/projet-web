@@ -74,7 +74,26 @@ class ApplyController
                                 mkdir($uploadDir, 0777, true);
                             }
 
-                            $filename = uniqid('cv_', true) . '.pdf';
+                            $prenom = (string) ($_SESSION['user']['prenom'] ?? 'etudiant');
+                            $nom = (string) ($_SESSION['user']['nom'] ?? 'inconnu');
+                            $offreTitre = (string) ($offer['titre'] ?? 'offre');
+
+                            $sanitize = static function (string $value): string {
+                                $value = trim($value);
+                                $value = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $value);
+                                $value = strtolower($value);
+                                $value = preg_replace('/[^a-z0-9]+/', '_', $value);
+                                $value = trim($value, '_');
+
+                                return $value !== '' ? $value : 'inconnu';
+                            };
+
+                            $prenomSafe = $sanitize($prenom);
+                            $nomSafe = $sanitize($nom);
+                            $offreSafe = substr($sanitize($offreTitre), 0, 50);
+                            $timestamp = date('Ymd_His');
+
+                            $filename = $prenomSafe . '_' . $nomSafe . '_' . $offreSafe . '_' . $timestamp . '.pdf';
                             $destination = $uploadDir . $filename;
 
                             if (move_uploaded_file($file['tmp_name'], $destination)) {

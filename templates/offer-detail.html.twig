@@ -119,14 +119,9 @@
                     <a href="/connexion" class="apply-button">Se connecter pour postuler</a>
                     <p class="detail-note">Connexion requise pour postuler à cette offre</p>
                 {% elseif current_user.role != 'etudiant' %}
-<<<<<<< HEAD
-                    <button class="apply-button disabled-button" disabled>Postuler</button>
-                    <p class="detail-note">Seuls les étudiants peuvent postuler à cette offre</p>
-=======
                     <button class="apply-button disabled-button" disabled>Réservé aux étudiants</button>
                 {% elseif has_applied %}
                     <button class="apply-button disabled-button" disabled>Déjà postulé</button>
->>>>>>> 6ae2e3f85c18ef0979cc42d1ae2f7586ccd4243b
                 {% else %}
                     <a href="/offres/{{ offer.id }}/postuler" class="apply-button">Postuler</a>
                     <p class="detail-note">Votre candidature sera ajoutée à votre espace étudiant</p>

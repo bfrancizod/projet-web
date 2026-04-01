@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Database;
+use App\Repository\CompanyCommentRepository;
 use App\Repository\OfferRepository;
 use Twig\Environment;
 
@@ -12,11 +13,15 @@ class OfferController
 {
     private Environment $twig;
     private OfferRepository $offerRepository;
+    private CompanyCommentRepository $companyCommentRepository;
 
     public function __construct(Environment $twig)
     {
         $this->twig = $twig;
-        $this->offerRepository = new OfferRepository(Database::getConnection());
+
+        $pdo = Database::getConnection();
+        $this->offerRepository = new OfferRepository($pdo);
+        $this->companyCommentRepository = new CompanyCommentRepository($pdo);
     }
 
     public function index(): string
@@ -92,11 +97,22 @@ class OfferController
             $hasApplied = $this->offerRepository->hasStudentAppliedToOffer($userId, $id);
         }
 
+        $latestComments = [];
+        $commentsCount = 0;
+
+        if (!empty($offer['entreprise_id'])) {
+            $companyId = (int) $offer['entreprise_id'];
+            $latestComments = $this->companyCommentRepository->findLatestByCompanyId($companyId, 3);
+            $commentsCount = $this->companyCommentRepository->countByCompanyId($companyId);
+        }
+
         return $this->twig->render('offer-detail.html.twig', [
             'offer' => $offer,
             'skills' => $skills,
             'is_in_wishlist' => $isInWishlist,
             'has_applied' => $hasApplied,
+            'latest_comments' => $latestComments,
+            'comments_count' => $commentsCount,
         ]);
     }
 }

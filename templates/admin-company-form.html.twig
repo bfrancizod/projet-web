@@ -88,8 +88,19 @@
                     Cliquez sur une etoile pour noter. Cliquez a nouveau sur la meme etoile pour retirer la note.
                 </p>
 
-                <label for="commentaire">Commentaire / Avis</label>
-                <textarea id="commentaire" name="commentaire" rows="5" placeholder="Laissez un commentaire sur cette entreprise...">{{ company.commentaire }}</textarea>
+                <label for="commentaire">
+                    {% if is_edit %}
+                        Mon commentaire
+                    {% else %}
+                        Commentaire initial
+                    {% endif %}
+                </label>
+                <textarea
+                    id="commentaire"
+                    name="commentaire"
+                    rows="5"
+                    placeholder="Laissez votre commentaire sur cette entreprise..."
+                >{{ user_comment.commentaire ?? '' }}</textarea>
 
                 <button type="submit" class="cta-button">
                     {% if is_edit %}
@@ -99,6 +110,40 @@
                     {% endif %}
                 </button>
             </form>
+
+            {% if is_edit %}
+                <div style="margin-top: 32px;">
+                    <h3 style="margin-bottom: 16px;">Commentaires existants</h3>
+
+                    {% if company_comments is not empty %}
+                        <div style="display: flex; flex-direction: column; gap: 16px;">
+                            {% for comment in company_comments %}
+                                <div style="padding: 16px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px;">
+                                    <div style="display:flex; justify-content:space-between; gap:16px; margin-bottom:8px; flex-wrap:wrap;">
+                                        <strong>
+                                            {% if comment.prenom or comment.nom %}
+                                                {{ comment.prenom }} {{ comment.nom }}
+                                            {% elseif comment.email %}
+                                                {{ comment.email }}
+                                            {% else %}
+                                                Utilisateur #{{ comment.user_id ?: 'inconnu' }}
+                                            {% endif %}
+                                        </strong>
+
+                                        <small style="color:#6b7280;">
+                                            {{ comment.created_at|date('d/m/Y H:i') }}
+                                        </small>
+                                    </div>
+
+                                    <p style="margin:0; white-space:pre-line;">{{ comment.commentaire }}</p>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="empty-state">Aucun commentaire pour cette entreprise.</p>
+                    {% endif %}
+                </div>
+            {% endif %}
         </section>
     </div>
 </main>

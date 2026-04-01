@@ -70,7 +70,6 @@
                     <strong>{{ offer.entreprise_siret ?: 'Non renseigné' }}</strong>
                 </div>
 
-                {# ===== AFFICHAGE DES ETOILES EN LECTURE SEULE ===== #}
                 <div class="detail-info-item">
                     <span class="detail-label">Évaluation</span>
                     {% if offer.entreprise_note is not null %}
@@ -85,7 +84,6 @@
                         <strong style="color: #9ca3af;">Non évaluée</strong>
                     {% endif %}
                 </div>
-                {# ===== FIN AFFICHAGE ETOILES ===== #}
             </div>
 
             {% if offer.entreprise_site_web %}
@@ -97,10 +95,42 @@
                 </p>
             {% endif %}
 
-            {% if offer.entreprise_commentaire %}
-                <p style="margin-top: 12px; padding: 12px 16px; background: #f9fafb; border-radius: 10px; border-left: 3px solid #e5e7eb;">
-                    <strong>Avis :</strong> {{ offer.entreprise_commentaire }}
-                </p>
+            <h2>Derniers commentaires</h2>
+
+            {% if latest_comments is not empty %}
+                <div style="display:flex; flex-direction:column; gap:16px; margin-top:16px;">
+                    {% for comment in latest_comments %}
+                        <div style="padding:16px; background:#f9fafb; border:1px solid #e5e7eb; border-radius:12px;">
+                            <div style="display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:8px;">
+                                <strong>
+                                    {% if comment.prenom or comment.nom %}
+                                        {{ comment.prenom }} {{ comment.nom }}
+                                    {% elseif comment.email %}
+                                        {{ comment.email }}
+                                    {% else %}
+                                        Utilisateur #{{ comment.user_id ?: 'inconnu' }}
+                                    {% endif %}
+                                </strong>
+
+                                <small style="color:#6b7280;">
+                                    {{ comment.created_at|date('d/m/Y H:i') }}
+                                </small>
+                            </div>
+
+                            <p style="margin:0; white-space:pre-line;">{{ comment.commentaire }}</p>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                {% if offer.entreprise_id and comments_count > 3 %}
+                    <div style="margin-top:20px;">
+                        <a href="/entreprises/{{ offer.entreprise_id }}/commentaires" class="secondary-button">
+                            Voir plus de commentaires
+                        </a>
+                    </div>
+                {% endif %}
+            {% else %}
+                <p style="color:#6b7280;">Aucun commentaire pour cette entreprise.</p>
             {% endif %}
 
             {% if current_user and current_user.role == 'etudiant' %}

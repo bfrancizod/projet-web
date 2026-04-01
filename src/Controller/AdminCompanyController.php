@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Database;
+use App\Repository\CompanyCommentRepository;
 use App\Repository\CompanyRepository;
 use App\Security\Csrf;
 use Twig\Environment;
@@ -13,11 +14,15 @@ class AdminCompanyController
 {
     private Environment $twig;
     private CompanyRepository $companyRepository;
+    private CompanyCommentRepository $companyCommentRepository;
 
     public function __construct(Environment $twig)
     {
         $this->twig = $twig;
-        $this->companyRepository = new CompanyRepository(Database::getConnection());
+
+        $pdo = Database::getConnection();
+        $this->companyRepository = new CompanyRepository($pdo);
+        $this->companyCommentRepository = new CompanyCommentRepository($pdo);
     }
 
     public function index(): string
@@ -31,7 +36,6 @@ class AdminCompanyController
         }
 
         $search = trim((string) ($_GET['q'] ?? ''));
-
         $companies = $this->companyRepository->findAll($search);
 
         return $this->twig->render('admin-companies.html.twig', [
@@ -60,6 +64,8 @@ class AdminCompanyController
             exit;
         }
 
+        $currentUserId = (int) $_SESSION['user']['id'];
+
         $isEdit = $companyId !== null;
         $error = null;
         $success = null;
@@ -72,8 +78,13 @@ class AdminCompanyController
             'ville' => '',
             'site_web' => '',
             'note' => '',
+        ];
+
+        $userComment = [
             'commentaire' => '',
         ];
+
+        $allComments = [];
 
         if ($isEdit) {
             $existingCompany = $this->companyRepository->findById($companyId);
@@ -84,6 +95,13 @@ class AdminCompanyController
             }
 
             $company = $existingCompany;
+
+            $existingUserComment = $this->companyCommentRepository->findByCompanyIdAndUserId($companyId, $currentUserId);
+            if ($existingUserComment) {
+                $userComment['commentaire'] = (string) ($existingUserComment['commentaire'] ?? '');
+            }
+
+            $allComments = $this->companyCommentRepository->findByCompanyId($companyId);
         }
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -113,7 +131,8 @@ class AdminCompanyController
             $company['ville'] = $ville;
             $company['site_web'] = $siteWeb;
             $company['note'] = $noteRaw;
-            $company['commentaire'] = $commentaire;
+
+            $userComment['commentaire'] = $commentaire;
 
             if ($error === null && $nom === '') {
                 $error = "Le nom de l'entreprise est obligatoire.";
@@ -137,7 +156,6 @@ class AdminCompanyController
                     $secteurValue = $secteur !== '' ? $secteur : null;
                     $villeValue = $ville !== '' ? $ville : null;
                     $siteWebValue = $siteWeb !== '' ? $siteWeb : null;
-                    $commentaireValue = $commentaire !== '' ? $commentaire : null;
 
                     if ($isEdit) {
                         $this->companyRepository->update(
@@ -147,9 +165,16 @@ class AdminCompanyController
                             $secteurValue,
                             $villeValue,
                             $siteWebValue,
-                            $note,
-                            $commentaireValue
+                            $note
                         );
+
+                        if ($commentaire !== '') {
+                            $this->companyCommentRepository->upsert(
+                                $companyId,
+                                $currentUserId,
+                                $commentaire
+                            );
+                        }
 
                         $success = 'Entreprise mise à jour avec succès.';
                     } else {
@@ -159,9 +184,16 @@ class AdminCompanyController
                             $secteurValue,
                             $villeValue,
                             $siteWebValue,
-                            $note,
-                            $commentaireValue
+                            $note
                         );
+
+                        if ($commentaire !== '') {
+                            $this->companyCommentRepository->upsert(
+                                $companyId,
+                                $currentUserId,
+                                $commentaire
+                            );
+                        }
 
                         $isEdit = true;
                         $success = 'Entreprise créée avec succès.';
@@ -171,6 +203,11 @@ class AdminCompanyController
                     if ($reloadedCompany) {
                         $company = $reloadedCompany;
                     }
+
+                    $reloadedUserComment = $this->companyCommentRepository->findByCompanyIdAndUserId($companyId, $currentUserId);
+                    $userComment['commentaire'] = $reloadedUserComment['commentaire'] ?? '';
+
+                    $allComments = $this->companyCommentRepository->findByCompanyId($companyId);
                 } catch (\Throwable $e) {
                     $error = $isEdit
                         ? "Erreur lors de la mise à jour de l'entreprise."
@@ -181,6 +218,8 @@ class AdminCompanyController
 
         return $this->twig->render('admin-company-form.html.twig', [
             'company' => $company,
+            'user_comment' => $userComment,
+            'company_comments' => $allComments,
             'is_edit' => $isEdit,
             'error' => $error,
             'success' => $success,

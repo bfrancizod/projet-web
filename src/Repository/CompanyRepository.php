@@ -23,7 +23,6 @@ class CompanyRepository
                 ville,
                 site_web,
                 note,
-                commentaire,
                 created_at
             FROM entreprises
             WHERE 1 = 1
@@ -53,7 +52,7 @@ class CompanyRepository
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
 
-        return $stmt->fetchAll();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function findById(int $companyId): array|false
@@ -66,15 +65,14 @@ class CompanyRepository
                 secteur,
                 ville,
                 site_web,
-                note,
-                commentaire
+                note
             FROM entreprises
             WHERE id = :id
             LIMIT 1
         ");
         $stmt->execute(['id' => $companyId]);
 
-        return $stmt->fetch();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     public function nameExists(string $name, ?int $excludeId = null): bool
@@ -112,12 +110,11 @@ class CompanyRepository
         ?string $secteur,
         ?string $ville,
         ?string $siteWeb,
-        ?int $note,
-        ?string $commentaire
+        ?int $note
     ): int {
         $stmt = $this->pdo->prepare("
-            INSERT INTO entreprises (nom, siret, secteur, ville, site_web, note, commentaire)
-            VALUES (:nom, :siret, :secteur, :ville, :site_web, :note, :commentaire)
+            INSERT INTO entreprises (nom, siret, secteur, ville, site_web, note)
+            VALUES (:nom, :siret, :secteur, :ville, :site_web, :note)
         ");
         $stmt->execute([
             'nom' => $nom,
@@ -126,7 +123,6 @@ class CompanyRepository
             'ville' => $ville,
             'site_web' => $siteWeb,
             'note' => $note,
-            'commentaire' => $commentaire,
         ]);
 
         return (int) $this->pdo->lastInsertId();
@@ -139,8 +135,7 @@ class CompanyRepository
         ?string $secteur,
         ?string $ville,
         ?string $siteWeb,
-        ?int $note,
-        ?string $commentaire
+        ?int $note
     ): void {
         $stmt = $this->pdo->prepare("
             UPDATE entreprises
@@ -149,8 +144,7 @@ class CompanyRepository
                 secteur = :secteur,
                 ville = :ville,
                 site_web = :site_web,
-                note = :note,
-                commentaire = :commentaire
+                note = :note
             WHERE id = :id
         ");
         $stmt->execute([
@@ -161,7 +155,6 @@ class CompanyRepository
             'ville' => $ville,
             'site_web' => $siteWeb,
             'note' => $note,
-            'commentaire' => $commentaire,
         ]);
     }
 
@@ -173,6 +166,12 @@ class CompanyRepository
             $stmt = $this->pdo->prepare("
                 UPDATE offres
                 SET entreprise_id = NULL
+                WHERE entreprise_id = :id
+            ");
+            $stmt->execute(['id' => $companyId]);
+
+            $stmt = $this->pdo->prepare("
+                DELETE FROM entreprise_commentaires
                 WHERE entreprise_id = :id
             ");
             $stmt->execute(['id' => $companyId]);

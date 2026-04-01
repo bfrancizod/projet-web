@@ -1,0 +1,85 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Commentaires - {{ company.nom }}{% endblock %}
+
+{% block body %}
+<main class="offer-detail-page">
+    <div class="container">
+        <nav class="breadcrumb" style="margin-bottom: 24px;">
+            <a href="/">Accueil</a>
+            <span>/</span>
+            <a href="/offres">Offres</a>
+            <span>/</span>
+            <span>Commentaires entreprise</span>
+        </nav>
+
+        <section class="offer-detail-card">
+            <div style="display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; align-items:flex-start;">
+                <div>
+                    <h1 style="margin-bottom:8px;">Commentaires de {{ company.nom }}</h1>
+                    <p style="margin:0; color:#6b7280;">
+                        {{ company.secteur ?: 'Secteur non défini' }}
+                        {% if company.ville %}
+                            • {{ company.ville }}
+                        {% endif %}
+                    </p>
+                </div>
+
+                <a href="javascript:history.back()" class="secondary-button">Retour</a>
+            </div>
+
+            <div class="detail-info-grid" style="margin-top: 24px;">
+                <div class="detail-info-item">
+                    <span class="detail-label">Nom</span>
+                    <strong>{{ company.nom }}</strong>
+                </div>
+
+                <div class="detail-info-item">
+                    <span class="detail-label">SIRET</span>
+                    <strong>{{ company.siret ?: 'Non renseigné' }}</strong>
+                </div>
+
+                <div class="detail-info-item">
+                    <span class="detail-label">Secteur</span>
+                    <strong>{{ company.secteur ?: 'Non défini' }}</strong>
+                </div>
+
+                <div class="detail-info-item">
+                    <span class="detail-label">Ville</span>
+                    <strong>{{ company.ville ?: 'Non définie' }}</strong>
+                </div>
+            </div>
+
+            <h2 style="margin-top: 32px;">Tous les commentaires</h2>
+
+            {% if comments is not empty %}
+                <div style="display:flex; flex-direction:column; gap:16px; margin-top:16px;">
+                    {% for comment in comments %}
+                        <div style="padding:16px; background:#f9fafb; border:1px solid #e5e7eb; border-radius:12px;">
+                            <div style="display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:8px;">
+                                <strong>
+                                    {% if comment.prenom or comment.nom %}
+                                        {{ comment.prenom }} {{ comment.nom }}
+                                    {% elseif comment.email %}
+                                        {{ comment.email }}
+                                    {% else %}
+                                        Utilisateur #{{ comment.user_id ?: 'inconnu' }}
+                                    {% endif %}
+                                </strong>
+
+                                <small style="color:#6b7280;">
+                                    {{ comment.created_at|date('d/m/Y H:i') }}
+                                </small>
+                            </div>
+
+                            <p style="margin:0; white-space:pre-line;">{{ comment.commentaire }}</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p style="color:#6b7280;">Aucun commentaire pour cette entreprise.</p>
+            {% endif %}
+        </section>
+    </div>
+</main>
+{% endblock %}

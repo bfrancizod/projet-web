@@ -10,6 +10,7 @@ use App\Security\Csrf;
 
 use App\Controller\ApplyController;
 use App\Controller\AuthController;
+use App\Controller\CompanyCommentController;
 use App\Controller\ContactController;
 use App\Controller\CookieConsentController;
 use App\Controller\HomeController;
@@ -126,6 +127,12 @@ $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 // Détail offre
 if ($method === 'GET' && preg_match('#^/offres/([0-9]+)$#', $uri, $matches)) {
     echo (new OfferController($twig))->show((int) $matches[1]);
+    exit;
+}
+
+// Tous les commentaires d'une entreprise
+if ($method === 'GET' && preg_match('#^/entreprises/([0-9]+)/commentaires$#', $uri, $matches)) {
+    echo (new CompanyCommentController($twig))->index((int) $matches[1]);
     exit;
 }
 

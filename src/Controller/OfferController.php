@@ -102,7 +102,7 @@ class OfferController
 
         if (!empty($offer['entreprise_id'])) {
             $companyId = (int) $offer['entreprise_id'];
-            $latestComments = $this->companyCommentRepository->findLatestByCompanyId($companyId, 3);
+            $latestComments = $this->companyCommentRepository->findLatestByCompanyId($companyId, 1);
             $commentsCount = $this->companyCommentRepository->countByCompanyId($companyId);
         }
 

@@ -163,19 +163,77 @@ class CompanyRepository
         $this->pdo->beginTransaction();
 
         try {
+            // 1. récupérer le nom de l'entreprise avant suppression
             $stmt = $this->pdo->prepare("
-                UPDATE offres
-                SET entreprise_id = NULL
-                WHERE entreprise_id = :id
+                SELECT nom
+                FROM entreprises
+                WHERE id = :id
+                LIMIT 1
             ");
             $stmt->execute(['id' => $companyId]);
+            $company = $stmt->fetch(PDO::FETCH_ASSOC);
 
+            if (!$company) {
+                throw new \RuntimeException('Entreprise introuvable.');
+            }
+
+            $companyName = $company['nom'];
+
+            // 2. récupérer toutes les offres liées soit par entreprise_id soit par nom
+            $stmt = $this->pdo->prepare("
+                SELECT id
+                FROM offres
+                WHERE entreprise_id = :id
+                   OR entreprise = :nom
+            ");
+            $stmt->execute([
+                'id' => $companyId,
+                'nom' => $companyName,
+            ]);
+            $offers = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+            foreach ($offers as $offerId) {
+                // supprimer wishlist liées
+                $stmt = $this->pdo->prepare("
+                    DELETE FROM student_wishlist
+                    WHERE offre_id = :id
+                ");
+                $stmt->execute(['id' => $offerId]);
+
+                // supprimer candidatures liées
+                $stmt = $this->pdo->prepare("
+                    DELETE FROM candidatures
+                    WHERE offre_id = :id
+                ");
+                $stmt->execute(['id' => $offerId]);
+
+                // supprimer compétences liées
+                $stmt = $this->pdo->prepare("
+                    DELETE FROM offre_competence
+                    WHERE offre_id = :id
+                ");
+                $stmt->execute(['id' => $offerId]);
+            }
+
+            // 3. supprimer les offres liées
+            $stmt = $this->pdo->prepare("
+                DELETE FROM offres
+                WHERE entreprise_id = :id
+                   OR entreprise = :nom
+            ");
+            $stmt->execute([
+                'id' => $companyId,
+                'nom' => $companyName,
+            ]);
+
+            // 4. supprimer commentaires entreprise
             $stmt = $this->pdo->prepare("
                 DELETE FROM entreprise_commentaires
                 WHERE entreprise_id = :id
             ");
             $stmt->execute(['id' => $companyId]);
 
+            // 5. supprimer l'entreprise
             $stmt = $this->pdo->prepare("
                 DELETE FROM entreprises
                 WHERE id = :id

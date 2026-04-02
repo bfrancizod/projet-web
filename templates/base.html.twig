@@ -16,6 +16,7 @@
 <header class="site-header">
     <div class="container header-content">
 
+        <!-- LOGO -->
         <div class="logo">
             <a href="/" class="logo-link">
                 <img 
@@ -39,33 +40,31 @@
 
     </div>
 
+    <!-- MENU BURGER CLEAN -->
     <nav class="mobile-menu" id="mobile-menu">
         {% if current_user %}
 
             {% if current_user.role == 'administrateur' %}
                 <a href="/espace-admin">Mon espace administrateur</a>
+                <a href="/offres">Voir les offres</a>
+                <a href="/logout">Déconnexion</a>
 
             {% elseif current_user.role == 'pilote' %}
                 <a href="/espace-pilote">Mon espace pilote</a>
+                <a href="/offres">Voir les offres</a>
+                <a href="/logout">Déconnexion</a>
 
             {% elseif current_user.role == 'etudiant' %}
                 <a href="/espace-etudiant">Mon espace étudiant</a>
                 <a href="/etudiant-candidatures">Mes candidatures</a>
                 <a href="/etudiant-wishlist">Ma wishlist</a>
+                <a href="/offres">Voir les offres</a>
+                <a href="/logout">Déconnexion</a>
             {% endif %}
-
-            <a href="/offres">Voir les offres</a>
-            <a href="/contact">Contact</a>
-            <a href="/mentions-legales">Mentions légales</a>
-            <a href="/politique-confidentialite">Politique de confidentialité</a>
-            <a href="/logout">Déconnexion</a>
 
         {% else %}
             <a href="/">Accueil</a>
             <a href="/offres">Voir les offres</a>
-            <a href="/contact">Contact</a>
-            <a href="/mentions-legales">Mentions légales</a>
-            <a href="/politique-confidentialite">Politique de confidentialité</a>
             <a href="/connexion">Connexion</a>
         {% endif %}
     </nav>
@@ -75,8 +74,10 @@
     {% block body %}{% endblock %}
 </main>
 
+<!-- FOOTER (avec contact + légal) -->
 <footer class="site-footer">
     <div class="container footer-content">
+
         <div class="footer-brand">
             <a href="/" class="footer-logo-link">
                 <img 
@@ -105,6 +106,7 @@
                 <a href="/politique-confidentialite">Politique de confidentialité</a>
             </div>
         </div>
+
     </div>
 
     <div class="footer-bottom">

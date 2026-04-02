@@ -16,7 +16,6 @@
 <header class="site-header">
     <div class="container header-content">
 
-        <!-- LOGO + TEXTE -->
         <div class="logo">
             <a href="/" class="logo-link">
                 <img 
@@ -35,7 +34,7 @@
                 </span>
             {% endif %}
 
-            <button class="menu-button" id="menu-toggle">☰</button>
+            <button class="menu-button" id="menu-toggle" aria-label="Ouvrir le menu">☰</button>
         </div>
 
     </div>
@@ -56,17 +55,64 @@
             {% endif %}
 
             <a href="/offres">Voir les offres</a>
+            <a href="/contact">Contact</a>
+            <a href="/mentions-legales">Mentions légales</a>
+            <a href="/politique-confidentialite">Politique de confidentialité</a>
             <a href="/logout">Déconnexion</a>
 
         {% else %}
             <a href="/">Accueil</a>
             <a href="/offres">Voir les offres</a>
+            <a href="/contact">Contact</a>
+            <a href="/mentions-legales">Mentions légales</a>
+            <a href="/politique-confidentialite">Politique de confidentialité</a>
             <a href="/connexion">Connexion</a>
         {% endif %}
     </nav>
 </header>
 
-{% block body %}{% endblock %}
+<main class="site-main">
+    {% block body %}{% endblock %}
+</main>
+
+<footer class="site-footer">
+    <div class="container footer-content">
+        <div class="footer-brand">
+            <a href="/" class="footer-logo-link">
+                <img 
+                    src="/assets/logo/logo.svg"
+                    alt="Help Me Stage"
+                    class="footer-logo"
+                >
+                <span class="footer-brand-text">Help Me Stage</span>
+            </a>
+            <p class="footer-description">
+                Plateforme de mise en relation entre étudiants et offres de stage.
+            </p>
+        </div>
+
+        <div class="footer-links">
+            <div class="footer-column">
+                <h3>Navigation</h3>
+                <a href="/">Accueil</a>
+                <a href="/offres">Offres</a>
+                <a href="/contact">Contact</a>
+            </div>
+
+            <div class="footer-column">
+                <h3>Informations</h3>
+                <a href="/mentions-legales">Mentions légales</a>
+                <a href="/politique-confidentialite">Politique de confidentialité</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-bottom">
+        <div class="container footer-bottom-content">
+            <p>© {{ "now"|date("Y") }} Help Me Stage - Tous droits réservés.</p>
+        </div>
+    </div>
+</footer>
 
 <script>
 document.getElementById('menu-toggle')?.addEventListener('click', function () {

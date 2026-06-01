@@ -40,7 +40,9 @@ class Database
 
                 self::$instance = $pdo;
             } catch (PDOException $e) {
-                die('Erreur connexion DB : ' . $e->getMessage());
+                error_log('[Database] Erreur connexion : ' . $e->getMessage());
+                http_response_code(500);
+                die('Une erreur technique est survenue. Veuillez réessayer plus tard.');
             }
         }
 

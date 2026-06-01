@@ -12,8 +12,8 @@
     align-items: center;
     gap: 12px;
     padding: 12px 16px;
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
+    background: var(--color-bg-light);
+    border: 1px solid var(--color-border);
     border-radius: 12px;
 }
 
@@ -25,7 +25,7 @@
 
 .star-btn {
     font-size: 2rem;
-    color: #d1d5db;
+    color: var(--color-border-light);
     cursor: pointer;
     transition: color 0.15s, transform 0.1s;
     user-select: none;
@@ -42,14 +42,14 @@
 
 .star-label {
     font-size: 0.95rem;
-    color: #6b7280;
+    color: var(--color-text-muted);
     font-style: italic;
     min-width: 140px;
 }
 
 .star-hint {
     font-size: 0.85rem;
-    color: #9ca3af;
+    color: var(--color-text-light);
     margin-top: -6px;
 }
 
@@ -72,11 +72,11 @@
 }
 
 .star-icon.star-empty {
-    color: #d1d5db;
+    color: var(--color-border-light);
 }
 
 .stars-number {
     margin-left: 4px;
-    color: #6b7280;
+    color: var(--color-text-muted);
     font-size: 0.82rem;
 }

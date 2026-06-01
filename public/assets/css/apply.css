@@ -11,12 +11,12 @@
 
 .breadcrumb {
     font-size: 0.95rem;
-    color: #6b7280;
+    color: var(--color-text-muted);
     margin-bottom: 20px;
 }
 
 .breadcrumb a {
-    color: #6b7280;
+    color: var(--color-text-muted);
     text-decoration: none;
 }
 
@@ -37,7 +37,7 @@
 }
 
 .apply-subtitle {
-    color: #6b7280;
+    color: var(--color-text-muted);
     font-size: 1.2rem;
     margin-bottom: 22px;
 }
@@ -55,15 +55,15 @@
 .apply-form textarea,
 .apply-form input {
     width: 100%;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--color-border-light);
     border-radius: 12px;
     padding: 14px;
     font: inherit;
-    background: #f9fafb;
+    background: var(--color-bg-light);
 }
 
 .field-help {
-    color: #6b7280;
+    color: var(--color-text-muted);
     margin-top: -4px;
     margin-bottom: 8px;
 }
@@ -84,13 +84,13 @@
 }
 
 .apply-alert-warning {
-    background: #fff7d6;
+    background: var(--color-primary-light);
     border: 1px solid #f4d03f;
     color: #7c5e10;
 }
 
 .apply-alert-error {
-    background: #fee2e2;
+    background: var(--color-error-bg);
     border: 1px solid #fca5a5;
     color: #991b1b;
 }
@@ -109,8 +109,8 @@
     padding: 12px 22px;
     border-radius: 10px;
     text-decoration: none;
-    color: #1f2937;
-    border: 1px solid #d1d5db;
+    color: var(--color-text);
+    border: 1px solid var(--color-border-light);
     background: white;
     font-weight: 600;
 }
@@ -138,10 +138,10 @@
 
 .cv-drop-zone {
     position: relative;
-    border: 2px dashed #d1d5db;
+    border: 2px dashed var(--color-border-light);
     border-radius: 12px;
     padding: 32px 20px;
-    background: #f9fafb;
+    background: var(--color-bg-light);
     text-align: center;
     cursor: pointer;
     transition: border-color 0.2s, background 0.2s;
@@ -152,7 +152,7 @@
 }
 
 .cv-drop-zone svg {
-    color: #9ca3af;
+    color: var(--color-text-light);
     margin-bottom: 10px;
 }
 
@@ -168,7 +168,7 @@
 }
 
 .cv-drop-zone small {
-    color: #9ca3af;
+    color: var(--color-text-light);
 }
 
 .cv-drop-zone.dragging {
@@ -183,5 +183,5 @@
 }
 
 .cv-drop-zone.has-file p {
-    color: #15803d;
+    color: var(--color-success);
 }

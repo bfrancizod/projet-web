@@ -16,7 +16,7 @@ margin-bottom: 20px;
 
 .hero p {
 font-size: 18px;
-color: #6b7280;
+color: var(--color-text-muted);
 margin-bottom: 30px;
 }
 

@@ -6,12 +6,12 @@
 .breadcrumb {
     font-size: 0.95rem;
     margin-bottom: 18px;
-    color: #6b7280;
+    color: var(--color-text-muted);
 }
 
 .breadcrumb a {
     text-decoration: none;
-    color: #6b7280;
+    color: var(--color-text-muted);
 }
 
 .breadcrumb span {
@@ -20,7 +20,7 @@
 
 /* CARD */
 .offer-detail-card {
-    background: #ffffff;
+    background: var(--color-white);
     padding: 28px;
     border-radius: 16px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
@@ -38,7 +38,7 @@
 
 .detail-company {
     font-size: 1.04rem;
-    color: #6b7280;
+    color: var(--color-text-muted);
     margin-bottom: 22px;
 }
 
@@ -47,7 +47,7 @@
     display: grid;
     grid-template-columns: repeat(2, minmax(220px, 1fr));
     gap: 16px;
-    background: #f6f7f9;
+    background: var(--color-bg);
     padding: 20px;
     border-radius: 12px;
     margin-bottom: 28px;
@@ -62,7 +62,7 @@
     display: block;
     margin-bottom: 6px;
     font-size: 0.92rem;
-    color: #6b7280;
+    color: var(--color-text-muted);
 }
 
 /* DESCRIPTION */
@@ -113,25 +113,25 @@
     padding: 12px 22px;
     border-radius: 10px;
     text-decoration: none;
-    border: 2px solid #f2b705;
-    background: #f2b705;
-    color: #111827;
+    border: 2px solid var(--color-primary);
+    background: var(--color-primary);
+    color: var(--color-text-dark);
     font-weight: 700;
     cursor: pointer;
     transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
 }
 
 .apply-button:hover {
-    background: #e0a800;
-    border-color: #e0a800;
+    background: var(--color-primary-dark);
+    border-color: var(--color-primary-dark);
     transform: translateY(-1px);
 }
 
 .disabled-button,
 .apply-button:disabled {
-    background: #9ca3af;
-    border-color: #9ca3af;
-    color: #ffffff;
+    background: var(--color-text-light);
+    border-color: var(--color-text-light);
+    color: var(--color-white);
     cursor: not-allowed;
     pointer-events: none;
     transform: none;
@@ -141,7 +141,7 @@
     width: 100%;
     font-size: 0.94rem;
     margin-top: 10px;
-    color: #6b7280;
+    color: var(--color-text-muted);
 }
 
 /* RESPONSIVE */

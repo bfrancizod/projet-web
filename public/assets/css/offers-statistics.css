@@ -16,7 +16,7 @@
     align-items: center;
     padding: 6px 12px;
     border-radius: 999px;
-    background: #fff7d6;
+    background: var(--color-primary-light);
     color: #8a6a00;
     font-size: 0.9rem;
     font-weight: 700;
@@ -27,12 +27,12 @@
     font-size: clamp(2rem, 4vw, 2.8rem);
     line-height: 1.1;
     margin-bottom: 10px;
-    color: #111827;
+    color: var(--color-text-dark);
 }
 
 .stats-header p {
     max-width: 720px;
-    color: #6b7280;
+    color: var(--color-text-muted);
     font-size: 1rem;
 }
 
@@ -61,8 +61,8 @@
 
 .stats-card {
     scroll-snap-align: start;
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
     border-radius: 24px;
     padding: 28px;
     min-height: 430px;
@@ -72,7 +72,7 @@
 }
 
 .stats-card-highlight {
-    background: linear-gradient(135deg, #ffffff 0%, #fffdf4 100%);
+    background: linear-gradient(135deg, var(--color-white) 0%, #fffdf4 100%);
 }
 
 .stats-card-top {
@@ -86,7 +86,7 @@
 .stats-card-label {
     font-size: 1.05rem;
     font-weight: 700;
-    color: #111827;
+    color: var(--color-text-dark);
 }
 
 .stats-card-badge {
@@ -103,12 +103,12 @@
     font-size: clamp(3rem, 8vw, 5rem);
     line-height: 1;
     font-weight: 800;
-    color: #111827;
+    color: var(--color-text-dark);
     margin: 18px 0 12px;
 }
 
 .stats-card-text {
-    color: #6b7280;
+    color: var(--color-text-muted);
     max-width: 620px;
 }
 
@@ -138,7 +138,7 @@
 }
 
 .stats-list-head strong {
-    color: #111827;
+    color: var(--color-text-dark);
     font-size: 1rem;
     flex-shrink: 0;
 }
@@ -146,12 +146,12 @@
 .stats-offer-title {
     display: block;
     font-weight: 700;
-    color: #111827;
+    color: var(--color-text-dark);
     margin-bottom: 4px;
 }
 
 .stats-list-head small {
-    color: #6b7280;
+    color: var(--color-text-muted);
 }
 
 .stats-progress {
@@ -170,11 +170,11 @@
 }
 
 .stats-empty {
-    color: #6b7280;
+    color: var(--color-text-muted);
 }
 
 .stats-extra-info {
-    color: #6b7280;
+    color: var(--color-text-muted);
     font-size: 0.85rem;
 }
 
@@ -183,8 +183,8 @@
     width: 48px;
     height: 48px;
     border-radius: 999px;
-    background: #ffffff;
-    color: #111827;
+    background: var(--color-white);
+    color: var(--color-text-dark);
     font-size: 1.8rem;
     line-height: 1;
     cursor: pointer;
@@ -209,7 +209,7 @@
     height: 10px;
     border-radius: 999px;
     border: 0;
-    background: #d1d5db;
+    background: var(--color-border-light);
     cursor: pointer;
     transition: all 0.2s ease;
 }

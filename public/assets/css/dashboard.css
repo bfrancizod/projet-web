@@ -17,12 +17,12 @@
 
 .dashboard-card p {
     margin-bottom: 20px;
-    color: #6b7280;
+    color: var(--color-text-muted);
 }
 
 .logout-link {
     display: inline-block;
     margin-left: 16px;
-    color: #6b7280;
+    color: var(--color-text-muted);
     text-decoration: none;
 }

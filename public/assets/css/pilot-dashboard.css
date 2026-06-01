@@ -15,12 +15,12 @@
 
 .pilot-header h1 {
     font-size: 2.6rem;
-    color: #1f2937;
+    color: var(--color-text);
     margin-bottom: 8px;
 }
 
 .pilot-header p {
-    color: #6b7280;
+    color: var(--color-text-muted);
     font-size: 1rem;
 }
 
@@ -44,7 +44,7 @@
 }
 
 .stat-red {
-    border-left-color: #ef4444;
+    border-left-color: var(--color-error);
 }
 
 .stat-yellow {
@@ -78,7 +78,7 @@
 }
 
 .stat-content span {
-    color: #6b7280;
+    color: var(--color-text-muted);
     font-size: 0.96rem;
 }
 
@@ -110,7 +110,7 @@
 }
 
 .action-card p {
-    color: #6b7280;
+    color: var(--color-text-muted);
     font-size: 0.97rem;
     line-height: 1.6;
     margin: 0;
@@ -154,7 +154,7 @@
 }
 
 .student-row {
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--color-border);
     border-radius: 14px;
     padding: 18px;
     min-height: 96px;
@@ -170,7 +170,7 @@
 }
 
 .student-main p {
-    color: #6b7280;
+    color: var(--color-text-muted);
     margin-bottom: 8px;
 }
 
@@ -182,7 +182,7 @@
 }
 
 .student-meta small {
-    color: #6b7280;
+    color: var(--color-text-muted);
 }
 
 .badge {
@@ -196,7 +196,7 @@
 }
 
 .badge-red {
-    background: #fee2e2;
+    background: var(--color-error-bg);
     color: #b91c1c;
 }
 
@@ -211,16 +211,16 @@
 }
 
 .badge-green {
-    background: #dcfce7;
-    color: #15803d;
+    background: var(--color-success-bg);
+    color: var(--color-success);
 }
 
 .student-button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: #f4b400;
-    color: #111827;
+    background: var(--color-primary);
+    color: var(--color-text-dark);
     text-decoration: none;
     font-weight: 700;
     border-radius: 10px;

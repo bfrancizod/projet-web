@@ -78,7 +78,7 @@
 }
 
 .forgot-password a {
-    color: #111827;
+    color: var(--color-text-dark);
     text-decoration: none;
     font-size: 0.95rem;
 }
@@ -90,7 +90,7 @@
 
 .login-note {
     text-align: center;
-    color: #6b7280;
+    color: var(--color-text-muted);
     font-size: 0.95rem;
     margin-top: 18px;
 }

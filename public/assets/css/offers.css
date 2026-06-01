@@ -31,7 +31,7 @@
     width: 100%;
     padding: 10px;
     border-radius: 8px;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--color-border-light);
 }
 
 .filter-btn {
@@ -64,7 +64,7 @@
 }
 
 .company {
-    color: #6b7280;
+    color: var(--color-text-muted);
     margin-bottom: 10px;
 }
 
@@ -94,7 +94,7 @@
 .offer-button {
     margin-top: 15px;
     display: inline-block;
-    background: #f4b400;
+    background: var(--color-primary);
     color: #000;
     text-decoration: none;
     padding: 10px 18px;
@@ -105,7 +105,7 @@
 }
 
 .offer-button:hover {
-    background: #e5a700;
+    background: var(--color-primary-dark);
     transform: translateY(-1px);
 }
 
@@ -118,18 +118,18 @@
     padding: 6px 10px;
     margin-right: 5px;
     border-radius: 6px;
-    background: #e5e7eb;
+    background: var(--color-border);
     cursor: pointer;
 }
 
 .page.active {
-    background: #f4b400;
+    background: var(--color-primary);
 }
 
 .reset-filters {
     display: inline-block;
     margin-top: 14px;
-    color: #6b7280;
+    color: var(--color-text-muted);
     text-decoration: none;
     font-size: 14px;
 }
@@ -139,7 +139,7 @@
     padding: 18px;
     border-radius: 12px;
     margin-bottom: 20px;
-    color: #6b7280;
+    color: var(--color-text-muted);
 }
 
 .offers-page {

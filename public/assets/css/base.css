@@ -1,3 +1,28 @@
+:root {
+    --color-primary:      #f4b400;
+    --color-primary-dark: #e0a800;
+    --color-primary-light:#fff7d6;
+
+    --color-text:         #1f2937;
+    --color-text-dark:    #111827;
+    --color-text-muted:   #6b7280;
+    --color-text-light:   #9ca3af;
+
+    --color-bg:           #f6f7f9;
+    --color-bg-light:     #f9fafb;
+    --color-white:        #ffffff;
+
+    --color-border:       #e5e7eb;
+    --color-border-light: #d1d5db;
+
+    --color-success:      #15803d;
+    --color-success-bg:   #dcfce7;
+    --color-error:        #ef4444;
+    --color-error-bg:     #fee2e2;
+
+    --color-dark-navy:    #0f2747;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -14,8 +39,8 @@ body {
     display: flex;
     flex-direction: column;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-    background: #f6f7f9;
-    color: #1f2937;
+    background: var(--color-bg);
+    color: var(--color-text);
     line-height: 1.6;
 }
 
@@ -30,7 +55,7 @@ body {
 
 .site-header {
     background: white;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--color-border);
     position: relative;
     z-index: 20;
     min-height: 84px;
@@ -49,7 +74,7 @@ body {
     align-items: center;
     gap: 14px;
     text-decoration: none;
-    color: #111827;
+    color: var(--color-text-dark);
 }
 
 .site-logo {
@@ -64,7 +89,7 @@ body {
     font-size: 1.35rem;
     font-weight: 700;
     line-height: 1;
-    color: #111827;
+    color: var(--color-text-dark);
 }
 
 .header-right {
@@ -75,14 +100,14 @@ body {
 
 .connected-user {
     font-size: 0.98rem;
-    color: #6b7280;
+    color: var(--color-text-muted);
     white-space: nowrap;
 }
 
 .menu-button {
     width: 48px;
     height: 48px;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--color-border-light);
     border-radius: 12px;
     background: white;
     font-size: 1.1rem;
@@ -96,7 +121,7 @@ body {
     flex-direction: column;
     gap: 0;
     background: white;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid var(--color-border);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
 }
 
@@ -107,13 +132,13 @@ body {
 .mobile-menu a {
     padding: 18px 16px;
     text-decoration: none;
-    color: #1f2937;
+    color: var(--color-text);
     border-bottom: 1px solid #f1f1f1;
     transition: background 0.2s ease;
 }
 
 .mobile-menu a:hover {
-    background: #f9fafb;
+    background: var(--color-bg-light);
 }
 
 .mobile-menu a:last-child {
@@ -126,7 +151,7 @@ body {
     align-items: center;
     justify-content: center;
 
-    background: #f4b400;
+    background: var(--color-primary);
     color: black;
 
     height: 48px;
@@ -141,7 +166,7 @@ body {
 }
 
 .cta-button:hover {
-    background: #e5a700;
+    background: var(--color-primary-dark);
 }
 
 .cta-button,
@@ -205,8 +230,8 @@ h3 {
 /* Footer */
 .site-footer {
     margin-top: 48px;
-    background: #111827;
-    color: #f9fafb;
+    background: var(--color-text-dark);
+    color: var(--color-bg-light);
 }
 
 .footer-content {
@@ -239,11 +264,11 @@ h3 {
 .footer-brand-text {
     font-size: 1.2rem;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--color-white);
 }
 
 .footer-description {
-    color: #d1d5db;
+    color: var(--color-border-light);
     font-size: 0.96rem;
 }
 
@@ -261,19 +286,19 @@ h3 {
 }
 
 .footer-column h3 {
-    color: #ffffff;
+    color: var(--color-white);
     font-size: 1rem;
     margin-bottom: 6px;
 }
 
 .footer-column a {
-    color: #d1d5db;
+    color: var(--color-border-light);
     text-decoration: none;
     transition: color 0.2s ease;
 }
 
 .footer-column a:hover {
-    color: #f4b400;
+    color: var(--color-primary);
 }
 
 .footer-bottom {
@@ -286,7 +311,7 @@ h3 {
 
 .footer-bottom p {
     font-size: 0.92rem;
-    color: #d1d5db;
+    color: var(--color-border-light);
 }
 
 /* Cookie banner */
@@ -302,8 +327,8 @@ h3 {
 
 .cookie-banner-content {
     width: min(1180px, 100%);
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
     border-radius: 20px;
     box-shadow: 0 18px 60px rgba(0, 0, 0, 0.15);
     padding: 24px;

@@ -31,11 +31,12 @@
 
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
 
-                <label>Lettre de motivation *</label>
-                <textarea name="lettre_motivation" required minlength="20"></textarea>
+                <label for="lettre_motivation">Lettre de motivation *</label>
+                <textarea id="lettre_motivation" name="lettre_motivation" required minlength="20"></textarea>
 
-                <label>CV (PDF - max 2Mo) *</label>
+                <label for="cv">CV (PDF - max 2Mo) *</label>
                 <input type="file"
+                       id="cv"
                        name="cv"
                        accept="application/pdf"
                        required>

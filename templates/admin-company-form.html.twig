@@ -61,7 +61,7 @@
 
                 {% set current_note = company.note ? company.note|round(0, 'floor') : 0 %}
 
-                <label>Evaluation de l'entreprise</label>
+                <label for="stars-input">Evaluation de l'entreprise</label>
 
                 <input type="hidden" name="note" id="note-value" value="{{ current_note > 0 ? current_note : '' }}">
 

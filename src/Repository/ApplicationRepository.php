@@ -6,12 +6,19 @@ namespace App\Repository;
 
 use PDO;
 
+/**
+ * Repository des candidatures (table : candidatures)
+ *
+ * Gère toutes les opérations BDD liées aux candidatures des étudiants :
+ * création, recherche paginée, mise à jour du statut, et vérification de doublon.
+ */
 class ApplicationRepository
 {
     public function __construct(private PDO $pdo)
     {
     }
 
+    /** Retourne toutes les promotions actives pour alimenter les filtres */
     public function getActivePromotions(): array
     {
         $stmt = $this->pdo->query("
@@ -24,6 +31,7 @@ class ApplicationRepository
         return $stmt->fetchAll();
     }
 
+    /** Compte le total de candidatures selon les filtres — utilisé pour calculer le nombre de pages */
     public function countApplications(?int $selectedPromotionId, string $search): int
     {
         $sql = "
@@ -68,6 +76,11 @@ class ApplicationRepository
         return (int) $stmt->fetchColumn();
     }
 
+    /**
+     * Retourne une page de candidatures avec les infos étudiant, offre et promotion.
+     * Le tri prioritise les candidatures "envoyées" (non traitées) en haut de liste,
+     * puis les acceptées, refusées, en étude — les plus récentes en premier dans chaque groupe.
+     */
     public function findApplicationsPaginated(
         ?int $selectedPromotionId,
         string $search,
@@ -151,6 +164,11 @@ class ApplicationRepository
         return $stmt->fetchAll();
     }
 
+    /**
+     * Met à jour le statut d'une candidature ET synchronise le statut de l'étudiant.
+     * Si au moins une candidature est acceptée → statut étudiant = 'stage_valide'.
+     * Sinon → 'en_recherche'. Utilise une transaction pour garantir la cohérence des deux tables.
+     */
     public function updateApplicationStatusAndStudentProfile(int $applicationId, string $status): void
     {
         $this->pdo->beginTransaction();
@@ -211,6 +229,7 @@ class ApplicationRepository
         }
     }
 
+    /** Retrouve une offre par son ID — utilisé pour vérifier qu'elle existe avant candidature */
     public function findOfferById(int $offerId): array|false
     {
         $stmt = $this->pdo->prepare("
@@ -224,6 +243,7 @@ class ApplicationRepository
         return $stmt->fetch();
     }
 
+    /** Vérifie si l'étudiant a déjà postulé à cette offre — évite les doublons de candidature */
     public function hasStudentAppliedToOffer(int $userId, int $offerId): bool
     {
         $stmt = $this->pdo->prepare("
@@ -241,6 +261,7 @@ class ApplicationRepository
         return (bool) $stmt->fetchColumn();
     }
 
+    /** Crée une nouvelle candidature avec le statut initial 'envoyee' */
     public function createApplication(
         int $userId,
         int $offerId,
@@ -272,6 +293,7 @@ class ApplicationRepository
         ]);
     }
 
+    /** Retourne toutes les candidatures d'un étudiant avec le titre et l'entreprise de l'offre */
     public function findApplicationsByStudentUserId(int $userId): array
     {
         $stmt = $this->pdo->prepare("
@@ -292,6 +314,7 @@ class ApplicationRepository
         return $stmt->fetchAll();
     }
 
+    /** Compte le nombre total de candidatures d'un étudiant — utilisé dans les statistiques dashboard */
     public function countApplicationsByStudentUserId(int $userId): int
     {
         $stmt = $this->pdo->prepare("
@@ -304,6 +327,7 @@ class ApplicationRepository
         return (int) $stmt->fetchColumn();
     }
 
+    /** Retourne les N dernières candidatures d'un étudiant — affiché dans le dashboard étudiant */
     public function findRecentApplicationsByStudentUserId(int $userId, int $limit = 5): array
     {
         $stmt = $this->pdo->prepare("

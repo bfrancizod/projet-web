@@ -6,12 +6,19 @@ namespace App\Repository;
 
 use PDO;
 
+/**
+ * Repository de la wishlist étudiant (table : student_wishlist)
+ *
+ * Permet aux étudiants de sauvegarder des offres pour les consulter plus tard.
+ * La table est une relation N-N entre users et offres.
+ */
 class WishlistRepository
 {
     public function __construct(private PDO $pdo)
     {
     }
 
+    /** Vérifie qu'une offre existe avant de l'ajouter à la wishlist */
     public function offerExists(int $offerId): bool
     {
         $stmt = $this->pdo->prepare("
@@ -25,6 +32,10 @@ class WishlistRepository
         return (bool) $stmt->fetchColumn();
     }
 
+    /**
+     * Ajoute une offre à la wishlist.
+     * INSERT IGNORE évite une erreur si l'offre est déjà dans la wishlist (clé unique).
+     */
     public function addOfferToWishlist(int $userId, int $offerId): void
     {
         $stmt = $this->pdo->prepare("
@@ -37,6 +48,7 @@ class WishlistRepository
         ]);
     }
 
+    /** Retire une offre de la wishlist de l'étudiant */
     public function removeOfferFromWishlist(int $userId, int $offerId): void
     {
         $stmt = $this->pdo->prepare("
@@ -50,6 +62,11 @@ class WishlistRepository
         ]);
     }
 
+    /**
+     * Retourne les offres de la wishlist avec leurs détails.
+     * COALESCE(e.nom, o.entreprise, 'Entreprise non définie') : priorité au nom
+     * de la table entreprises, sinon le champ texte libre de l'offre.
+     */
     public function findWishlistOffersByUserId(int $userId): array
     {
         $stmt = $this->pdo->prepare("
@@ -72,6 +89,7 @@ class WishlistRepository
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    /** Compte les offres en wishlist — utilisé dans les statistiques du dashboard étudiant */
     public function countWishlistOffersByUserId(int $userId): int
     {
         $stmt = $this->pdo->prepare("

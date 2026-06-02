@@ -6,12 +6,21 @@ namespace App\Repository;
 
 use PDO;
 
+/**
+ * Repository des étudiants (tables : users + student_profiles)
+ *
+ * Un étudiant est stocké sur deux tables liées :
+ * - users : identité (nom, prénom, email, mot de passe hashé, rôle)
+ * - student_profiles : données pédagogiques (formation, promotion, statut de stage)
+ * Les créations et suppressions utilisent des transactions pour garantir la cohérence.
+ */
 class StudentRepository
 {
     public function __construct(private PDO $pdo)
     {
     }
 
+    /** Retourne toutes les promotions (actives et inactives) — pour les formulaires d'admin */
     public function getAllPromotions(): array
     {
         $stmt = $this->pdo->query("
@@ -23,6 +32,7 @@ class StudentRepository
         return $stmt->fetchAll();
     }
 
+    /** Retourne uniquement les promotions actives — pour les formulaires pilote/étudiant */
     public function getActivePromotions(): array
     {
         $stmt = $this->pdo->query("
@@ -35,6 +45,11 @@ class StudentRepository
         return $stmt->fetchAll();
     }
 
+    /**
+     * Compte les étudiants visibles selon le rôle de l'utilisateur connecté.
+     * Un pilote ne voit que les étudiants de ses promotions (liste $allowedPromotionIds).
+     * Si un pilote n'a aucune promotion assignée, "AND 1=0" retourne 0 résultat intentionnellement.
+     */
     public function countStudents(
         string $currentUserRole,
         array $allowedPromotionIds,
@@ -100,6 +115,12 @@ class StudentRepository
         return (int) $stmt->fetchColumn();
     }
 
+    /**
+     * Retourne une page d'étudiants filtrés et triés par promotion/nom.
+     * Même logique de restriction par rôle que countStudents().
+     * bindValue() explicite est nécessaire pour LIMIT/OFFSET car PDO ne supporte pas
+     * les paramètres nommés entiers avec execute() dans certaines versions MySQL.
+     */
     public function findStudentsPaginated(
         string $currentUserRole,
         array $allowedPromotionIds,
@@ -185,6 +206,7 @@ class StudentRepository
         return $stmt->fetchAll();
     }
 
+    /** Retrouve un étudiant avec ses infos promotion — pour l'affichage en lecture seule */
     public function findStudentById(int $studentId): array|false
     {
         $stmt = $this->pdo->prepare("
@@ -210,6 +232,7 @@ class StudentRepository
         return $stmt->fetch();
     }
 
+    /** Retrouve un étudiant avec promotion_id brut — pour pré-remplir le formulaire d'édition */
     public function findStudentForEdit(int $studentId): array|false
     {
         $stmt = $this->pdo->prepare("
@@ -233,6 +256,11 @@ class StudentRepository
         return $stmt->fetch();
     }
 
+    /**
+     * Retourne les candidatures d'un étudiant avec détails de l'offre.
+     * COALESCE(e.nom, o.entreprise) : préfère le nom depuis la table entreprises
+     * si disponible, sinon utilise le champ texte libre de l'offre.
+     */
     public function findApplicationsByStudentId(int $studentId): array
     {
         $stmt = $this->pdo->prepare("
@@ -259,6 +287,7 @@ class StudentRepository
         return $stmt->fetchAll();
     }
 
+    /** Vérifie qu'une promotion est bien active avant d'y affecter un étudiant */
     public function isActivePromotion(int $promotionId): bool
     {
         $stmt = $this->pdo->prepare("
@@ -272,6 +301,10 @@ class StudentRepository
         return (bool) $stmt->fetchColumn();
     }
 
+    /**
+     * Vérifie si un email est déjà utilisé par un autre compte.
+     * $excludeStudentId permet d'ignorer l'étudiant en cours d'édition.
+     */
     public function emailExists(string $email, ?int $excludeStudentId = null): bool
     {
         if ($excludeStudentId !== null) {
@@ -301,6 +334,11 @@ class StudentRepository
         return (bool) $stmt->fetch();
     }
 
+    /**
+     * Crée un étudiant en deux étapes dans une transaction :
+     * 1. Insertion dans users (avec mot de passe hashé via password_hash)
+     * 2. Insertion dans student_profiles (avec la date du jour comme last_activity)
+     */
     public function createStudent(
         string $nom,
         string $prenom,
@@ -349,6 +387,10 @@ class StudentRepository
         }
     }
 
+    /**
+     * Met à jour les deux tables (users + student_profiles) dans une transaction.
+     * last_activity est mis à jour automatiquement à la date du jour.
+     */
     public function updateStudent(
         int $studentId,
         string $nom,
@@ -401,6 +443,12 @@ class StudentRepository
         }
     }
 
+    /**
+     * Supprime un étudiant et toutes ses données liées dans une transaction.
+     * Ordre : wishlist → candidatures → profil → compte utilisateur.
+     * Le rôle 'etudiant' est vérifié dans le DELETE final pour éviter
+     * de supprimer accidentellement un pilote ou admin.
+     */
     public function deleteStudent(int $studentId): void
     {
         $this->pdo->beginTransaction();

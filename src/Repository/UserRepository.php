@@ -6,6 +6,13 @@ namespace App\Repository;
 
 use PDO;
 
+/**
+ * Repository des utilisateurs (table : users)
+ *
+ * Contient uniquement les opérations génériques sur les utilisateurs.
+ * Les opérations spécifiques aux étudiants sont dans StudentRepository,
+ * celles des pilotes dans PilotRepository.
+ */
 class UserRepository
 {
     public function __construct(private PDO $pdo)
@@ -13,7 +20,8 @@ class UserRepository
     }
 
     /**
-     * Utilisé pour la connexion (login)
+     * Récupère un utilisateur par email pour la page de connexion.
+     * Retourne le password_hash pour vérification via password_verify().
      */
     public function findLoginUserByEmail(string $email): array|false
     {
@@ -36,9 +44,7 @@ class UserRepository
         return $stmt->fetch();
     }
 
-    /**
-     * Optionnel : récupération simple d’un user
-     */
+    /** Retrouve un utilisateur par son ID — sans le mot de passe hashé */
     public function findById(int $userId): array|false
     {
         $stmt = $this->pdo->prepare("

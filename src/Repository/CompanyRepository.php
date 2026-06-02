@@ -6,12 +6,20 @@ namespace App\Repository;
 
 use PDO;
 
+/**
+ * Repository des entreprises (table : entreprises)
+ *
+ * Gère les opérations CRUD sur les entreprises.
+ * La suppression est en cascade : elle supprime aussi les offres, candidatures,
+ * wishlists et commentaires associés via une transaction.
+ */
 class CompanyRepository
 {
     public function __construct(private PDO $pdo)
     {
     }
 
+    /** Retourne toutes les entreprises, filtrées par nom/SIRET/secteur/ville si recherche fournie */
     public function findAll(string $search): array
     {
         $sql = "
@@ -55,6 +63,7 @@ class CompanyRepository
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    /** Retrouve une entreprise par son ID */
     public function findById(int $companyId): array|false
     {
         $stmt = $this->pdo->prepare("
@@ -75,6 +84,10 @@ class CompanyRepository
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    /**
+     * Vérifie si une entreprise avec ce nom existe déjà.
+     * $excludeId permet d'ignorer l'entreprise en cours d'édition (évite faux positif).
+     */
     public function nameExists(string $name, ?int $excludeId = null): bool
     {
         if ($excludeId !== null) {
@@ -104,6 +117,7 @@ class CompanyRepository
         return (bool) $stmt->fetch();
     }
 
+    /** Crée une entreprise et retourne son nouvel ID */
     public function create(
         string $nom,
         ?string $siret,
@@ -128,6 +142,7 @@ class CompanyRepository
         return (int) $this->pdo->lastInsertId();
     }
 
+    /** Met à jour les informations d'une entreprise existante */
     public function update(
         int $companyId,
         string $nom,
@@ -158,6 +173,11 @@ class CompanyRepository
         ]);
     }
 
+    /**
+     * Supprime une entreprise et toutes ses données liées en cascade (transaction).
+     * Ordre de suppression : wishlist → candidatures → compétences offre → offres → commentaires → entreprise.
+     * L'ordre est important pour respecter les contraintes de clé étrangère.
+     */
     public function delete(int $companyId): void
     {
         $this->pdo->beginTransaction();

@@ -9,6 +9,13 @@ use App\Repository\WishlistRepository;
 use App\Security\Csrf;
 use Twig\Environment;
 
+/**
+ * Contrôleur de la page wishlist de l'étudiant
+ *
+ * Accessible uniquement aux étudiants connectés.
+ * Affiche les offres sauvegardées avec leurs détails et le token CSRF
+ * pour les formulaires de suppression inline.
+ */
 class StudentWishlistController
 {
     private Environment $twig;
@@ -20,6 +27,10 @@ class StudentWishlistController
         $this->wishlistRepository = new WishlistRepository(Database::getConnection());
     }
 
+    /**
+     * Affiche la wishlist de l'étudiant connecté.
+     * Le token CSRF est passé au template pour les boutons "Retirer" (formulaires POST).
+     */
     public function index(): string
     {
         if (!isset($_SESSION['user'])) {

@@ -9,6 +9,12 @@ use App\Repository\CompanyCommentRepository;
 use App\Repository\CompanyRepository;
 use Twig\Environment;
 
+/**
+ * Contrôleur des commentaires d'entreprise
+ *
+ * Affiche la page dédiée aux commentaires d'une entreprise spécifique.
+ * Page publique — pas de vérification de connexion requise.
+ */
 class CompanyCommentController
 {
     private Environment $twig;
@@ -19,11 +25,16 @@ class CompanyCommentController
     {
         $this->twig = $twig;
 
+        // Partage la même connexion PDO entre les deux repositories
         $pdo = Database::getConnection();
         $this->companyRepository = new CompanyRepository($pdo);
         $this->companyCommentRepository = new CompanyCommentRepository($pdo);
     }
 
+    /**
+     * Affiche tous les commentaires d'une entreprise.
+     * Retourne 404 si l'entreprise n'existe pas.
+     */
     public function index(int $companyId): string
     {
         $company = $this->companyRepository->findById($companyId);

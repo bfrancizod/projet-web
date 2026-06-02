@@ -9,10 +9,18 @@ use App\Repository\OfferRepository;
 use App\Security\Csrf;
 use Twig\Environment;
 
+/**
+ * Contrôleur de gestion des offres de stage (pilote et admin)
+ *
+ * Permet aux pilotes et admins de lister, créer, modifier et supprimer des offres.
+ * La pagination affiche PER_PAGE offres par page.
+ */
 class PilotOfferController
 {
     private Environment $twig;
     private OfferRepository $offerRepository;
+
+    /** Nombre d'offres affichées par page dans la liste */
     private const PER_PAGE = 10;
 
     public function __construct(Environment $twig)
@@ -21,6 +29,10 @@ class PilotOfferController
         $this->offerRepository = new OfferRepository(Database::getConnection());
     }
 
+    /**
+     * Liste paginée des offres avec recherche.
+     * Si la page demandée dépasse le total, on redirige vers la dernière page.
+     */
     public function index(): string
     {
         if (
@@ -63,16 +75,29 @@ class PilotOfferController
         ]);
     }
 
+    /** Affiche le formulaire de création d'une nouvelle offre */
     public function create(): string
     {
         return $this->handleForm(null);
     }
 
+    /** Affiche le formulaire d'édition d'une offre existante */
     public function edit(int $offerId): string
     {
         return $this->handleForm($offerId);
     }
 
+    /**
+     * Gère le formulaire de création et d'édition d'une offre (méthode mutualisée).
+     *
+     * Gestion des compétences (deux sources) :
+     * - $competenceIds : IDs de compétences existantes cochées (checkboxes)
+     * - $newSkillNames : noms saisis librement (champ texte, séparés par virgule)
+     * Les nouvelles compétences sont créées si inexistantes, puis fusionnées avec les existantes.
+     *
+     * L'entreprise est validée par nom exact — elle doit exister dans la table entreprises.
+     * Les IDs soumis sont validés contre la BDD pour éviter l'injection d'IDs arbitraires.
+     */
     private function handleForm(?int $offerId): string
     {
         if (
@@ -130,6 +155,7 @@ class PilotOfferController
             $remuneration = is_numeric($remunerationRaw) ? (float) $remunerationRaw : null;
             $dureeSemaines = ctype_digit($dureeRaw) ? (int) $dureeRaw : null;
 
+            // Filtre et convertit les IDs de compétences en entiers valides (protection injection)
             $competenceIds = [];
             if (is_array($competenceIdsRaw)) {
                 foreach ($competenceIdsRaw as $competenceIdRaw) {
@@ -140,6 +166,7 @@ class PilotOfferController
             }
             $competenceIds = array_values(array_unique($competenceIds));
 
+            // Découpe les nouvelles compétences saisies librement (séparées par virgule)
             $newSkillNames = [];
             if (is_array($newSkillNamesRaw)) {
                 foreach ($newSkillNamesRaw as $skillNamesGroup) {
@@ -170,14 +197,17 @@ class PilotOfferController
                 $error = 'La rémunération est invalide.';
             } elseif ($dureeSemaines === null || $dureeSemaines <= 0) {
                 $error = 'La durée est invalide.';
+            // Une offre doit avoir au moins une compétence, peu importe la source
+            // (existante cochée OU nouvelle saisie — les deux listes peuvent être combinées)
             } elseif ($competenceIds === [] && $newSkillNames === []) {
-                $error = 'Merci d’ajouter au moins une compétence.';
+                $error = ‘Merci d"ajouter au moins une compétence.’;
             } else {
                 $company = $this->offerRepository->findCompanyByName($entrepriseNom);
 
                 if (!$company) {
                     $error = 'Entreprise invalide. Merci de choisir une entreprise existante.';
                 } else {
+                    // Vérifie que les IDs soumis correspondent à des compétences réelles en BDD
                     $validSkillIds = $this->offerRepository->getAllSkillIds();
 
                     foreach ($competenceIds as $competenceId) {
@@ -238,6 +268,10 @@ class PilotOfferController
         ]);
     }
 
+    /**
+     * Supprime une offre et toutes ses données liées (candidatures, wishlist, compétences).
+     * La suppression en cascade est gérée par OfferRepository::deleteOffer() via une transaction.
+     */
     public function delete(int $offerId): void
     {
         if (

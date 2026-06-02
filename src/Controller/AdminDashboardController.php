@@ -8,6 +8,12 @@ use App\Database;
 use App\Repository\DashboardRepository;
 use Twig\Environment;
 
+/**
+ * Contrôleur du tableau de bord administrateur
+ *
+ * Accessible uniquement aux administrateurs.
+ * Affiche les compteurs globaux de la plateforme et les étudiants récemment actifs.
+ */
 class AdminDashboardController
 {
     private Environment $twig;
@@ -19,6 +25,7 @@ class AdminDashboardController
         $this->dashboardRepository = new DashboardRepository(Database::getConnection());
     }
 
+    /** Affiche le dashboard admin avec les statistiques globales de la plateforme */
     public function index(): string
     {
         if (!isset($_SESSION['user']) || ($_SESSION['user']['role'] ?? null) !== 'administrateur') {

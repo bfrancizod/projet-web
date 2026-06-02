@@ -9,6 +9,12 @@ use App\Repository\CompanyCommentRepository;
 use App\Repository\OfferRepository;
 use Twig\Environment;
 
+/**
+ * Contrôleur public des offres de stage
+ *
+ * Pages accessibles sans connexion.
+ * Gère la liste filtrée/paginée (/offres) et le détail d'une offre (/offres/{id}).
+ */
 class OfferController
 {
     private Environment $twig;
@@ -19,11 +25,17 @@ class OfferController
     {
         $this->twig = $twig;
 
+        // Partage la même connexion PDO entre les deux repositories
         $pdo = Database::getConnection();
         $this->offerRepository = new OfferRepository($pdo);
         $this->companyCommentRepository = new CompanyCommentRepository($pdo);
     }
 
+    /**
+     * Liste paginée des offres avec 5 filtres combinables :
+     * recherche texte, compétences, localisation, durée max, salaire min.
+     * 6 offres par page, tri configurable (récent, salaire, durée).
+     */
     public function index(): string
     {
         $searchQuery = trim((string) ($_GET['search_query'] ?? ''));
@@ -76,6 +88,12 @@ class OfferController
         ]);
     }
 
+    /**
+     * Page de détail d'une offre.
+     * Si l'utilisateur est un étudiant connecté, vérifie en plus
+     * s'il a déjà postulé et si l'offre est dans sa wishlist (pour adapter les boutons).
+     * Affiche aussi le dernier commentaire sur l'entreprise si elle est référencée.
+     */
     public function show(int $id): string
     {
         $offer = $this->offerRepository->findPublicOfferDetailById($id);

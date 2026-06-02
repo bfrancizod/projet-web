@@ -9,6 +9,12 @@ use App\Repository\PromotionRepository;
 use App\Security\Csrf;
 use Twig\Environment;
 
+/**
+ * Contrôleur de gestion des promotions (admin uniquement)
+ *
+ * Une promotion représente un groupe d'étudiants sur une année académique.
+ * L'identifiant unique d'une promotion est la combinaison label + academic_year.
+ */
 class AdminPromotionController
 {
     private Environment $twig;
@@ -20,6 +26,7 @@ class AdminPromotionController
         $this->promotionRepository = new PromotionRepository(Database::getConnection());
     }
 
+    /** Liste toutes les promotions avec leur nombre d'étudiants et de pilotes associés */
     public function index(): string
     {
         if (!isset($_SESSION['user']) || ($_SESSION['user']['role'] ?? null) !== 'administrateur') {
@@ -35,16 +42,26 @@ class AdminPromotionController
         ]);
     }
 
+    /** Affiche le formulaire de création d'une promotion */
     public function create(): string
     {
         return $this->handleForm(null);
     }
 
+    /** Affiche le formulaire d'édition d'une promotion existante */
     public function edit(int $promotionId): string
     {
         return $this->handleForm($promotionId);
     }
 
+    /**
+     * Gère le formulaire de création et d'édition d'une promotion (méthode mutualisée).
+     *
+     * Validations :
+     * - Tous les champs obligatoires remplis
+     * - Format année académique : YYYY-YYYY (ex: 2025-2026)
+     * - Pas de doublon label + academic_year (en ignorant la promotion courante en édition)
+     */
     private function handleForm(?int $promotionId): string
     {
         if (!isset($_SESSION['user']) || ($_SESSION['user']['role'] ?? null) !== 'administrateur') {
@@ -87,6 +104,7 @@ class AdminPromotionController
 
             if ($label === '' || $academicYear === '') {
                 $error = 'Merci de remplir tous les champs obligatoires.';
+            // Vérifie le format YYYY-YYYY (ex: 2025-2026)
             } elseif (!preg_match('/^\d{4}-\d{4}$/', $academicYear)) {
                 $error = 'Le format de l’année doit être du type 2025-2026.';
             } elseif ($this->promotionRepository->existsByLabelAndYear($label, $academicYear, $isEdit ? $promotionId : null)) {
@@ -133,6 +151,11 @@ class AdminPromotionController
         ]);
     }
 
+    /**
+     * Supprime une promotion.
+     * Les étudiants et pilotes liés ne sont pas supprimés,
+     * leur promotion_id devient NULL (ON DELETE SET NULL en BDD).
+     */
     public function delete(int $promotionId): void
     {
         if (!isset($_SESSION['user']) || ($_SESSION['user']['role'] ?? null) !== 'administrateur') {

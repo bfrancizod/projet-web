@@ -9,6 +9,13 @@ use App\Repository\DashboardRepository;
 use App\Support\PilotPromotionAccess;
 use Twig\Environment;
 
+/**
+ * Contrôleur du tableau de bord pilote
+ *
+ * Accessible uniquement aux pilotes connectés.
+ * Toutes les statistiques sont restreintes aux promotions assignées au pilote connecté
+ * via PilotPromotionAccess::getAssignedPromotionIds().
+ */
 class PilotDashboardController
 {
     private Environment $twig;
@@ -20,6 +27,11 @@ class PilotDashboardController
         $this->dashboardRepository = new DashboardRepository(Database::getConnection());
     }
 
+    /**
+     * Affiche le dashboard pilote avec les statistiques de ses promotions.
+     * Les offres (offersCount) sont globales — un pilote voit toutes les offres
+     * car elles sont communes à toute la plateforme.
+     */
     public function index(): string
     {
         if (!isset($_SESSION['user']) || ($_SESSION['user']['role'] ?? null) !== 'pilote') {
@@ -29,6 +41,8 @@ class PilotDashboardController
 
         $pdo = Database::getConnection();
         $pilotId = (int) ($_SESSION['user']['id'] ?? 0);
+
+        // Récupère les IDs des promotions auxquelles ce pilote est rattaché
         $allowedPromotionIds = PilotPromotionAccess::getAssignedPromotionIds($pdo, $pilotId);
 
         $totalStudents = $this->dashboardRepository->countPilotStudents($allowedPromotionIds);

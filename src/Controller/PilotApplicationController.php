@@ -9,10 +9,19 @@ use App\Repository\ApplicationRepository;
 use App\Security\Csrf;
 use Twig\Environment;
 
+/**
+ * Contrôleur de gestion des candidatures (pilote et admin)
+ *
+ * Permet aux pilotes et admins de consulter toutes les candidatures et de
+ * changer leur statut (acceptée / refusée).
+ * La mise à jour du statut synchronise aussi le statut de l'étudiant dans student_profiles.
+ */
 class PilotApplicationController
 {
     private Environment $twig;
     private ApplicationRepository $applicationRepository;
+
+    /** Nombre de candidatures affichées par page */
     private const PER_PAGE = 10;
 
     public function __construct(Environment $twig)
@@ -21,6 +30,10 @@ class PilotApplicationController
         $this->applicationRepository = new ApplicationRepository(Database::getConnection());
     }
 
+    /**
+     * Liste paginée des candidatures, filtrables par promotion et recherche.
+     * Les candidatures non traitées ('envoyée') apparaissent en premier dans le tri.
+     */
     public function index(): string
     {
         if (
@@ -71,6 +84,11 @@ class PilotApplicationController
         ]);
     }
 
+    /**
+     * Met à jour le statut d'une candidature.
+     * Seuls 'acceptee' et 'refusee' sont autorisés (whitelist stricte).
+     * La mise à jour est atomique : statut candidature + statut étudiant dans une transaction.
+     */
     public function updateStatus(int $applicationId): void
     {
         if (
@@ -84,6 +102,8 @@ class PilotApplicationController
         Csrf::requireValidToken($_POST['_csrf_token'] ?? null);
 
         $status = trim((string) ($_POST['status'] ?? ''));
+
+        // Whitelist stricte : seuls ces deux statuts sont acceptables via ce formulaire
         $allowed = ['acceptee', 'refusee'];
 
         if (!in_array($status, $allowed, true)) {
@@ -91,6 +111,10 @@ class PilotApplicationController
             exit('Statut invalide.');
         }
 
+        // La méthode met à jour deux tables en une seule transaction :
+        // 1. candidatures.status → nouveau statut
+        // 2. student_profiles.status → 'stage_valide' si une candidature est acceptée, sinon 'en_recherche'
+        // Si la transaction échoue, les deux tables restent cohérentes (rollback automatique)
         try {
             $this->applicationRepository->updateApplicationStatusAndStudentProfile($applicationId, $status);
         } catch (\Throwable $e) {

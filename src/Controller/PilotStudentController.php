@@ -10,6 +10,13 @@ use App\Security\Csrf;
 use App\Support\PilotPromotionAccess;
 use Twig\Environment;
 
+/**
+ * Contrôleur de gestion des étudiants (pilote et admin)
+ *
+ * Accessible aux pilotes et administrateurs.
+ * Les pilotes ne voient que les étudiants de leurs promotions assignées
+ * (contrôle via PilotPromotionAccess). Les admins voient tous les étudiants.
+ */
 class PilotStudentController
 {
     private Environment $twig;
@@ -21,6 +28,10 @@ class PilotStudentController
         $this->studentRepository = new StudentRepository(Database::getConnection());
     }
 
+    /**
+     * Liste paginée des étudiants avec filtres par promotion et recherche.
+     * Un pilote sans promotions assignées verra une liste vide (comportement intentionnel).
+     */
     public function index(): string
     {
         if (
@@ -35,6 +46,9 @@ class PilotStudentController
         $currentUserRole = $_SESSION['user']['role'] ?? null;
         $currentUserId = (int) ($_SESSION['user']['id'] ?? 0);
 
+        // Pour un admin, $allowedPromotionIds reste [] et est ignoré dans le repository.
+        // Pour un pilote, il contient uniquement ses promotions assignées.
+        // Le repository distingue les deux cas via le paramètre $currentUserRole.
         $allowedPromotionIds = [];
         if ($currentUserRole === 'pilote') {
             $allowedPromotionIds = PilotPromotionAccess::getAssignedPromotionIds($pdo, $currentUserId);
@@ -44,6 +58,7 @@ class PilotStudentController
             ? (int) $_GET['promotion_id']
             : null;
 
+        // Empêche un pilote de filtrer sur une promotion qui ne lui est pas assignée
         if (
             $currentUserRole === 'pilote'
             && $selectedPromotionId !== null
@@ -59,6 +74,7 @@ class PilotStudentController
 
         $perPage = 10;
 
+        // Un pilote ne voit que ses promotions dans le filtre, un admin voit toutes les promotions
         if ($currentUserRole === 'pilote') {
             $promotions = PilotPromotionAccess::getPromotionsByIds($pdo, $allowedPromotionIds);
         } else {
@@ -98,6 +114,10 @@ class PilotStudentController
         ]);
     }
 
+    /**
+     * Affiche la fiche détail d'un étudiant avec toutes ses candidatures.
+     * Un pilote ne peut voir que les étudiants de ses promotions (contrôle via pilotCanAccessStudent).
+     */
     public function show(int $studentId): string
     {
         if (
@@ -134,16 +154,26 @@ class PilotStudentController
         ]);
     }
 
+    /** Affiche le formulaire de création d'un étudiant */
     public function create(): string
     {
         return $this->handleForm(null);
     }
 
+    /** Affiche le formulaire d'édition d'un étudiant existant */
     public function edit(int $studentId): string
     {
         return $this->handleForm($studentId);
     }
 
+    /**
+     * Gère le formulaire de création et d'édition d'un étudiant (méthode mutualisée).
+     *
+     * Le statut est validé contre une whitelist pour éviter des valeurs arbitraires.
+     * En édition, le mot de passe n'est pas modifiable ici.
+     * Après sauvegarde, les données sont rechargées depuis la BDD pour afficher
+     * les valeurs persistées (notamment last_activity mis à jour).
+     */
     private function handleForm(?int $studentId): string
     {
         if (
@@ -194,6 +224,7 @@ class PilotStudentController
             $password = (string) ($_POST['password'] ?? '');
 
             $promotionId = ctype_digit($promotionIdRaw) ? (int) $promotionIdRaw : null;
+            // Whitelist des statuts autorisés pour éviter l'injection de valeurs arbitraires
             $allowedStatuses = ['sans_stage', 'en_recherche', 'stage_trouve', 'stage_valide'];
 
             $student['nom'] = $nom;

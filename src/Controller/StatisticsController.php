@@ -8,6 +8,12 @@ use App\Database;
 use App\Repository\StatisticsRepository;
 use Twig\Environment;
 
+/**
+ * Contrôleur des statistiques de la plateforme
+ *
+ * Accessible à tout utilisateur connecté (pilote ou admin).
+ * Agrège les données clés : répartition par durée, top wishlist, totaux, moyennes.
+ */
 class StatisticsController
 {
     private Environment $twig;
@@ -19,6 +25,11 @@ class StatisticsController
         $this->statisticsRepository = new StatisticsRepository(Database::getConnection());
     }
 
+    /**
+     * Affiche la page de statistiques.
+     * $maxWishlistCount est calculé côté PHP (pas SQL) pour éviter une requête
+     * supplémentaire — utilisé dans le template pour calculer les largeurs de barres en %.
+     */
     public function index(): string
     {
         if (!isset($_SESSION['user'])) {

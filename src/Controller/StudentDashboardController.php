@@ -9,6 +9,13 @@ use App\Repository\ApplicationRepository;
 use App\Repository\WishlistRepository;
 use Twig\Environment;
 
+/**
+ * Contrôleur du tableau de bord étudiant
+ *
+ * Accessible uniquement aux étudiants connectés.
+ * Affiche les statistiques (nombre de candidatures, taille de la wishlist)
+ * et les 5 candidatures les plus récentes.
+ */
 class StudentDashboardController
 {
     private Environment $twig;
@@ -19,11 +26,13 @@ class StudentDashboardController
     {
         $this->twig = $twig;
 
+        // Les deux repositories partagent la même connexion PDO
         $pdo = Database::getConnection();
         $this->applicationRepository = new ApplicationRepository($pdo);
         $this->wishlistRepository = new WishlistRepository($pdo);
     }
 
+    /** Affiche le dashboard avec les stats et les candidatures récentes de l'étudiant connecté */
     public function index(): string
     {
         if (!isset($_SESSION['user']) || ($_SESSION['user']['role'] ?? null) !== 'etudiant') {

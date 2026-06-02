@@ -4,6 +4,13 @@ namespace App\Controller;
 
 use Twig\Environment;
 
+/**
+ * Contrôleur de la page d'accueil
+ *
+ * Page publique, accessible sans connexion.
+ * Injecte les données statiques (titre hero, étapes "Comment ça marche")
+ * depuis le contrôleur plutôt que de les hardcoder dans le template.
+ */
 class HomeController
 {
     private Environment $twig;
@@ -13,6 +20,7 @@ class HomeController
         $this->twig = $twig;
     }
 
+    /** Affiche la page d'accueil avec le hero et les 3 étapes */
     public function index(): string
     {
         return $this->twig->render('home.html.twig', [

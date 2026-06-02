@@ -1,14 +1,31 @@
+{#
+    Template de base — hérité par tous les autres templates via "extends 'base.html.twig'".
+
+    Blocs disponibles pour les templates enfants :
+     - block title       : titre de l'onglet (défaut : "Help Me Stage")
+     - block stylesheets : feuilles CSS spécifiques à la page
+     - block body        : contenu principal de la page
+     - block javascripts : scripts JS spécifiques à la page (chargés avant </body>)
+
+    Variables globales injectées par index.php pour tous les templates :
+     - current_user      : tableau utilisateur connecté (null si visiteur)
+     - csrf_token        : token CSRF pour les formulaires
+     - show_cookie_banner: booléen déclenchant le banner RGPD
+#}
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
+    {# block title : chaque page enfant peut surcharger le titre de l'onglet #}
     <title>{% block title %}Help Me Stage{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- Favicon -->
     <link rel="icon" href="/assets/logo/logo.svg" type="image/svg+xml">
 
+    {# base.css est chargé en premier sur toutes les pages (variables CSS, reset, composants communs) #}
     <link rel="stylesheet" href="/assets/css/base.css">
+    {# block stylesheets : les templates enfants y ajoutent leur CSS spécifique #}
     {% block stylesheets %}{% endblock %}
 </head>
 <body>

@@ -1,3 +1,10 @@
+/*
+ * offers-statistics.css — Page des statistiques des offres
+ *
+ * Styles spécifiques à la page /statistiques-offres (templates/offers-statistics.html.twig).
+ * Contient les grilles de cartes statistiques, graphiques et tableaux récapitulatifs.
+ */
+
 .stats-page {
     padding: 48px 0 72px;
 }

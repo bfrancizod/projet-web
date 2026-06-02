@@ -1,8 +1,24 @@
+/*
+ * offer-detail.css — Page de détail d'une offre
+ *
+ * Styles spécifiques à la page /offres/{id} (templates/offer-detail.html.twig).
+ * Sections :
+ *  1. Mise en page de la page
+ *  2. Fil d'Ariane (breadcrumb)
+ *  3. Carte principale (offer-detail-card)
+ *  4. Grille d'informations (rémunération, lieu, durée…)
+ *  5. Description et tags de compétences
+ *  6. Actions (boutons postuler / wishlist)
+ *  7. Responsive (≤ 768px)
+ */
+
 .offer-detail-page {
     padding: 34px 0 56px;
 }
 
-/* BREADCRUMB */
+/* =========================================================
+   2. FIL D'ARIANE
+   ========================================================= */
 .breadcrumb {
     font-size: 0.95rem;
     margin-bottom: 18px;
@@ -18,7 +34,9 @@
     margin: 0 5px;
 }
 
-/* CARD */
+/* =========================================================
+   3. CARTE PRINCIPALE
+   ========================================================= */
 .offer-detail-card {
     background: var(--color-white);
     padding: 28px;
@@ -42,7 +60,10 @@
     margin-bottom: 22px;
 }
 
-/* INFO GRID */
+/* =========================================================
+   4. GRILLE D'INFORMATIONS
+   repeat(2, minmax(220px,1fr)) : 2 colonnes qui ne rétrécissent pas sous 220px.
+   ========================================================= */
 .detail-info-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(220px, 1fr));
@@ -65,7 +86,9 @@
     color: var(--color-text-muted);
 }
 
-/* DESCRIPTION */
+/* =========================================================
+   5. DESCRIPTION ET TAGS
+   ========================================================= */
 .detail-description {
     font-size: 1rem;
     line-height: 1.7;
@@ -73,7 +96,7 @@
     margin-bottom: 26px;
 }
 
-/* TAGS */
+/* Tags */
 .detail-tags {
     margin: 0 0 24px 0;
     display: flex;
@@ -98,7 +121,10 @@
     font-weight: 600;
 }
 
-/* ACTIONS */
+/* =========================================================
+   6. ACTIONS — Boutons postuler / wishlist
+   .disabled-button applique pointer-events:none (pas de survol/clic) en plus du style grisé.
+   ========================================================= */
 .detail-actions {
     display: flex;
     flex-wrap: wrap;
@@ -136,7 +162,9 @@
     color: var(--color-text-muted);
 }
 
-/* RESPONSIVE */
+/* =========================================================
+   7. RESPONSIVE — ≤ 768px
+   ========================================================= */
 @media (max-width: 768px) {
     .detail-info-grid {
         grid-template-columns: 1fr;

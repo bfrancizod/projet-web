@@ -1,3 +1,17 @@
+{#
+    Page liste des offres de stage publiques.
+
+    Variables transmises par OfferController::index() :
+     - offers         : tableau d'offres avec leurs compétences (skills[] déjà incluses)
+     - search_query   : texte de recherche libre (titre, entreprise, mot-clé)
+     - skills_query   : compétences filtrées (séparées par virgule)
+     - location_query : filtre sur le lieu
+     - duration_query : durée maximale en semaines
+     - salary_query   : rémunération minimale en €
+     - sort_query     : critère de tri (recent, salary_asc, salary_desc, duration_asc, duration_desc)
+     - current_page   : numéro de page actuelle
+     - total_pages    : nombre total de pages (pour la pagination)
+#}
 {% extends 'base.html.twig' %}
 
 {% block title %}Offres - Help Me Stage{% endblock %}
@@ -12,6 +26,10 @@
         <aside class="filters">
             <h3>Filtres</h3>
 
+            {#
+                Formulaire de filtres en GET : les paramètres sont ajoutés à l'URL (?search_query=...&skills=...).
+                Cela permet de partager/bookmarker une recherche filtrée.
+            #}
             <form method="GET" action="/offres">
                 <div>
                     <label for="search_query">Recherche</label>
@@ -88,6 +106,12 @@
             <h1>Offres de stage</h1>
 
             <div class="offers-grid">
+                {#
+                    Boucle sur les offres paginées retournées par OfferRepository::findPublicOffers().
+                    offer.skills est un tableau pré-chargé (via GROUP_CONCAT en SQL + split PHP),
+                    ce qui évite une requête supplémentaire par offre (problème N+1).
+                    Le bloc "{% else %}" s'affiche uniquement si le tableau offers est vide.
+                #}
                 {% for offer in offers %}
                     <article class="offer-card">
                         <div class="offer-header">
@@ -96,6 +120,7 @@
 
                         <p class="company">{{ offer.entreprise_nom ?: 'Entreprise non définie' }}</p>
                         <p>
+                            {# aria-hidden="true" : l'icône SVG est décorative, ignorée par les lecteurs d'écran #}
                             <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
                             {{ offer.lieu ?: 'Lieu non défini' }}
                         </p>
@@ -105,6 +130,7 @@
                             {{ offer.remuneration }} €
                         </p>
 
+                        {# Badges de compétences liées à l'offre (tableau skills pré-chargé) #}
                         <div class="tags">
                             {% for skill in offer.skills %}
                                 <span class="tag">{{ skill.nom }}</span>
@@ -118,6 +144,12 @@
                 {% endfor %}
             </div>
 
+            {#
+                Pagination : affichée uniquement s'il y a plus d'une page.
+                Tous les paramètres de filtre actifs sont conservés dans les liens de pagination
+                via |url_encode pour encoder correctement les caractères spéciaux.
+                La page active reçoit la classe CSS "active".
+            #}
             {% if total_pages > 1 %}
                 <div class="pagination">
                     {% for p in 1..total_pages %}

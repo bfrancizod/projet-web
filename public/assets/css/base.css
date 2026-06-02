@@ -1,58 +1,98 @@
+/*
+ * base.css — Feuille de styles globale
+ *
+ * Chargée en premier sur toutes les pages (via base.html.twig).
+ * Contient dans l'ordre :
+ *  1. Variables CSS centralisées (:root)
+ *  2. Reset universel
+ *  3. Styles de base (html, body, layout flex)
+ *  4. Header, navigation mobile
+ *  5. Boutons partagés (toutes les variantes)
+ *  6. Champs de formulaire (input, select, textarea)
+ *  7. Titres (h1-h3) avec clamp() responsive
+ *  8. Classes utilitaires partagées (.badge, .container, .student-row…)
+ *  9. Footer
+ * 10. Banner cookie RGPD
+ * 11. Media queries responsive (≤ 768px)
+ */
+
+/* =========================================================
+   1. VARIABLES CSS CENTRALISÉES
+   Modifier ici suffit pour changer la palette sur tout le site.
+   ========================================================= */
 :root {
+    /* Couleur principale (jaune doré) */
     --color-primary:      #f4b400;
-    --color-primary-dark: #e0a800;
-    --color-primary-light:#fff7d6;
+    --color-primary-dark: #e0a800;   /* hover des boutons primaires */
+    --color-primary-light:#fff7d6;   /* fonds clairs teintés jaune */
 
-    --color-text:         #1f2937;
-    --color-text-dark:    #111827;
-    --color-text-muted:   #6b7280;
-    --color-text-light:   #9ca3af;
+    /* Texte */
+    --color-text:         #1f2937;   /* texte courant */
+    --color-text-dark:    #111827;   /* titres, texte fort */
+    --color-text-muted:   #6b7280;   /* texte secondaire / labels */
+    --color-text-light:   #9ca3af;   /* placeholders, notes */
 
-    --color-bg:           #f6f7f9;
-    --color-bg-light:     #f9fafb;
+    /* Arrière-plans */
+    --color-bg:           #f6f7f9;   /* fond de page général */
+    --color-bg-light:     #f9fafb;   /* fond des cartes / sections */
     --color-white:        #ffffff;
 
+    /* Bordures */
     --color-border:       #e5e7eb;
     --color-border-light: #d1d5db;
 
+    /* États */
     --color-success:      #15803d;
     --color-success-bg:   #dcfce7;
     --color-error:        #ef4444;
     --color-error-bg:     #fee2e2;
 
-    --color-dark-navy:    #0f2747;
+    /* Divers */
+    --color-dark-navy:    #0f2747;   /* footer, sections sombres */
 }
 
+/* =========================================================
+   2. RESET UNIVERSEL
+   ========================================================= */
 * {
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
+    box-sizing: border-box; /* inclut padding et border dans la width/height déclarée */
 }
 
+/* =========================================================
+   3. BASE — html, body, layout principal
+   ========================================================= */
 html {
-    font-size: 17px;
+    font-size: 17px; /* base de calcul pour les unités rem */
     height: 100%;
 }
 
 body {
     min-height: 100vh;
     display: flex;
-    flex-direction: column;
+    flex-direction: column; /* header + main(flex:1) + footer → footer toujours en bas */
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
     background: var(--color-bg);
     color: var(--color-text);
     line-height: 1.6;
 }
 
+/* flex:1 permet au contenu principal d'occuper tout l'espace vertical disponible */
 .site-main {
     flex: 1;
 }
 
+/* min() limite la largeur à 1280px tout en laissant 24px de marge de chaque côté */
 .container {
     width: min(1280px, calc(100% - 48px));
     margin: 0 auto;
 }
 
+/* =========================================================
+   4. HEADER & NAVIGATION MOBILE
+   ========================================================= */
+/* z-index:20 place le header au-dessus des contenus de page qui pourraient déborder */
 .site-header {
     background: white;
     border-bottom: 1px solid var(--color-border);
@@ -145,6 +185,11 @@ body {
     border-bottom: none;
 }
 
+/* =========================================================
+   5. BOUTONS PARTAGÉS
+   Toutes les variantes de boutons héritent de cette base commune.
+   Les déclarations spécifiques (.cta-button, .secondary-button…) suivent juste après.
+   ========================================================= */
 .cta-button,
 .secondary-button,
 .student-button,
@@ -183,6 +228,10 @@ body {
     background: var(--color-bg-light);
 }
 
+/* =========================================================
+   6. CHAMPS DE FORMULAIRE
+   min-height uniforme pour aligner les inputs et selects dans les grilles de formulaire.
+   ========================================================= */
 input,
 select,
 textarea {
@@ -196,6 +245,10 @@ textarea {
     min-height: 150px;
 }
 
+/* =========================================================
+   7. TYPOGRAPHIE — Titres h1-h3
+   clamp(min, préféré, max) : taille fluide entre mobile et desktop sans media query.
+   ========================================================= */
 h1 {
     font-size: clamp(2rem, 2.6vw, 2.8rem);
     line-height: 1.15;
@@ -211,6 +264,11 @@ h3 {
     line-height: 1.3;
 }
 
+/* =========================================================
+   8. CLASSES UTILITAIRES PARTAGÉES
+   Centralisées ici pour éviter la duplication dans chaque CSS de page.
+   ========================================================= */
+/* border-radius uniforme pour toutes les "cartes" du site */
 .student-row,
 .offer-card,
 .stat-card,
@@ -229,7 +287,9 @@ h3 {
     border-radius: 999px;
 }
 
-/* Footer */
+/* =========================================================
+   9. FOOTER
+   ========================================================= */
 .site-footer {
     margin-top: 48px;
     background: var(--color-text-dark);
@@ -316,7 +376,10 @@ h3 {
     color: var(--color-border-light);
 }
 
-/* Cookie banner */
+/* =========================================================
+   10. BANNER COOKIE RGPD
+   Position fixed en bas de page, z-index très élevé pour passer au-dessus de tout.
+   ========================================================= */
 .cookie-banner {
     position: fixed;
     left: 24px;
@@ -374,6 +437,9 @@ h3 {
     gap: 12px;
 }
 
+/* =========================================================
+   11. MEDIA QUERIES — Mobile (≤ 768px)
+   ========================================================= */
 @media (max-width: 768px) {
     .container {
         width: min(100% - 24px, 1280px);

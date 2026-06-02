@@ -1,3 +1,12 @@
+/*
+ * pilot-dashboard.css — Espace pilote
+ *
+ * Styles spécifiques aux pages de l'espace pilote :
+ *  - /espace-pilote (pilot-dashboard.html.twig)
+ *  - /pilot-etudiants, /pilot-offres, /pilot-candidatures
+ *  - Formulaires pilot-offer-form, pilot-student-form
+ */
+
 .pilot-page {
     background: #f5f5ee;
     min-height: calc(100vh - 80px);

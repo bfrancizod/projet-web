@@ -1,3 +1,19 @@
+/*
+ * apply.css — Formulaire de candidature
+ *
+ * Styles spécifiques à la page /offres/{id}/postuler (templates/apply.html.twig).
+ * Sections :
+ *  1. Mise en page de la page
+ *  2. Carte du formulaire
+ *  3. Champs de formulaire (textarea, input, labels)
+ *  4. Messages d'alerte (warning, erreur)
+ *  5. Zone de dépôt de fichier CV (drag & drop)
+ *  6. Responsive (≤ 768px)
+ */
+
+/* =========================================================
+   1. MISE EN PAGE
+   ========================================================= */
 .apply-page {
     background: #f5f5ee;
     min-height: calc(100vh - 80px);
@@ -24,6 +40,9 @@
     margin: 0 6px;
 }
 
+/* =========================================================
+   2. CARTE DU FORMULAIRE
+   ========================================================= */
 .apply-card {
     background: white;
     border-radius: 18px;
@@ -42,6 +61,9 @@
     margin-bottom: 22px;
 }
 
+/* =========================================================
+   3. CHAMPS DE FORMULAIRE
+   ========================================================= */
 .apply-form {
     display: flex;
     flex-direction: column;
@@ -77,6 +99,10 @@
     color: #4b5563;
 }
 
+/* =========================================================
+   4. MESSAGES D'ALERTE
+   Deux variantes : warning (fond jaune pâle) et erreur (fond rouge pâle).
+   ========================================================= */
 .apply-alert {
     padding: 14px;
     border-radius: 12px;
@@ -124,6 +150,12 @@
     }
 }
 
+/* =========================================================
+   5. ZONE DE DÉPÔT CV (drag & drop)
+   L'input[type=file] est caché (.cv-drop-zone input {display:none}) ;
+   le clic sur la zone déclenche l'input via JavaScript.
+   Les classes .dragging et .has-file changent l'apparence lors du glisser-déposer.
+   ========================================================= */
 .cv-drop-zone {
     position: relative;
     border: 2px dashed var(--color-border-light);

@@ -1,3 +1,14 @@
+{#
+    Page de détail d'une offre de stage.
+
+    Variables transmises par OfferController::show() :
+     - offer            : données de l'offre + entreprise (JOIN en BDD)
+     - latest_comments  : 3 derniers commentaires de l'entreprise
+     - comments_count   : nombre total de commentaires (pour afficher "Voir plus")
+     - is_in_wishlist   : booléen — l'étudiant connecté a-t-il déjà mis l'offre en wishlist ?
+     - has_applied      : booléen — l'étudiant connecté a-t-il déjà postulé ?
+     - current_user     : global Twig (null si visiteur)
+#}
 {% extends 'base.html.twig' %}
 
 {% block title %}{{ offer.titre }} - Help Me Stage{% endblock %}
@@ -74,6 +85,13 @@
                     <span class="detail-label">Évaluation</span>
                     {% if offer.entreprise_note is not null %}
                         <div class="stars-display" style="margin-top: 4px;">
+                            {#
+                                Arrondi à l'entier inférieur pour afficher des étoiles entières.
+                                La boucle 1..5 compare chaque position i à la note arrondie :
+                                - i <= note_int → étoile pleine (star-filled)
+                                - i > note_int  → étoile vide   (star-empty)
+                                &#9733; est le caractère Unicode ★
+                            #}
                             {% set note_int = offer.entreprise_note|round(0, 'floor') %}
                             {% for i in 1..5 %}
                                 <span class="star-icon {% if i <= note_int %}star-filled{% else %}star-empty{% endif %}">&#9733;</span>
@@ -97,12 +115,17 @@
 
             <h2>Derniers commentaires</h2>
 
+            {# Affiche les 3 derniers commentaires de l'entreprise (limité côté repository) #}
             {% if latest_comments is not empty %}
                 <div style="display:flex; flex-direction:column; gap:16px; margin-top:16px;">
                     {% for comment in latest_comments %}
                         <div style="padding:16px; background:#f9fafb; border:1px solid #e5e7eb; border-radius:12px;">
                             <div style="display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:8px;">
                                 <strong>
+                                    {#
+                                        Affiche le nom complet en priorité, puis l'email, puis un ID anonyme.
+                                        Le JOIN avec users peut ne pas retourner de nom si le compte a été supprimé.
+                                    #}
                                     {% if comment.prenom or comment.nom %}
                                         {{ comment.prenom }} {{ comment.nom }}
                                     {% elseif comment.email %}
@@ -117,11 +140,13 @@
                                 </small>
                             </div>
 
+                            {# white-space:pre-line conserve les sauts de ligne saisis par l'utilisateur #}
                             <p style="margin:0; white-space:pre-line;">{{ comment.commentaire }}</p>
                         </div>
                     {% endfor %}
                 </div>
 
+                {# Lien "Voir plus" affiché uniquement s'il y a plus d'un commentaire au total #}
                 {% if offer.entreprise_id and comments_count > 1 %}
                     <div style="margin-top:20px;">
                         <a href="/entreprises/{{ offer.entreprise_id }}/commentaires" class="secondary-button">
@@ -133,6 +158,11 @@
                 <p style="color:#6b7280;">Aucun commentaire pour cette entreprise.</p>
             {% endif %}
 
+            {#
+                Bouton wishlist : visible uniquement pour les étudiants connectés.
+                Le formulaire POST change d'action selon l'état is_in_wishlist.
+                Le token CSRF protège contre les requêtes forgées (CSRF).
+            #}
             {% if current_user and current_user.role == 'etudiant' %}
                 <div class="detail-actions">
                     {% if is_in_wishlist %}
@@ -149,6 +179,13 @@
                 </div>
             {% endif %}
 
+            {#
+                Bouton "Postuler" — 4 états mutuellement exclusifs :
+                 1. Visiteur non connecté    → lien vers la page de connexion
+                 2. Connecté mais pas étudiant (pilote/admin) → bouton désactivé
+                 3. Étudiant ayant déjà postulé              → bouton désactivé
+                 4. Étudiant éligible                        → lien vers le formulaire de candidature
+            #}
             <div class="detail-actions">
                 {% if current_user is null %}
                     <a href="/connexion" class="apply-button">Se connecter pour postuler</a>

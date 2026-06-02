@@ -57,6 +57,14 @@
 
     </div>
 
+    {#
+        Menu de navigation — affiché/masqué via le bouton hamburger (JS ci-dessous).
+        Les liens sont conditionnels selon le rôle de current_user :
+         - administrateur : accès à l'espace admin, offres, statistiques
+         - pilote          : accès à l'espace pilote, offres, statistiques
+         - etudiant        : accès à l'espace étudiant, candidatures, wishlist, offres, statistiques
+         - visiteur (null) : liens publics uniquement (accueil, offres, connexion)
+    #}
     <nav class="mobile-menu" id="mobile-menu">
         {% if current_user %}
 
@@ -82,6 +90,7 @@
             {% endif %}
 
         {% else %}
+            {# Visiteur non connecté : liens publics uniquement #}
             <a href="/">Accueil</a>
             <a href="/offres">Voir les offres</a>
             <a href="/connexion">Connexion</a>
@@ -90,6 +99,7 @@
 </header>
 
 <main class="site-main">
+    {# block body : chaque template enfant injecte son contenu ici #}
     {% block body %}{% endblock %}
 </main>
 
@@ -129,17 +139,20 @@
 
     <div class="footer-bottom">
         <div class="container footer-bottom-content">
+            {# "now"|date("Y") : filtre Twig qui formate la date courante → affiche l'année dynamiquement #}
             <p>© {{ "now"|date("Y") }} Help Me Stage - Tous droits réservés.</p>
         </div>
     </div>
 </footer>
 
 <script>
+{# Toggle du menu mobile : ajoute/retire la classe CSS "is-open" sur le nav #}
 document.getElementById('menu-toggle')?.addEventListener('click', function () {
     document.getElementById('mobile-menu').classList.toggle('is-open');
 });
 </script>
 
+{# block javascripts : les templates enfants y ajoutent leurs scripts spécifiques à la page #}
 {% block javascripts %}{% endblock %}
 
 </body>

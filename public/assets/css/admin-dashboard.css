@@ -1,3 +1,12 @@
+/*
+ * admin-dashboard.css — Espace administrateur
+ *
+ * Styles spécifiques aux pages de l'espace admin :
+ *  - /espace-admin (admin-dashboard.html.twig)
+ *  - /admin-pilotes, /admin-entreprises, /admin-promotions
+ *  - Formulaires admin-pilot-form, admin-company-form, admin-promotion-form
+ */
+
 .admin-dashboard-page {
     max-width: 1120px;
     margin: 0 auto;

@@ -1,3 +1,10 @@
+/*
+ * dashboard.css — Styles communs aux tableaux de bord
+ *
+ * Partagé entre les pages de dashboard (étudiant, pilote, admin).
+ * Contient les composants réutilisables : cartes stat, tableaux, badges de statut.
+ */
+
 .dashboard-page {
     padding: 60px 0;
 }

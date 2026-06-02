@@ -1,3 +1,20 @@
+/*
+ * login.css — Page de connexion
+ *
+ * Styles spécifiques à la page de connexion (templates/login.html.twig).
+ * Sections :
+ *  1. Mise en page de la page
+ *  2. Carte de connexion
+ *  3. Boîtes de démo (étudiant, pilote, admin)
+ *  4. Message d'erreur
+ *  5. Formulaire de connexion
+ *  6. Lien "Mot de passe oublié"
+ */
+
+/* =========================================================
+   1. MISE EN PAGE
+   calc(100vh - 80px) évite le footer collant quand le contenu est court.
+   ========================================================= */
 .login-page {
     background: #f4f4ea;
     min-height: calc(100vh - 80px);
@@ -10,6 +27,10 @@
     align-items: flex-start;
 }
 
+/* =========================================================
+   2. CARTE DE CONNEXION
+   max-width:520px centre la carte sur desktop, 100% sur mobile.
+   ========================================================= */
 .login-card {
     width: 100%;
     max-width: 520px;
@@ -25,6 +46,10 @@
     margin-bottom: 24px;
 }
 
+/* =========================================================
+   3. BOÎTES DE DÉMO
+   Couleurs distinctes par rôle : jaune=étudiant, bleu=pilote, violet=admin.
+   ========================================================= */
 .demo-box {
     border-radius: 12px;
     padding: 14px;
@@ -43,6 +68,9 @@
     border: 1px solid #9ab8ea;
 }
 
+/* =========================================================
+   4. MESSAGE D'ERREUR — affiché quand les identifiants sont incorrects
+   ========================================================= */
 .login-error {
     color: #b42318;
     background: #fee4e2;
@@ -52,6 +80,9 @@
     margin-bottom: 16px;
 }
 
+/* =========================================================
+   5. FORMULAIRE DE CONNEXION
+   ========================================================= */
 .login-form {
     display: flex;
     flex-direction: column;
@@ -71,6 +102,9 @@
     background: #eef3fb;
 }
 
+/* =========================================================
+   6. LIEN "MOT DE PASSE OUBLIÉ"
+   ========================================================= */
 .forgot-password {
     text-align: right;
     margin-top: 4px;

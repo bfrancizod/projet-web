@@ -1,3 +1,12 @@
+/*
+ * static-pages.css — Pages statiques légales et informatives
+ *
+ * Partagé entre :
+ *  - /mentions-legales (legal.html.twig)
+ *  - /politique-confidentialite (privacy.html.twig)
+ *  - /contact (contact.html.twig)
+ */
+
 .legal-page {
     background: #f3f4f6;
     min-height: calc(100vh - 80px);

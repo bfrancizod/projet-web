@@ -1,3 +1,12 @@
+/*
+ * student-dashboard.css — Espace étudiant
+ *
+ * Styles spécifiques aux pages de l'espace étudiant :
+ *  - /espace-etudiant (student-dashboard.html.twig)
+ *  - /etudiant-candidatures
+ *  - /etudiant-wishlist
+ */
+
 .student-page {
     background: #f5f5ee;
     min-height: calc(100vh - 80px);

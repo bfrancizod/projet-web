@@ -1,12 +1,5 @@
 {#
     Tableau de bord administrateur — vue globale de la plateforme.
-
-    Variables transmises par AdminDashboardController::index() :
-     - offers_count       : nombre total d'offres
-     - students_count     : nombre total d'étudiants
-     - pilots_count       : nombre total de pilotes
-     - applications_count : nombre total de candidatures
-     - recent_students    : 5 derniers étudiants créés
 #}
 {% extends 'base.html.twig' %}
 
@@ -90,6 +83,14 @@
                 <p>Consulter les indicateurs clés dans une page dédiée avec carrousel.</p>
             </div>
             <a href="/statistiques-offres" class="admin-action-button">Accéder</a>
+        </article>
+
+        <article class="admin-action-card">
+            <div>
+                <h2>Demandes de mot de passe</h2>
+                <p>Consulter les demandes de réinitialisation et modifier les mots de passe.</p>
+            </div>
+            <a href="/admin-demandes-mdp" class="admin-action-button">Accéder</a>
         </article>
     </section>
 

@@ -5,7 +5,9 @@
  * Contient les grilles de cartes statistiques, graphiques et tableaux récapitulatifs.
  */
 
-.stats-page {
+@import "base.css";
+
+ .stats-page {
     padding: 48px 0 72px;
 }
 
@@ -73,7 +75,7 @@
     border-radius: 24px;
     padding: 28px;
     min-height: 430px;
-    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.06);
+    box-shadow: 0 18px 45px var(--color-shadow-navy);
     display: flex;
     flex-direction: column;
 }
@@ -195,7 +197,7 @@
     font-size: 1.8rem;
     line-height: 1;
     cursor: pointer;
-    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+    box-shadow: 0 10px 30px var(--color-shadow-navy);
     transition: transform 0.2s ease;
 }
 

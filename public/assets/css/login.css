@@ -15,6 +15,8 @@
    1. MISE EN PAGE
    calc(100vh - 80px) évite le footer collant quand le contenu est court.
    ========================================================= */
+@import "base.css";
+
 .login-page {
     background: #f4f4ea;
     min-height: calc(100vh - 80px);
@@ -36,7 +38,7 @@
     max-width: 520px;
     background: white;
     border-radius: 18px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    box-shadow: 0 8px 24px var(--color-shadow-black);
     padding: 36px 28px;
 }
 

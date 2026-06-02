@@ -7,6 +7,8 @@
 
 /* ----- WIDGET D'ETOILES (formulaire, cliquable) ----- */
 
+@import "base.css";
+
 .star-rating-widget {
     display: flex;
     align-items: center;

@@ -7,7 +7,9 @@
  *  - Formulaires pilot-offer-form, pilot-student-form
  */
 
-.pilot-page {
+@import "base.css";
+
+ .pilot-page {
     background: #f5f5ee;
     min-height: calc(100vh - 80px);
     padding: 34px 0 56px;
@@ -48,7 +50,7 @@
     align-items: center;
     gap: 14px;
     min-height: 112px;
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 6px 16px var(--color-shadow-black);
     border-left: 4px solid transparent;
 }
 
@@ -104,7 +106,7 @@
     padding: 22px;
     text-decoration: none;
     color: inherit;
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 6px 16px var(--color-shadow-black);
 
     display: flex;
     flex-direction: column;
@@ -136,7 +138,7 @@
 .activity-section {
     background: white;
     border-radius: 18px;
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 6px 16px var(--color-shadow-black);
     padding: 22px;
 }
 

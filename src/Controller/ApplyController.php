@@ -54,6 +54,8 @@ class ApplyController
 
                 if ($lettreMotivation === '' || mb_strlen($lettreMotivation) < 20) {
                     $error = 'La lettre de motivation doit contenir au moins 20 caractères.';
+                } elseif (mb_strlen($lettreMotivation) > 5000) {
+                    $error = 'La lettre de motivation ne doit pas dépasser 5000 caractères.';
                 } elseif (!isset($_FILES['cv']) || $_FILES['cv']['error'] !== UPLOAD_ERR_OK) {
                     $error = 'Erreur lors de l\'upload du CV.';
                 } else {

@@ -108,6 +108,10 @@ class AdminPilotController
 
             if ($nom === '' || $prenom === '' || $email === '') {
                 $error = 'Merci de remplir tous les champs obligatoires.';
+            } elseif (mb_strlen($nom) > 100 || mb_strlen($prenom) > 100) {
+                $error = 'Le nom et le prénom ne doivent pas dépasser 100 caractères.';
+            } elseif (mb_strlen($email) > 255) {
+                $error = "L'email ne doit pas dépasser 255 caractères.";
             } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 $error = 'Adresse email invalide.';
             } elseif (!$isEdit && mb_strlen($password) < 8) {

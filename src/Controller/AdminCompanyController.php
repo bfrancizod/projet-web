@@ -138,6 +138,22 @@ class AdminCompanyController
                 $error = "Le nom de l'entreprise est obligatoire.";
             }
 
+            if ($error === null && mb_strlen($nom) > 150) {
+                $error = "Le nom de l'entreprise ne doit pas dépasser 150 caractères.";
+            }
+
+            if ($error === null && mb_strlen($secteur) > 100) {
+                $error = 'Le secteur ne doit pas dépasser 100 caractères.';
+            }
+
+            if ($error === null && mb_strlen($ville) > 100) {
+                $error = 'La ville ne doit pas dépasser 100 caractères.';
+            }
+
+            if ($error === null && mb_strlen($commentaire) > 2000) {
+                $error = 'Le commentaire ne doit pas dépasser 2000 caractères.';
+            }
+
             if ($error === null && $siret !== '' && strlen($siret) !== 14) {
                 $error = 'Le SIRET doit contenir 14 chiffres.';
             }

@@ -205,6 +205,12 @@ class PilotStudentController
 
             if ($nom === '' || $prenom === '' || $email === '' || $formation === '') {
                 $error = 'Merci de remplir tous les champs obligatoires.';
+            } elseif (mb_strlen($nom) > 100 || mb_strlen($prenom) > 100) {
+                $error = 'Le nom et le prénom ne doivent pas dépasser 100 caractères.';
+            } elseif (mb_strlen($email) > 255) {
+                $error = "L'email ne doit pas dépasser 255 caractères.";
+            } elseif (mb_strlen($formation) > 150) {
+                $error = 'La formation ne doit pas dépasser 150 caractères.';
             } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 $error = 'Adresse email invalide.';
             } elseif ($promotionId === null) {

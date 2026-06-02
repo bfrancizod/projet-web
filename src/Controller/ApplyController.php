@@ -94,10 +94,16 @@ class ApplyController
                             $offreSafe = substr($sanitize($offreTitre), 0, 50);
                             $timestamp = date('Ymd_His');
 
+                            $maxCvs = 20;
+                            $existingCvs = glob($uploadDir . $prenomSafe . '_' . $nomSafe . '_*.pdf') ?: [];
+                            if (count($existingCvs) >= $maxCvs) {
+                                $error = 'Vous avez atteint la limite de ' . $maxCvs . ' CV uploadés.';
+                            }
+
                             $filename = $prenomSafe . '_' . $nomSafe . '_' . $offreSafe . '_' . $timestamp . '.pdf';
                             $destination = $uploadDir . $filename;
 
-                            if (move_uploaded_file($file['tmp_name'], $destination)) {
+                            if ($error === null && move_uploaded_file($file['tmp_name'], $destination)) {
                                 try {
                                     $this->applicationRepository->createApplication(
                                         $userId,

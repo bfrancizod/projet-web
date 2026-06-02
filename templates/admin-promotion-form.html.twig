@@ -1,3 +1,14 @@
+{#
+    Formulaire de création / édition d'une promotion (mutualisé via is_edit).
+
+    Variables transmises par AdminPromotionController::handleForm() :
+     - promotion  : données pré-remplies (label, academic_year, is_active)
+     - is_edit    : booléen
+     - error / success
+
+    La case à cocher "Promotion active" contrôle la visibilité dans les filtres et formulaires.
+    Les promotions inactives ne sont plus proposées lors de la création de pilotes/étudiants.
+#}
 {% extends 'base.html.twig' %}
 
 {% block title %}

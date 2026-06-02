@@ -1,3 +1,10 @@
+{#
+    Liste des promotions — accessible à l'admin uniquement.
+
+    Variables transmises par AdminPromotionController::index() :
+     - promotions : liste des promotions avec label, academic_year, is_active,
+                    students_count, pilots_count
+#}
 {% extends 'base.html.twig' %}
 
 {% block title %}Gestion des promotions{% endblock %}

@@ -1,3 +1,16 @@
+{#
+    Page de connexion.
+
+    Variables transmises par AuthController::login() :
+     - error : message d'erreur en cas d'identifiants incorrects (null sinon)
+               Le message est intentionnellement vague ("Identifiants incorrects") pour
+               éviter l'énumération des comptes (ne pas révéler si l'email existe).
+
+    Notes :
+     - Le formulaire utilise novalidate pour désactiver la validation HTML native
+       (la validation côté serveur est suffisante et plus fiable).
+     - Le lien "Mot de passe oublié ?" est un placeholder (fonctionnalité à implémenter).
+#}
 {% extends 'base.html.twig' %}
 
 {% block title %}Connexion - Help Me Stage{% endblock %}
@@ -30,6 +43,7 @@
                 Mot de passe : admin2026
             </div>
 
+            {# Message d'erreur générique — ne précise pas si c'est l'email ou le mot de passe #}
             {% if error %}
                 <p class="login-error">{{ error }}</p>
             {% endif %}

@@ -1,3 +1,16 @@
+{#
+    Tableau de bord de l'espace pilote.
+
+    Variables transmises par PilotDashboardController::index() :
+     - total_students       : nombre d'étudiants dans les promotions du pilote
+     - students_without_stage : étudiants sans stage validé
+     - applications_count   : total des candidatures envoyées
+     - validated_stages     : nombre de stages validés (statut stage_valide)
+     - recent_students      : 5 derniers étudiants actifs avec leur statut et promotion
+
+    La section "Activité récente" affiche la promotion et la formation de chaque étudiant.
+    La logique ternaire évite d'afficher en double quand promotion_label == formation.
+#}
 {% extends 'base.html.twig' %}
 
 {% block title %}Espace pilote{% endblock %}

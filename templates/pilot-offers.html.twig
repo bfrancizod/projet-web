@@ -1,3 +1,17 @@
+{#
+    Liste paginée des offres — accessible aux pilotes ET admins.
+
+    Variables transmises par PilotOfferController::index() :
+     - offers           : offres de la page courante
+     - currentPage      : numéro de page actuelle
+     - totalPages       : nombre total de pages
+     - totalOffers      : nombre total d'offres
+     - search           : texte de recherche en cours
+     - offerTitles      : suggestions pour l'autocomplete (<datalist>)
+
+    L'autocomplete utilise l'élément HTML <datalist> — natif, sans JavaScript.
+    Le lien de retour est conditionnel : admin → /espace-admin, pilote → /espace-pilote.
+#}
 {% extends 'base.html.twig' %}
 
 {% block title %}Gestion des offres{% endblock %}

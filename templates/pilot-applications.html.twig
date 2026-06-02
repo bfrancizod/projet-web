@@ -1,3 +1,17 @@
+{#
+    Suivi des candidatures — accessible aux pilotes ET admins.
+
+    Variables transmises par PilotApplicationController::index() :
+     - applications          : candidatures de la page courante
+     - promotions            : liste des promotions pour le filtre
+     - selected_promotion_id : filtre actif (null = toutes)
+     - search                : filtre texte
+     - currentPage / totalPages / totalApplications : pagination
+
+    Chaque candidature affiche un badge de statut + un formulaire de mise à jour.
+    Le formulaire POST vers /pilot-candidature/{id}/status avec le nouveau statut.
+    Seuls 'acceptee' et 'refusee' sont autorisés côté serveur (PilotApplicationController).
+#}
 {% extends 'base.html.twig' %}
 
 {% block title %}Candidatures - Espace pilote{% endblock %}

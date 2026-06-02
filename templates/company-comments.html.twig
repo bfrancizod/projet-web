@@ -1,3 +1,14 @@
+{#
+    Page de tous les commentaires d'une entreprise.
+    Accessible via "Voir plus de commentaires" depuis offer-detail.html.twig.
+
+    Variables transmises par CompanyCommentController::index() :
+     - company  : données de l'entreprise (nom, secteur, ville, siret)
+     - comments : tous les commentaires de l'entreprise avec nom/prénom de l'auteur
+
+    Le bouton "Retour" utilise javascript:history.back() pour revenir à la page précédente
+    (l'offre de stage dont l'utilisateur venait, sans casser le fil de navigation).
+#}
 {% extends 'base.html.twig' %}
 
 {% block title %}Commentaires - {{ company.nom }}{% endblock %}

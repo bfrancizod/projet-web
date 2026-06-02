@@ -1,3 +1,19 @@
+{#
+    Formulaire de création / édition d'une entreprise (mutualisé via is_edit).
+
+    Variables transmises par AdminCompanyController::handleForm() :
+     - company         : données pré-remplies de l'entreprise
+     - user_comment    : commentaire de l'utilisateur connecté sur cette entreprise
+     - company_comments: tous les commentaires de l'entreprise (affiché en lecture seule)
+     - is_edit         : booléen
+     - error / success
+
+    Widget d'étoiles (JavaScript inline) :
+     - Un input[type=hidden] #note-value stocke la note numérique envoyée au serveur.
+     - Au survol, highlightStars(n) colore les n premières étoiles.
+     - Au clic, si on reclique sur la même étoile : note remise à 0 (pas encore noté).
+     - data-current sur le container initialise l'état au rechargement.
+#}
 {% extends 'base.html.twig' %}
 
 {% block title %}

@@ -1,3 +1,15 @@
+{#
+    Formulaire de création / édition du profil étudiant (mutualisé via is_edit).
+
+    Variables transmises par PilotStudentController::handleForm() :
+     - student    : données pré-remplies (vides en création)
+     - promotions : promotions actives pour le <select>
+     - is_edit    : booléen — détermine l'action du formulaire
+     - error / success : messages de retour
+
+    Le champ "Mot de passe initial" est affiché uniquement en création.
+    En édition, le mot de passe n'est pas modifiable depuis ce formulaire.
+#}
 {% extends 'base.html.twig' %}
 
 {% block title %}

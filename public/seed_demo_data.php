@@ -1,5 +1,24 @@
 <?php
 
+/**
+ * Script de seed — peuplement de la base de données avec des données de démonstration.
+ *
+ * ATTENTION : ce script est idempotent (getOrCreate) mais modifie les données existantes.
+ * Ne jamais exécuter en production sur de vraies données.
+ *
+ * Résultat attendu :
+ *  - 25 étudiants CPI A2 (emails cpia2.01@helpmestage.fr … cpia2.25@helpmestage.fr, mot de passe : stage2026)
+ *  - 50 offres de stage avec compétences liées
+ *  - Wishlists et candidatures générées aléatoirement
+ *  - Statuts d'étudiants répartis équitablement entre les 4 états possibles
+ *
+ * Utilisation (depuis la racine du projet) :
+ *   php public/seed_demo_data.php
+ *
+ * Note : ce fichier est dans public/ pour un accès HTTP direct lors du dev, mais il devrait
+ * idéalement être déplacé hors de public/ et protégé par un mot de passe ou une vérification CLI.
+ */
+
 declare(strict_types=1);
 
 require_once __DIR__ . '/../vendor/autoload.php';
@@ -9,6 +28,7 @@ use App\Database;
 $pdo = Database::getConnection();
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
+/** Génère une date aléatoire entre $start et $end au format Y-m-d */
 function randomDate(string $start = '2026-01-01', string $end = '2026-03-17'): string
 {
     $min = strtotime($start);
@@ -17,6 +37,7 @@ function randomDate(string $start = '2026-01-01', string $end = '2026-03-17'): s
     return date('Y-m-d', random_int($min, $max));
 }
 
+/** Retourne l'ID d'une compétence existante ou l'insère si elle n'existe pas */
 function getOrCreateCompetence(PDO $pdo, string $name): int
 {
     $stmt = $pdo->prepare("SELECT id FROM competences WHERE nom = :nom LIMIT 1");
@@ -33,6 +54,10 @@ function getOrCreateCompetence(PDO $pdo, string $name): int
     return (int) $pdo->lastInsertId();
 }
 
+/**
+ * Crée ou met à jour un étudiant (users + student_profiles).
+ * Si l'email existe déjà : met à jour les données sans recréer de ligne.
+ */
 function getOrCreateStudent(PDO $pdo, array $student): int
 {
     $stmt = $pdo->prepare("SELECT id FROM users WHERE email = :email LIMIT 1");
@@ -125,6 +150,10 @@ function getOrCreateStudent(PDO $pdo, array $student): int
     return $userId;
 }
 
+/**
+ * Crée ou met à jour une offre identifiée par (titre + entreprise + lieu).
+ * En cas d'unicité impossible à garantir autrement, ce triplet sert de clé composite.
+ */
 function getOrCreateOffer(PDO $pdo, array $offer): int
 {
     $stmt = $pdo->prepare("
@@ -182,6 +211,7 @@ function getOrCreateOffer(PDO $pdo, array $offer): int
     return (int) $pdo->lastInsertId();
 }
 
+/** Attache une compétence à un étudiant (INSERT IGNORE via vérification manuelle) */
 function attachStudentCompetence(PDO $pdo, int $userId, int $competenceId): void
 {
     $stmt = $pdo->prepare("
@@ -207,6 +237,7 @@ function attachStudentCompetence(PDO $pdo, int $userId, int $competenceId): void
     }
 }
 
+/** Attache une compétence à une offre (INSERT IGNORE via vérification manuelle) */
 function attachOfferCompetence(PDO $pdo, int $offerId, int $competenceId): void
 {
     $stmt = $pdo->prepare("
@@ -232,6 +263,7 @@ function attachOfferCompetence(PDO $pdo, int $offerId, int $competenceId): void
     }
 }
 
+/** Ajoute une offre en wishlist pour un étudiant si elle n'y est pas encore */
 function addWishlist(PDO $pdo, int $userId, int $offerId): void
 {
     $stmt = $pdo->prepare("
@@ -258,6 +290,7 @@ function addWishlist(PDO $pdo, int $userId, int $offerId): void
     }
 }
 
+/** Crée une candidature si l'étudiant n'a pas déjà postulé à cette offre */
 function addApplication(PDO $pdo, int $userId, int $offerId, string $status, string $studentEmail): void
 {
     $stmt = $pdo->prepare("
@@ -356,9 +389,11 @@ $statuses = [
 
 $studentCompetencePool = array_keys($competenceIds);
 
+// Toutes les insertions sont dans une transaction : en cas d'erreur, tout est annulé
 $pdo->beginTransaction();
 
 try {
+    // Génère 25 étudiants avec des statuts équitablement répartis
     for ($i = 0; $i < 25; $i++) {
         $status = $statuses[$i % count($statuses)];
         $email = 'cpia2.' . str_pad((string) ($i + 1), 2, '0', STR_PAD_LEFT) . '@helpmestage.fr';

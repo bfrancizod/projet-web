@@ -1,3 +1,11 @@
+{#
+    Liste des offres sauvegardées en wishlist par l'étudiant.
+
+    Variables transmises par StudentWishlistController::index() :
+     - wishlistOffers : tableau d'offres [{id, titre, entreprise_nom, lieu, duree_semaines, remuneration}]
+
+    Le bouton ✕ déclenche un POST vers /offres/{id}/wishlist/supprimer (protégé CSRF).
+#}
 {% extends 'base.html.twig' %}
 
 {% block title %}Ma wishlist - Help Me Stage{% endblock %}

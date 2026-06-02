@@ -1,3 +1,19 @@
+{#
+    Page des statistiques des offres — accessible à tous les rôles connectés.
+
+    Variables transmises par StatisticsController::index() :
+     - total_offers                  : nombre total d'offres en base
+     - average_applications_per_offer: moyenne de candidatures / offre (tous statuts)
+     - offers_by_duration            : répartition [{duree_semaines, total}] triée
+     - top_wishlist_offers           : top offres les plus ajoutées en wishlist [{titre, entreprise, wishlist_count}]
+     - max_wishlist_count            : valeur max pour le calcul des barres de progression
+
+    Le carrousel est piloté par le JavaScript inline dans block javascripts :
+     - Scroll horizontal natif (scroll-snap CSS)
+     - Boutons précédent/suivant : scrollBy() de la largeur d'une carte
+     - Indicateurs dots générés dynamiquement, mis à jour au scroll
+     - L'IIFE (function(){})() isole les variables pour éviter les conflits globaux
+#}
 {% extends 'base.html.twig' %}
 
 {% block title %}Statistiques des offres - Help Me Stage{% endblock %}
@@ -52,6 +68,11 @@
                     </div>
 
                     <div class="stats-list">
+                        {#
+                            |default(0) évite une erreur si la clé est absente.
+                            La barre de progression est proportionnelle au total des offres :
+                            percentage = (count / total_offers) * 100
+                        #}
                         {% for stat in offers_by_duration %}
                             {% set count = stat.total|default(0) %}
                             {% set percentage = total_offers > 0 ? ((count / total_offers) * 100) : 0 %}

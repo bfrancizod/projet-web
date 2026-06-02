@@ -1,3 +1,18 @@
+{#
+    Dossier complet d'un étudiant — vue pilote / admin.
+
+    Variables transmises par PilotStudentController::show() :
+     - student           : profil complet de l'étudiant
+     - has_found_stage   : booléen — l'étudiant a un stage accepté
+     - accepted_offer    : données de l'offre acceptée (null si aucune)
+     - in_progress_offers: candidatures en cours d'étude (statut en_etude)
+     - sent_offers       : candidatures simplement envoyées (statut envoyee)
+     - applications      : toutes les candidatures (tous statuts)
+     - wishlist          : offres en wishlist de l'étudiant
+
+    Les 4 sections couvrent la synthèse stage, les candidatures actives, l'historique complet
+    et la wishlist — donnant une vue 360° du dossier étudiant.
+#}
 {% extends 'base.html.twig' %}
 
 {% block title %}Dossier étudiant{% endblock %}

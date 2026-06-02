@@ -1,3 +1,15 @@
+{#
+    Liste paginée des étudiants — accessible aux pilotes ET admins.
+
+    Variables transmises par PilotStudentController::index() :
+     - students               : étudiants de la page courante avec leur statut et promotion
+     - promotions             : toutes les promotions (pour le filtre <select>)
+     - selected_promotion_id  : ID de la promotion filtrée (null si aucun filtre)
+     - search                 : texte de recherche en cours
+     - current_page / total_pages : pagination
+
+    Les liens de pagination préservent les filtres actifs via des paramètres GET conditionnels.
+#}
 {% extends 'base.html.twig' %}
 
 {% block title %}Étudiants - Espace pilote{% endblock %}

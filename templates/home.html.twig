@@ -1,3 +1,11 @@
+{#
+    Page d'accueil publique.
+
+    Variables transmises par HomeController::index() :
+     - hero_title : titre de la section hero (ex: "Trouvez votre stage idéal")
+     - hero_text  : sous-titre descriptif
+     - steps      : tableau d'étapes [{icon, title, text}] pour la section "Comment ça marche ?"
+#}
 {% extends 'base.html.twig' %}
 
 {% block title %}Accueil - Help Me Stage{% endblock %}
@@ -21,6 +29,7 @@
     <div class="container">
         <h2>Comment ça marche ?</h2>
 
+        {# Boucle sur le tableau steps défini dans HomeController — 3 cartes par défaut #}
         <div class="steps-grid">
             {% for step in steps %}
                 <article class="step-card">

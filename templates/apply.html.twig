@@ -1,3 +1,15 @@
+{#
+    Formulaire de candidature à une offre.
+
+    Variables transmises par ApplyController::form() :
+     - offer          : données de l'offre (id, titre) pour l'action du formulaire
+     - already_applied: booléen — l'étudiant a déjà postulé → affiche un message d'avertissement
+     - error          : message d'erreur de validation (null si aucune erreur)
+
+    Le formulaire utilise enctype="multipart/form-data" pour l'upload du CV (PDF).
+    La validation côté serveur vérifie : type MIME réel via finfo (magic bytes, pas l'extension),
+    taille max 2 Mo, quota de 20 CVs par étudiant.
+#}
 {% extends 'base.html.twig' %}
 
 {% block title %}Postuler - {{ offer.titre }}{% endblock %}

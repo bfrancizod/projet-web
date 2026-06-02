@@ -1,5 +1,19 @@
 <?php
 
+/**
+ * Script de création des utilisateurs de test (comptes de démonstration).
+ *
+ * ATTENTION : ce script supprime TOUS les utilisateurs existants avant d'insérer les comptes.
+ * À n'utiliser qu'en environnement de développement pour réinitialiser les comptes.
+ *
+ * Comptes créés :
+ *  - etudiant@helpmestage.fr  / stage2026  (rôle : etudiant)
+ *  - pilote@helpmestage.fr    / pilote2026 (rôle : pilote)
+ *
+ * Utilisation (depuis la racine du projet) :
+ *   php create_test_users.php
+ */
+
 declare(strict_types=1);
 
 require_once __DIR__ . '/vendor/autoload.php';
@@ -8,6 +22,7 @@ use App\Database;
 
 $pdo = Database::getConnection();
 
+// Supprime tous les utilisateurs pour repartir sur une base propre
 $pdo->exec("DELETE FROM users");
 
 $stmt = $pdo->prepare("

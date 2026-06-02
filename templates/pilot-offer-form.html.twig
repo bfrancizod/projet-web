@@ -1,4 +1,19 @@
-{% extends 'base.html.twig' %}
+{#
+    Formulaire de création / édition d’une offre (mutualisé via is_edit).
+
+    Variables transmises par PilotOfferController::handleForm() :
+     - offer          : données pré-remplies de l’offre (vides en création)
+     - companies      : liste de toutes les entreprises pour le <datalist>
+     - skills         : liste de toutes les compétences existantes (checkboxes)
+     - is_edit        : booléen — détermine l’action du formulaire et le libellé du bouton
+     - error / success: messages de retour
+
+    Deux sources de compétences coexistent dans le formulaire :
+     - competence_ids[] : checkboxes sur les compétences existantes en BDD
+     - new_skill_names[]: champ texte libre, séparé par virgules (créées si inexistantes)
+    Le contrôleur fusionne les deux listes avant d’enregistrer.
+#}
+{% extends ‘base.html.twig’ %}
 
 {% block title %}
     {% if is_edit %}

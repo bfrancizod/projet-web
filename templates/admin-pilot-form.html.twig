@@ -1,3 +1,16 @@
+{#
+    Formulaire de création / édition d'un pilote (mutualisé via is_edit).
+
+    Variables transmises par AdminPilotController::handleForm() :
+     - pilot         : données pré-remplies (dont pilot.promotion_ids[] pour les checkboxes)
+     - promotions    : toutes les promotions actives
+     - is_edit       : booléen
+     - error / success
+
+    Les checkboxes name="promotion_ids[]" envoient un tableau de strings.
+    Le contrôleur les filtre via ctype_digit() + array_unique() avant de sauvegarder.
+    Le mot de passe n'est affiché qu'en création — il n'est pas modifiable en édition.
+#}
 {% extends 'base.html.twig' %}
 
 {% block title %}

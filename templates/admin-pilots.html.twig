@@ -1,3 +1,11 @@
+{#
+    Liste des pilotes — accessible à l'admin uniquement.
+
+    Variables transmises par AdminPilotController::index() :
+     - pilots  : liste des pilotes avec leur email, promotions et date de création
+                 pilot.promotions_labels est une chaîne concaténée (GROUP_CONCAT en BDD)
+     - search  : texte de recherche en cours
+#}
 {% extends 'base.html.twig' %}
 
 {% block title %}Gestion des pilotes{% endblock %}

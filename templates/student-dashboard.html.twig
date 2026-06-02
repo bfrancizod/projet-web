@@ -1,3 +1,11 @@
+{#
+    Tableau de bord de l'espace étudiant.
+
+    Variables transmises par StudentDashboardController::index() :
+     - stats.applications   : nombre total de candidatures de l'étudiant
+     - stats.wishlist        : nombre d'offres dans sa wishlist
+     - recent_applications  : 3 dernières candidatures avec titre, entreprise, date et statut
+#}
 {% extends 'base.html.twig' %}
 
 {% block title %}Espace étudiant - Help Me Stage{% endblock %}
@@ -61,6 +69,13 @@
             </div>
 
             <div class="student-list">
+                {#
+                    Badges de statut — 4 états possibles issus de la table candidatures.status :
+                     envoyee  → badge jaune (en attente de traitement par le pilote)
+                     en_etude → badge vert  (candidature examinée par le pilote)
+                     acceptee → badge bleu  (stage accepté)
+                     refusee  → badge rouge (candidature refusée)
+                #}
                 {% for application in recent_applications %}
                     <article class="student-row">
                         <div class="student-main">

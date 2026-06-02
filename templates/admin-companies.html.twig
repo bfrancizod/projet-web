@@ -1,3 +1,14 @@
+{#
+    Liste des entreprises — accessible aux admins ET pilotes.
+
+    Variables transmises par AdminCompanyController::index() :
+     - companies    : liste des entreprises avec note, secteur, ville, commentaire
+     - search       : texte de recherche en cours
+     - companyNames : suggestions pour l'autocomplete (<datalist>)
+
+    L'affichage des étoiles est une boucle 1..5 comparée à note_int (arrondi inférieur).
+    Le commentaire affiché est celui de l'utilisateur connecté (JOIN via CompanyCommentRepository).
+#}
 {% extends 'base.html.twig' %}
 
 {% block title %}Gestion des entreprises{% endblock %}

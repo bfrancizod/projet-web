@@ -142,9 +142,9 @@ $uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
 /*
-|--------------------------------------------------------------------------
-| Routes dynamiques
-|--------------------------------------------------------------------------
+
+ Routes dynamiques
+
 */
 
 if ($method === 'GET' && preg_match('#^/offres/([0-9]+)$#', $uri, $matches)) {
@@ -258,9 +258,9 @@ if ($method === 'POST' && preg_match('#^/admin-promotions/([0-9]+)/supprimer$#',
 }
 
 /*
-|--------------------------------------------------------------------------
-| Route dynamique ajoutée : changement de mot de passe par l'admin
-|--------------------------------------------------------------------------
+
+ Route dynamique ajoutée : changement de mot de passe par l'admin
+
 */
 
 if ($method === 'POST' && preg_match('#^/admin-demandes-mdp/([0-9]+)/changer$#', $uri, $matches)) {
@@ -269,9 +269,9 @@ if ($method === 'POST' && preg_match('#^/admin-demandes-mdp/([0-9]+)/changer$#',
 }
 
 /*
-|--------------------------------------------------------------------------
-| Routes statiques
-|--------------------------------------------------------------------------
+
+ Routes statiques
+
 */
 
 switch ($uri) {

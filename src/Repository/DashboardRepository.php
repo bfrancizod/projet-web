@@ -6,6 +6,14 @@ namespace App\Repository;
 
 use PDO;
 
+/**
+ * Repository des statistiques pour les tableaux de bord (tables multiples)
+ *
+ * Centralise les requêtes de comptage et de récupération des données récentes
+ * pour les dashboards pilote et admin. La méthode privée buildPromotionFilter()
+ * est partagée par toutes les méthodes pilote pour restreindre la visibilité
+ * aux promotions assignées au pilote connecté.
+ */
 class DashboardRepository
 {
     public function __construct(private PDO $pdo)
@@ -16,6 +24,7 @@ class DashboardRepository
     // PILOT
     // =========================
 
+    /** Compte les étudiants visibles par un pilote selon ses promotions assignées */
     public function countPilotStudents(array $allowedPromotionIds): int
     {
         [$filterSql, $params] = $this->buildPromotionFilter($allowedPromotionIds, 'sp.promotion_id');
@@ -32,6 +41,7 @@ class DashboardRepository
         return (int) $stmt->fetchColumn();
     }
 
+    /** Compte les étudiants en statut 'sans_stage' dans les promotions du pilote */
     public function countPilotStudentsWithoutStage(array $allowedPromotionIds): int
     {
         [$filterSql, $params] = $this->buildPromotionFilter($allowedPromotionIds, 'sp.promotion_id');
@@ -47,6 +57,7 @@ class DashboardRepository
         return (int) $stmt->fetchColumn();
     }
 
+    /** Compte toutes les candidatures des étudiants dans les promotions du pilote */
     public function countPilotApplications(array $allowedPromotionIds): int
     {
         [$filterSql, $params] = $this->buildPromotionFilter($allowedPromotionIds, 'sp.promotion_id');
@@ -63,6 +74,7 @@ class DashboardRepository
         return (int) $stmt->fetchColumn();
     }
 
+    /** Compte les étudiants en statut 'stage_valide' dans les promotions du pilote */
     public function countPilotValidatedStages(array $allowedPromotionIds): int
     {
         [$filterSql, $params] = $this->buildPromotionFilter($allowedPromotionIds, 'sp.promotion_id');
@@ -78,6 +90,11 @@ class DashboardRepository
         return (int) $stmt->fetchColumn();
     }
 
+    /**
+     * Retourne les N étudiants les plus récemment actifs dans les promotions du pilote.
+     * Triés par last_activity DESC pour mettre en avant les étudiants actifs récemment.
+     * bindValue() explicite requis car $params contient des entiers (promotions) et LIMIT est entier.
+     */
     public function findRecentPilotStudents(array $allowedPromotionIds, int $limit = 5): array
     {
         [$filterSql, $params] = $this->buildPromotionFilter($allowedPromotionIds, 'sp.promotion_id');
@@ -151,6 +168,7 @@ class DashboardRepository
             ->fetchColumn();
     }
 
+    /** Retourne les N étudiants les plus récemment actifs — pour le dashboard admin */
     public function findRecentStudents(int $limit = 5): array
     {
         $stmt = $this->pdo->prepare("
@@ -179,6 +197,18 @@ class DashboardRepository
     // UTIL
     // =========================
 
+    /**
+     * Construit dynamiquement le fragment SQL "AND colonne IN (:p0, :p1, ...)"
+     * pour filtrer par une liste de promotions autorisées.
+     *
+     * Si la liste est vide (pilote sans promotion assignée), retourne "AND 1=0"
+     * qui ne retourne aucun résultat — comportement intentionnel pour isoler les données.
+     *
+     * Les placeholders sont générés dynamiquement car PDO ne supporte pas les tableaux
+     * dans les requêtes préparées (pas de IN(:array)).
+     *
+     * @return array{0: string, 1: array} [fragment SQL, paramètres associatifs]
+     */
     private function buildPromotionFilter(array $allowedPromotionIds, string $column): array
     {
         if ($allowedPromotionIds === []) {

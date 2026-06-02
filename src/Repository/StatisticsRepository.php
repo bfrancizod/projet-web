@@ -6,12 +6,18 @@ namespace App\Repository;
 
 use PDO;
 
+/**
+ * Repository des statistiques globales (tables : offres, candidatures, student_wishlist)
+ *
+ * Fournit les données agrégées pour la page de statistiques accessible aux pilotes/admins.
+ */
 class StatisticsRepository
 {
     public function __construct(private PDO $pdo)
     {
     }
 
+    /** Compte le nombre total d'offres de stage dans la plateforme */
     public function countOffers(): int
     {
         return (int) $this->pdo
@@ -19,6 +25,13 @@ class StatisticsRepository
             ->fetchColumn();
     }
 
+    /**
+     * Calcule la moyenne de candidatures reçues par offre.
+     * La sous-requête calcule d'abord le COUNT par offre (y compris les offres à 0 candidature
+     * grâce au LEFT JOIN), puis AVG() est appliqué sur ces totaux.
+     * COALESCE(..., 0) gère le cas où il n'y a aucune offre (évite NULL).
+     * Le résultat est arrondi à 1 décimale.
+     */
     public function getAverageApplicationsPerOffer(): float
     {
         $stmt = $this->pdo->query('
@@ -34,6 +47,7 @@ class StatisticsRepository
         return round((float) $stmt->fetchColumn(), 1);
     }
 
+    /** Retourne la répartition des offres par durée en semaines — pour le graphique de distribution */
     public function getOffersByDuration(): array
     {
         $stmt = $this->pdo->query('
@@ -49,6 +63,11 @@ class StatisticsRepository
         return $stmt->fetchAll();
     }
 
+    /**
+     * Retourne les N offres les plus ajoutées en wishlist.
+     * COUNT(sw.offre_id) compte le nombre de fois qu'une offre a été mise en wishlist.
+     * Trié par wishlist_count DESC puis par titre ASC pour départager les ex aequo.
+     */
     public function getTopWishlistOffers(int $limit = 5): array
     {
         $stmt = $this->pdo->prepare('

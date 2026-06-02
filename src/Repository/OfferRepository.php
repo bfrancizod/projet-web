@@ -6,12 +6,25 @@ namespace App\Repository;
 
 use PDO;
 
+/**
+ * Repository des offres de stage (table : offres)
+ *
+ * Gère deux contextes distincts :
+ * - Vue publique (méthodes findPublic*) : offres avec filtres avancés, compétences, tri
+ * - Vue pilote/admin (méthodes sans "Public") : liste simple avec recherche
+ *
+ * Les offres peuvent référencer une entreprise de deux façons :
+ * - Via entreprise_id (lié à la table entreprises)
+ * - Via le champ texte libre entreprise (héritage, si l'entreprise n'est pas en BDD)
+ * COALESCE(e.nom, o.entreprise) gère cette dualité dans toutes les requêtes.
+ */
 class OfferRepository
 {
     public function __construct(private PDO $pdo)
     {
     }
 
+    /** Compte les offres pour la pagination de la vue pilote/admin */
     public function countOffers(string $search): int
     {
         $sql = "
@@ -46,6 +59,7 @@ class OfferRepository
         return (int) $stmt->fetchColumn();
     }
 
+    /** Retourne une page d'offres pour la vue pilote/admin — triées par date décroissante */
     public function findOffersPaginated(string $search, int $limit, int $offset): array
     {
         $sql = "
@@ -99,6 +113,11 @@ class OfferRepository
         return $stmt->fetchAll();
     }
 
+    /**
+     * Retourne une liste unifiée de suggestions pour l'autocomplétion de la recherche.
+     * Combine via UNION trois sources : titres d'offres, noms d'entreprises, et lieux.
+     * UNION (sans ALL) déduplique automatiquement les valeurs identiques.
+     */
     public function getOfferSuggestions(): array
     {
         $stmt = $this->pdo->query("
@@ -128,6 +147,7 @@ class OfferRepository
         return $stmt->fetchAll(PDO::FETCH_COLUMN);
     }
 
+    /** Retourne toutes les entreprises pour alimenter le select du formulaire offre */
     public function getAllCompanies(): array
     {
         $stmt = $this->pdo->query("
@@ -139,6 +159,7 @@ class OfferRepository
         return $stmt->fetchAll();
     }
 
+    /** Retourne toutes les compétences pour les checkboxes du formulaire offre */
     public function getAllSkills(): array
     {
         $stmt = $this->pdo->query("
@@ -150,6 +171,7 @@ class OfferRepository
         return $stmt->fetchAll();
     }
 
+    /** Retrouve une offre par ID pour le formulaire d'édition pilote */
     public function findOfferById(int $offerId): array|false
     {
         $stmt = $this->pdo->prepare("
@@ -171,6 +193,7 @@ class OfferRepository
         return $stmt->fetch();
     }
 
+    /** Retourne les IDs des compétences d'une offre — pour pré-cocher les checkboxes en édition */
     public function getOfferSkillIds(int $offerId): array
     {
         $stmt = $this->pdo->prepare("
@@ -183,6 +206,7 @@ class OfferRepository
         return array_map('intval', $stmt->fetchAll(PDO::FETCH_COLUMN));
     }
 
+    /** Recherche une entreprise par nom exact — pour éviter les doublons lors de la création */
     public function findCompanyByName(string $companyName): array|false
     {
         $stmt = $this->pdo->prepare("
@@ -196,6 +220,7 @@ class OfferRepository
         return $stmt->fetch();
     }
 
+    /** Retourne tous les IDs de compétences — pour valider que les IDs soumis existent bien en BDD */
     public function getAllSkillIds(): array
     {
         $stmt = $this->pdo->query("SELECT id FROM competences");
@@ -203,6 +228,20 @@ class OfferRepository
         return array_map('intval', $stmt->fetchAll(PDO::FETCH_COLUMN));
     }
 
+    /**
+     * Crée ou met à jour une offre avec ses compétences dans une transaction.
+     *
+     * Logique des compétences (dans la transaction) :
+     * 1. Pour chaque nouvelle compétence saisie en texte libre ($newSkillNames) :
+     *    - Recherche insensible à la casse (LOWER) pour éviter les doublons
+     *    - Si elle existe déjà → récupère son ID
+     *    - Sinon → l'insère et récupère le nouvel ID
+     * 2. Fusionne les IDs existants ($competenceIds) et les nouveaux dans un tableau unique
+     * 3. Supprime toutes les liaisons offre↔compétence existantes (table offre_competence)
+     * 4. Réinsère les liaisons avec la nouvelle liste complète
+     *
+     * Cette approche "delete+insert" est plus simple qu'un diff pour les relations N-N.
+     */
     public function saveOffer(
         ?int $offerId,
         string $titre,
@@ -336,6 +375,10 @@ class OfferRepository
         }
     }
 
+    /**
+     * Supprime une offre et toutes ses dépendances dans une transaction.
+     * Ordre : wishlist → candidatures → compétences liées → offre.
+     */
     public function deleteOffer(int $offerId): void
     {
         $this->pdo->beginTransaction();
@@ -363,6 +406,7 @@ class OfferRepository
         }
     }
 
+    /** Compte les offres publiques selon les filtres actifs — pour la pagination de la page /offres */
     public function countPublicOffers(
         string $searchQuery,
         string $skillsQuery,
@@ -399,6 +443,18 @@ class OfferRepository
         return (int) $stmt->fetchColumn();
     }
 
+    /**
+     * Retourne une page d'offres publiques avec leurs compétences et l'ordre de tri choisi.
+     *
+     * GROUP_CONCAT(DISTINCT c.nom ... SEPARATOR '||') agrège toutes les compétences d'une offre
+     * en une seule chaîne séparée par '||'. Après le fetch, la chaîne est éclatée en tableau
+     * PHP (skills_concat → offer['skills']). Ce mécanisme évite un problème N+1 queries
+     * (une requête par offre pour ses compétences).
+     *
+     * Le tri est injecté via une variable PHP dans le SQL (pas un paramètre PDO) car
+     * ORDER BY ne supporte pas les paramètres bindés — seules des valeurs whitelistées
+     * sont acceptées (pas d'injection possible grâce aux conditions if/elseif).
+     */
     public function findPublicOffersPaginated(
         string $searchQuery,
         string $skillsQuery,
@@ -491,6 +547,10 @@ class OfferRepository
         return $offers;
     }
 
+    /**
+     * Retourne le détail complet d'une offre publique avec les infos de l'entreprise liée.
+     * Utilisé pour la page de détail d'une offre (/offres/{id}).
+     */
     public function findPublicOfferDetailById(int $offerId): array|false
     {
         $stmt = $this->pdo->prepare("
@@ -521,6 +581,7 @@ class OfferRepository
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    /** Retourne les compétences d'une offre (noms) — pour l'affichage sur la page de détail */
     public function findOfferSkillsByOfferId(int $offerId): array
     {
         $stmt = $this->pdo->prepare("
@@ -535,6 +596,7 @@ class OfferRepository
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    /** Vérifie si une offre est dans la wishlist d'un étudiant — pour afficher le bon bouton */
     public function isOfferInWishlist(int $userId, int $offerId): bool
     {
         $stmt = $this->pdo->prepare("
@@ -552,6 +614,7 @@ class OfferRepository
         return (bool) $stmt->fetchColumn();
     }
 
+    /** Vérifie si l'étudiant a déjà postulé — pour désactiver le bouton "Postuler" */
     public function hasStudentAppliedToOffer(int $userId, int $offerId): bool
     {
         $stmt = $this->pdo->prepare("
@@ -569,6 +632,22 @@ class OfferRepository
         return (bool) $stmt->fetchColumn();
     }
 
+    /**
+     * Construit dynamiquement les conditions WHERE pour les filtres publics des offres.
+     *
+     * Filtres gérés :
+     * - Recherche texte : cherche dans titre, entreprise et description
+     * - Localisation : LIKE sur le champ lieu
+     * - Durée max : duree_semaines <= valeur (filtre "au plus X semaines")
+     * - Salaire min : remuneration >= valeur (filtre "au moins X €")
+     * - Compétences : chaque mot clé doit matcher au moins une compétence via EXISTS
+     *   (sous-requête corrélée — garantit que l'offre possède TOUTES les compétences cherchées)
+     *
+     * Retourne un tableau [fragment WHERE SQL, paramètres associatifs] pour être
+     * réutilisé à la fois dans countPublicOffers() et findPublicOffersPaginated().
+     *
+     * @return array{0: string, 1: array} [clause WHERE ou chaîne vide, paramètres]
+     */
     private function buildPublicFilters(
         string $searchQuery,
         string $skillsQuery,

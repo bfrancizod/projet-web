@@ -6,12 +6,24 @@ namespace App\Repository;
 
 use PDO;
 
+/**
+ * Repository des promotions (table : promotions)
+ *
+ * Une promotion regroupe un ensemble d'étudiants sur une année académique.
+ * Elle peut être active (is_active=1) ou archivée.
+ * Les pilotes sont rattachés aux promotions via pilot_promotions (N-N).
+ */
 class PromotionRepository
 {
     public function __construct(private PDO $pdo)
     {
     }
 
+    /**
+     * Retourne toutes les promotions avec leur nombre d'étudiants et de pilotes.
+     * COUNT(DISTINCT ...) est nécessaire car les JOIN peuvent créer des doublons
+     * si une promotion a à la fois des étudiants et des pilotes.
+     */
     public function findAllWithStats(string $search): array
     {
         $sql = "
@@ -54,6 +66,7 @@ class PromotionRepository
         return $stmt->fetchAll();
     }
 
+    /** Retrouve une promotion par son ID — pour pré-remplir le formulaire d'édition */
     public function findById(int $promotionId): array|false
     {
         $stmt = $this->pdo->prepare("
@@ -67,6 +80,11 @@ class PromotionRepository
         return $stmt->fetch();
     }
 
+    /**
+     * Vérifie si une promotion avec ce label ET cette année académique existe déjà.
+     * Les deux champs combinés forment un identifiant unique (ex: "B1" + "2025-2026").
+     * $excludeId permet d'ignorer la promotion en cours d'édition.
+     */
     public function existsByLabelAndYear(string $label, string $academicYear, ?int $excludeId = null): bool
     {
         if ($excludeId !== null) {
@@ -100,6 +118,7 @@ class PromotionRepository
         return (bool) $stmt->fetch();
     }
 
+    /** Crée une nouvelle promotion et retourne son ID */
     public function create(string $label, string $academicYear, int $isActive): int
     {
         $stmt = $this->pdo->prepare("
@@ -115,6 +134,7 @@ class PromotionRepository
         return (int) $this->pdo->lastInsertId();
     }
 
+    /** Met à jour le label, l'année et le statut actif d'une promotion */
     public function update(int $promotionId, string $label, string $academicYear, int $isActive): void
     {
         $stmt = $this->pdo->prepare("
@@ -132,6 +152,11 @@ class PromotionRepository
         ]);
     }
 
+    /**
+     * Supprime une promotion.
+     * Attention : les étudiants et pilotes liés à cette promotion ne sont pas supprimés,
+     * mais leur promotion_id devient NULL (ON DELETE SET NULL en BDD).
+     */
     public function delete(int $promotionId): void
     {
         $stmt = $this->pdo->prepare("

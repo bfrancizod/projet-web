@@ -6,12 +6,20 @@ namespace App\Repository;
 
 use PDO;
 
+/**
+ * Repository du consentement aux cookies (table : cookie_consents)
+ *
+ * Stocke les choix de consentement RGPD de chaque visiteur.
+ * Chaque visiteur est identifié par un token unique stocké dans un cookie navigateur.
+ * Les trois catégories de cookies gérées : essentiels, analytiques, marketing.
+ */
 class CookieConsentRepository
 {
     public function __construct(private PDO $pdo)
     {
     }
 
+    /** Retrouve le consentement existant d'un visiteur via son token cookie */
     public function findByToken(string $consentToken): array|false
     {
         $stmt = $this->pdo->prepare("
@@ -27,6 +35,12 @@ class CookieConsentRepository
         return $stmt->fetch();
     }
 
+    /**
+     * Enregistre ou met à jour le consentement d'un visiteur.
+     * Si un enregistrement existe déjà pour ce token → UPDATE avec les nouvelles préférences.
+     * Sinon → INSERT. Les booléens sont convertis en 0/1 pour MySQL.
+     * consented_at et updated_at sont mis à NOW() à chaque modification.
+     */
     public function saveConsent(
         string $consentToken,
         bool $essential,

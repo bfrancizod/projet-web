@@ -7,10 +7,10 @@ namespace App\Repository;
 use PDO;
 
 /**
- * Repository des commentaires d'entreprises (table : entreprise_commentaires)
+ * Repository des commentaires d'entreprises.
  *
- * Chaque utilisateur peut laisser un seul commentaire par entreprise.
- * La méthode upsert() gère automatiquement la création ou la mise à jour.
+ * Les commentaires peuvent être affichés sur une page publique.
+ * Par sécurité/RGPD, l'email de l'auteur n'est jamais récupéré ni exposé.
  */
 class CompanyCommentRepository
 {
@@ -18,10 +18,6 @@ class CompanyCommentRepository
     {
     }
 
-    /**
-     * Retourne tous les commentaires d'une entreprise avec le nom/prénom/email
-     * de l'auteur — triés du plus récent au plus ancien.
-     */
     public function findByCompanyId(int $companyId): array
     {
         $stmt = $this->pdo->prepare("
@@ -32,13 +28,13 @@ class CompanyCommentRepository
                 ec.commentaire,
                 ec.created_at,
                 u.nom,
-                u.prenom,
-                u.email
+                u.prenom
             FROM entreprise_commentaires ec
             LEFT JOIN users u ON u.id = ec.user_id
             WHERE ec.entreprise_id = :entreprise_id
             ORDER BY ec.created_at DESC, ec.id DESC
         ");
+
         $stmt->execute([
             'entreprise_id' => $companyId,
         ]);
@@ -46,11 +42,6 @@ class CompanyCommentRepository
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Retourne les N derniers commentaires d'une entreprise.
-     * bindValue() explicite pour LIMIT car PDO ne supporte pas les entiers
-     * nommés avec execute() sur certaines versions MySQL.
-     */
     public function findLatestByCompanyId(int $companyId, int $limit = 3): array
     {
         $stmt = $this->pdo->prepare("
@@ -61,14 +52,14 @@ class CompanyCommentRepository
                 ec.commentaire,
                 ec.created_at,
                 u.nom,
-                u.prenom,
-                u.email
+                u.prenom
             FROM entreprise_commentaires ec
             LEFT JOIN users u ON u.id = ec.user_id
             WHERE ec.entreprise_id = :entreprise_id
             ORDER BY ec.created_at DESC, ec.id DESC
             LIMIT :limit_value
         ");
+
         $stmt->bindValue(':entreprise_id', $companyId, PDO::PARAM_INT);
         $stmt->bindValue(':limit_value', $limit, PDO::PARAM_INT);
         $stmt->execute();
@@ -76,7 +67,6 @@ class CompanyCommentRepository
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /** Compte le nombre total de commentaires d'une entreprise */
     public function countByCompanyId(int $companyId): int
     {
         $stmt = $this->pdo->prepare("
@@ -84,6 +74,7 @@ class CompanyCommentRepository
             FROM entreprise_commentaires
             WHERE entreprise_id = :entreprise_id
         ");
+
         $stmt->execute([
             'entreprise_id' => $companyId,
         ]);
@@ -91,7 +82,6 @@ class CompanyCommentRepository
         return (int) $stmt->fetchColumn();
     }
 
-    /** Retrouve le commentaire d'un utilisateur spécifique pour une entreprise — utilisé par upsert() */
     public function findByCompanyIdAndUserId(int $companyId, int $userId): array|false
     {
         $stmt = $this->pdo->prepare("
@@ -106,6 +96,7 @@ class CompanyCommentRepository
               AND user_id = :user_id
             LIMIT 1
         ");
+
         $stmt->execute([
             'entreprise_id' => $companyId,
             'user_id' => $userId,
@@ -114,11 +105,6 @@ class CompanyCommentRepository
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Crée ou met à jour le commentaire d'un utilisateur pour une entreprise.
-     * Un utilisateur ne peut avoir qu'un seul commentaire par entreprise.
-     * Si un commentaire existe déjà → UPDATE, sinon → INSERT.
-     */
     public function upsert(int $companyId, int $userId, string $commentaire): void
     {
         $existing = $this->findByCompanyIdAndUserId($companyId, $userId);
@@ -129,6 +115,7 @@ class CompanyCommentRepository
                 SET commentaire = :commentaire
                 WHERE id = :id
             ");
+
             $stmt->execute([
                 'id' => $existing['id'],
                 'commentaire' => $commentaire,
@@ -141,6 +128,7 @@ class CompanyCommentRepository
             INSERT INTO entreprise_commentaires (entreprise_id, user_id, commentaire)
             VALUES (:entreprise_id, :user_id, :commentaire)
         ");
+
         $stmt->execute([
             'entreprise_id' => $companyId,
             'user_id' => $userId,
@@ -148,13 +136,13 @@ class CompanyCommentRepository
         ]);
     }
 
-    /** Supprime tous les commentaires d'une entreprise — appelé lors de la suppression de l'entreprise */
     public function deleteByCompanyId(int $companyId): void
     {
         $stmt = $this->pdo->prepare("
             DELETE FROM entreprise_commentaires
             WHERE entreprise_id = :entreprise_id
         ");
+
         $stmt->execute([
             'entreprise_id' => $companyId,
         ]);

@@ -1,13 +1,9 @@
 {#
-    Page de tous les commentaires d'une entreprise.
-    Accessible via "Voir plus de commentaires" depuis offer-detail.html.twig.
+    Page publique des commentaires d'une entreprise.
 
-    Variables transmises par CompanyCommentController::index() :
-     - company  : données de l'entreprise (nom, secteur, ville, siret)
-     - comments : tous les commentaires de l'entreprise avec nom/prénom de l'auteur
-
-    Le bouton "Retour" utilise javascript:history.back() pour revenir à la page précédente
-    (l'offre de stage dont l'utilisateur venait, sans casser le fil de navigation).
+    Sécurité/RGPD :
+    - L'adresse email des auteurs n'est jamais affichée.
+    - Si le nom/prénom n'est pas disponible, on affiche un libellé générique.
 #}
 {% extends 'base.html.twig' %}
 
@@ -71,10 +67,8 @@
                                 <strong>
                                     {% if comment.prenom or comment.nom %}
                                         {{ comment.prenom }} {{ comment.nom }}
-                                    {% elseif comment.email %}
-                                        {{ comment.email }}
                                     {% else %}
-                                        Utilisateur #{{ comment.user_id ?: 'inconnu' }}
+                                        Étudiant vérifié
                                     {% endif %}
                                 </strong>
 

@@ -6,7 +6,7 @@
  *  - /admin-pilotes, /admin-entreprises, /admin-promotions
  *  - Formulaires admin-pilot-form, admin-company-form, admin-promotion-form
  */
-
+@import "base.css";
 .admin-dashboard-page {
     max-width: 1120px;
     margin: 0 auto;
@@ -38,7 +38,7 @@
     background: var(--color-white);
     border-radius: 18px;
     padding: 22px 18px;
-    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
+    box-shadow: 0 2px 10px var(--color-shadow-navy);
     border: 1px solid #ece7df;
 }
 
@@ -67,7 +67,7 @@
     background: var(--color-white);
     border-radius: 18px;
     padding: 22px 20px;
-    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
+    box-shadow: 0 2px 10px var(--color-shadow-navy);
     border: 1px solid #ece7df;
     min-height: 150px;
     display: flex;
@@ -104,19 +104,19 @@
     font-weight: 700;
     font-size: 15px;
     transition: transform 0.15s ease, box-shadow 0.15s ease;
-    box-shadow: 0 2px 6px rgba(242, 182, 0, 0.22);
+    box-shadow: 0 2px 6px var(--color-shadow-primary);
 }
 
 .admin-action-button:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 10px rgba(242, 182, 0, 0.28);
+    box-shadow: 0 4px 10px var(--color-shadow-primary);
 }
 
 .admin-recent-section {
     background: var(--color-white);
     border-radius: 20px;
     padding: 22px;
-    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
+    box-shadow: 0 2px 10px var(--color-shadow-navy);
     border: 1px solid #ece7df;
 }
 

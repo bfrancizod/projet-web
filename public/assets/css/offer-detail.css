@@ -12,7 +12,9 @@
  *  7. Responsive (≤ 768px)
  */
 
-.offer-detail-page {
+@import "base.css";
+
+ .offer-detail-page {
     padding: 34px 0 56px;
 }
 
@@ -41,7 +43,7 @@
     background: var(--color-white);
     padding: 28px;
     border-radius: 16px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 5px 15px var(--color-shadow-black);
 }
 
 .offer-detail-card h1 {

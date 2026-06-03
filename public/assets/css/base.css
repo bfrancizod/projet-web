@@ -33,7 +33,7 @@
     --color-text-light:   #9ca3af;   /* placeholders, notes */
 
     /* Arrière-plans */
-    --color-bg:           #f6f7f9;   /* fond de page général */
+    --color-bg:           #f7f6f1;   /* fond de page général */
     --color-bg-light:     #f9fafb;   /* fond des cartes / sections */
     --color-white:        #ffffff;
 
@@ -49,6 +49,10 @@
 
     /* Divers */
     --color-dark-navy:    #0f2747;   /* footer, sections sombres */
+    --color-shadow-black: rgba(0,0,0,0.05);
+    --color-shadow-white: rgba(255,255,255,0.05);
+    --color-shadow-primary: rgba(242, 182, 0, 0.28);
+    --color-shadow-navy: rgba(15, 23, 42, 0.05);
 }
 
 /* =========================================================
@@ -153,7 +157,7 @@ body {
     font-size: 1.1rem;
     line-height: 1;
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 2px 8px var(--color-shadow-black);
 }
 
 .mobile-menu {
@@ -162,7 +166,7 @@ body {
     gap: 0;
     background: white;
     border-top: 1px solid var(--color-border);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 8px 20px var(--color-shadow-black);
 }
 
 .mobile-menu.is-open {
@@ -364,7 +368,7 @@ h3 {
 }
 
 .footer-bottom {
-    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    border-top: 1px solid var(--color-shadow-white);
 }
 
 .footer-bottom-content {
@@ -395,7 +399,7 @@ h3 {
     background: var(--color-white);
     border: 1px solid var(--color-border);
     border-radius: 20px;
-    box-shadow: 0 18px 60px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 18px 60px var(--color-shadow-black);
     padding: 24px;
 }
 

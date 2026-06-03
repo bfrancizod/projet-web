@@ -19,6 +19,13 @@
     {# block title : chaque page enfant peut surcharger le titre de l'onglet #}
     <title>{% block title %}Help Me Stage{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{% block meta_description %}Help Me Stage — plateforme de mise en relation entre étudiants et entreprises pour trouver un stage.{% endblock %}">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Help Me Stage">
+    <meta property="og:title" content="{% block og_title %}Help Me Stage{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Plateforme de mise en relation entre étudiants et entreprises pour trouver un stage.{% endblock %}">
 
     <!-- Favicon -->
     <link rel="icon" href="/assets/logo/logo.svg" type="image/svg+xml">

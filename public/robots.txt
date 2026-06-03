@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+Allow: /offres
+Allow: /mentions-legales
+Allow: /contact
+Allow: /politique-confidentialite
+
+Disallow: /connexion
+Disallow: /inscription
+Disallow: /espace-admin
+Disallow: /espace-pilote
+Disallow: /espace-etudiant
+Disallow: /admin-demandes-mdp
+Disallow: /pilot-offres
+Disallow: /statistiques-offres
+Disallow: /mot-de-passe-oublie
+Disallow: /deconnexion
+
+Sitemap: https://helpmestage.fr/sitemap.xml

@@ -64,7 +64,7 @@
    3. BASE — html, body, layout principal
    ========================================================= */
 html {
-    font-size: 17px; /* base de calcul pour les unités rem */
+    font-size: 15px; /* base de calcul pour les unités rem */
     height: 100%;
 }
 

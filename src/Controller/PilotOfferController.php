@@ -200,7 +200,7 @@ class PilotOfferController
             // Une offre doit avoir au moins une compétence, peu importe la source
             // (existante cochée OU nouvelle saisie — les deux listes peuvent être combinées)
             } elseif ($competenceIds === [] && $newSkillNames === []) {
-                $error = "Merci d’ajouter au moins une compétence.";
+                $error = "Merci d'ajouter au moins une compétence.";
             } else {
                 $company = $this->offerRepository->findCompanyByName($entrepriseNom);
 

@@ -13,7 +13,7 @@
      - new_skill_names[]: champ texte libre, séparé par virgules (créées si inexistantes)
     Le contrôleur fusionne les deux listes avant d’enregistrer.
 #}
-{% extends ‘base.html.twig’ %}
+{% extends 'base.html.twig' %}
 
 {% block title %}
     {% if is_edit %}
@@ -101,7 +101,17 @@
 
                     {# ===== CHECKBOXES ===== #}
                     <p class="skills-group-label">Compétences existantes</p>
-                    <div style="border:1px solid #d1d5db; border-radius:10px; padding:12px; max-height:220px; overflow-y:auto; background:#fff;">
+
+                    {# Champ de recherche — filtre les cases à cocher en temps réel via skills-search.js #}
+                    <input
+                        type="text"
+                        id="skills-search"
+                        placeholder="Rechercher une compétence…"
+                        autocomplete="off"
+                        style="margin-bottom:8px; width:100%;"
+                    >
+
+                    <div id="skills-list" style="border:1px solid #d1d5db; border-radius:10px; padding:12px; max-height:220px; overflow-y:auto; background:#fff;">
 
                         {% for skill in skills %}
                             <label style="display:flex; align-items:center; gap:8px; margin-bottom:8px; cursor:pointer;">
@@ -114,6 +124,9 @@
                                 <span>{{ skill.nom }}</span>
                             </label>
                         {% endfor %}
+
+                        {# Message affiché si la recherche ne trouve aucun résultat #}
+                        <p id="skills-empty" style="display:none; color:#6b7280; font-size:14px;">Aucune compétence trouvée.</p>
 
                     </div>
 
@@ -150,4 +163,8 @@
         </section>
     </div>
 </main>
+
+{% block javascripts %}
+    <script src="/assets/js/skills-search.js"></script>
+{% endblock %}
 {% endblock %}

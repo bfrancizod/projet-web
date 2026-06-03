@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\Database;
 use App\Repository\ApplicationRepository;
 use App\Security\Csrf;
+use App\Support\PilotPromotionAccess;
 use Twig\Environment;
 
 /**
@@ -44,9 +45,24 @@ class PilotApplicationController
             exit;
         }
 
+        $currentRole  = $_SESSION['user']['role'] ?? null;
+        $currentUserId = (int) ($_SESSION['user']['id'] ?? 0);
+        $pdo = Database::getConnection();
+
+        // Pour un pilote, récupère uniquement les IDs de ses promotions assignées.
+        // Pour un admin, le tableau est vide → pas de restriction dans les requêtes.
+        $allowedPromotionIds = ($currentRole === 'pilote')
+            ? PilotPromotionAccess::getAssignedPromotionIds($pdo, $currentUserId)
+            : [];
+
         $selectedPromotionId = isset($_GET['promotion_id']) && ctype_digit((string) $_GET['promotion_id'])
             ? (int) $_GET['promotion_id']
             : null;
+
+        // Un pilote ne peut pas filtrer sur une promotion qui ne lui est pas assignée
+        if ($currentRole === 'pilote' && $selectedPromotionId !== null && !in_array($selectedPromotionId, $allowedPromotionIds, true)) {
+            $selectedPromotionId = null;
+        }
 
         $search = trim((string) ($_GET['q'] ?? ''));
 
@@ -56,7 +72,7 @@ class PilotApplicationController
 
         $promotions = $this->applicationRepository->getActivePromotions();
 
-        $totalApplications = $this->applicationRepository->countApplications($selectedPromotionId, $search);
+        $totalApplications = $this->applicationRepository->countApplications($selectedPromotionId, $search, $allowedPromotionIds);
 
         $totalPages = max(1, (int) ceil($totalApplications / self::PER_PAGE));
 
@@ -70,7 +86,8 @@ class PilotApplicationController
             $selectedPromotionId,
             $search,
             self::PER_PAGE,
-            $offset
+            $offset,
+            $allowedPromotionIds
         );
 
         return $this->twig->render('pilot-applications.html.twig', [
@@ -101,6 +118,16 @@ class PilotApplicationController
 
         Csrf::requireValidToken($_POST['_csrf_token'] ?? null);
 
+        $currentRole   = $_SESSION['user']['role'] ?? null;
+        $currentUserId = (int) ($_SESSION['user']['id'] ?? 0);
+
+        // Un pilote ne peut agir que sur une candidature appartenant à l'une de ses promotions.
+        // Un admin n'a pas cette restriction.
+        if ($currentRole === 'pilote' && !PilotPromotionAccess::pilotCanAccessApplication(Database::getConnection(), $currentUserId, $applicationId)) {
+            http_response_code(403);
+            exit('Accès refusé.');
+        }
+
         $status = trim((string) ($_POST['status'] ?? ''));
 
         // Whitelist stricte : seuls ces deux statuts sont acceptables via ce formulaire
@@ -118,6 +145,7 @@ class PilotApplicationController
         try {
             $this->applicationRepository->updateApplicationStatusAndStudentProfile($applicationId, $status);
         } catch (\Throwable $e) {
+            error_log('[PilotApplicationController] Erreur updateStatus : ' . $e->getMessage());
             http_response_code(500);
             exit('Erreur lors de la mise à jour.');
         }

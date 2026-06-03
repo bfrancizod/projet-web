@@ -31,8 +31,11 @@ class ApplicationRepository
         return $stmt->fetchAll();
     }
 
-    /** Compte le total de candidatures selon les filtres — utilisé pour calculer le nombre de pages */
-    public function countApplications(?int $selectedPromotionId, string $search): int
+    /**
+     * Compte le total de candidatures selon les filtres — utilisé pour calculer le nombre de pages.
+     * $allowedPromotionIds restreint les résultats aux promotions du pilote (vide = pas de restriction, pour les admins).
+     */
+    public function countApplications(?int $selectedPromotionId, string $search, array $allowedPromotionIds = []): int
     {
         $sql = "
             SELECT COUNT(*)
@@ -45,6 +48,18 @@ class ApplicationRepository
         ";
 
         $params = [];
+
+        // Restriction aux promotions du pilote — ignorée pour les admins (tableau vide)
+        // Paramètres nommés :allowed_prom_0, :allowed_prom_1… pour rester cohérent avec le reste de la requête
+        if ($allowedPromotionIds !== []) {
+            $placeholders = [];
+            foreach ($allowedPromotionIds as $i => $id) {
+                $key = 'allowed_prom_' . $i;
+                $placeholders[] = ':' . $key;
+                $params[$key] = (int) $id;
+            }
+            $sql .= ' AND sp.promotion_id IN (' . implode(',', $placeholders) . ') ';
+        }
 
         if ($selectedPromotionId !== null) {
             $sql .= " AND sp.promotion_id = :promotion_id ";
@@ -80,12 +95,14 @@ class ApplicationRepository
      * Retourne une page de candidatures avec les infos étudiant, offre et promotion.
      * Le tri prioritise les candidatures "envoyées" (non traitées) en haut de liste,
      * puis les acceptées, refusées, en étude — les plus récentes en premier dans chaque groupe.
+     * $allowedPromotionIds restreint les résultats aux promotions du pilote (vide = pas de restriction, pour les admins).
      */
     public function findApplicationsPaginated(
         ?int $selectedPromotionId,
         string $search,
         int $limit,
-        int $offset
+        int $offset,
+        array $allowedPromotionIds = []
     ): array {
         $sql = "
             SELECT
@@ -106,6 +123,17 @@ class ApplicationRepository
         ";
 
         $params = [];
+
+        // Restriction aux promotions du pilote — ignorée pour les admins (tableau vide)
+        if ($allowedPromotionIds !== []) {
+            $placeholders = [];
+            foreach ($allowedPromotionIds as $i => $id) {
+                $key = 'allowed_prom_' . $i;
+                $placeholders[] = ':' . $key;
+                $params[$key] = (int) $id;
+            }
+            $sql .= ' AND sp.promotion_id IN (' . implode(',', $placeholders) . ') ';
+        }
 
         if ($selectedPromotionId !== null) {
             $sql .= " AND sp.promotion_id = :promotion_id ";

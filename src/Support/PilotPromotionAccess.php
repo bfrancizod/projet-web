@@ -83,6 +83,33 @@ final class PilotPromotionAccess
     }
 
     /**
+     * Vérifie si un pilote a le droit d'agir sur une candidature.
+     *
+     * Une candidature est accessible uniquement si l'étudiant qui l'a soumise
+     * appartient à une promotion assignée au pilote.
+     * Jointure : candidatures → student_profiles → pilot_promotions.
+     * SELECT 1 + LIMIT 1 est plus léger qu'un COUNT(*) : on s'arrête au premier résultat trouvé.
+     */
+    public static function pilotCanAccessApplication(PDO $pdo, int $pilotId, int $applicationId): bool
+    {
+        $stmt = $pdo->prepare("
+            SELECT 1
+            FROM candidatures c
+            INNER JOIN student_profiles sp ON sp.user_id = c.student_user_id
+            INNER JOIN pilot_promotions pp ON pp.promotion_id = sp.promotion_id
+            WHERE c.id = :application_id
+              AND pp.pilot_user_id = :pilot_user_id
+            LIMIT 1
+        ");
+        $stmt->execute([
+            'application_id' => $applicationId,
+            'pilot_user_id'  => $pilotId,
+        ]);
+
+        return (bool) $stmt->fetchColumn();
+    }
+
+    /**
      * Vérifie si un pilote a le droit d'accéder au profil d'un étudiant.
      *
      * Un pilote peut voir un étudiant uniquement si celui-ci appartient à une des promotions

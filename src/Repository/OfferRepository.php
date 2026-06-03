@@ -569,8 +569,7 @@ class OfferRepository
                 e.secteur AS entreprise_secteur,
                 e.ville AS entreprise_ville,
                 e.site_web AS entreprise_site_web,
-                e.note AS entreprise_note,
-                e.commentaire AS entreprise_commentaire
+                e.note AS entreprise_note
             FROM offres o
             LEFT JOIN entreprises e ON e.id = o.entreprise_id
             WHERE o.id = :id

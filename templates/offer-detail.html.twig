@@ -104,7 +104,9 @@
                 </div>
             </div>
 
-            {% if offer.entreprise_site_web %}
+            {# Sécurité : on n'affiche le lien que si l'URL commence par http:// ou https://
+               Évite qu'une valeur javascript:... saisie en BDD devienne un lien cliquable (XSS) #}
+            {% if offer.entreprise_site_web matches '/^https?:\\/\\//i' %}
                 <p>
                     <strong>Site web :</strong>
                     <a href="{{ offer.entreprise_site_web }}" target="_blank" rel="noopener noreferrer">

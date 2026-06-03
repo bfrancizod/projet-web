@@ -51,7 +51,6 @@
                 method="POST"
                 action="{% if is_edit %}/pilot-etudiants/{{ student.id }}/editer{% else %}/pilot-etudiant-create{% endif %}"
                 class="apply-form"
-                novalidate
             >
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
 

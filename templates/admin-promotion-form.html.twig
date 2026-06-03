@@ -42,7 +42,6 @@
                 method="POST"
                 action="{% if is_edit %}/admin-promotions/{{ promotion.id }}/editer{% else %}/admin-promotion-create{% endif %}"
                 class="apply-form"
-                novalidate
             >
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
 

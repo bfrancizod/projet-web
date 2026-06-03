@@ -52,7 +52,6 @@
                 method="POST"
                 action="{% if is_edit %}/admin-pilotes/{{ pilot.id }}/editer{% else %}/admin-pilote-create{% endif %}"
                 class="apply-form"
-                novalidate
             >
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
 

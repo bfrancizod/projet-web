@@ -56,7 +56,6 @@
                 method="POST"
                 action="{% if is_edit %}/admin-entreprises/{{ company.id }}/editer{% else %}/admin-entreprise-create{% endif %}"
                 class="apply-form"
-                novalidate
             >
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
 

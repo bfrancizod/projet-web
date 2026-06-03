@@ -37,7 +37,7 @@
                 <p class="login-error">{{ error }}</p>
             {% endif %}
 
-            <form method="POST" action="/connexion" class="login-form" novalidate>
+            <form method="POST" action="/connexion" class="login-form">
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
 
                 <label for="email">Email</label>

@@ -202,6 +202,17 @@ class PilotStudentController
         ];
 
         if ($isEdit) {
+            // Sécurité (IDOR) : un pilote ne peut éditer qu'un étudiant de ses propres promotions.
+            // Sans ce contrôle, un pilote pourrait modifier les données de n'importe quel étudiant
+            // en devinant son ID dans l'URL. Les admins ne sont pas restreints.
+            if (($_SESSION['user']['role'] ?? null) === 'pilote') {
+                $pilotId = (int) ($_SESSION['user']['id'] ?? 0);
+                if (!PilotPromotionAccess::pilotCanAccessStudent(Database::getConnection(), $pilotId, $studentId)) {
+                    http_response_code(403);
+                    return 'Accès refusé à cet étudiant.';
+                }
+            }
+
             $existingStudent = $this->studentRepository->findStudentForEdit($studentId);
 
             if (!$existingStudent) {

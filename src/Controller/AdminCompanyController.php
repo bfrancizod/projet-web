@@ -296,6 +296,11 @@ class AdminCompanyController
         try {
             $this->companyRepository->delete($companyId);
         } catch (\Throwable $e) {
+            // On journalise l'échec pour le diagnostic et on en informe l'utilisateur
+            // (sans ce log, une suppression échouée passait inaperçue, l'utilisateur croyait avoir réussi)
+            error_log('[AdminCompanyController::delete] Échec suppression entreprise #' . $companyId . ' : ' . $e->getMessage());
+            header('Location: /admin-entreprises?error=suppression_echouee');
+            exit;
         }
 
         header('Location: /admin-entreprises');

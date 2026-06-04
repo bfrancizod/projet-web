@@ -287,6 +287,11 @@ class PilotOfferController
         try {
             $this->offerRepository->deleteOffer($offerId);
         } catch (\Throwable $e) {
+            // On journalise l'échec pour le diagnostic et on en informe l'utilisateur
+            // (sans ce log, une suppression échouée passait inaperçue, l'utilisateur croyait avoir réussi)
+            error_log('[PilotOfferController::delete] Échec suppression offre #' . $offerId . ' : ' . $e->getMessage());
+            header('Location: /pilot-offres?error=suppression_echouee');
+            exit;
         }
 
         header('Location: /pilot-offres');

@@ -102,7 +102,7 @@
                             <form method="POST" action="/pilot-candidature/{{ application.id }}/status" class="application-status-form">
                                 <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
 
-                                <select name="status" class="application-status-select">
+                                <select name="status" class="application-status-select" aria-label="Modifier le statut de la candidature">
                                     <option value="acceptee" {% if application.status == 'acceptee' %}selected{% endif %}>Acceptée</option>
                                     <option value="refusee" {% if application.status == 'refusee' %}selected{% endif %}>Refusée</option>
                                 </select>

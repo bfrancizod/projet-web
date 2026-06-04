@@ -32,7 +32,9 @@
                     </p>
                 </div>
 
-                <a href="javascript:history.back()" class="secondary-button">Retour</a>
+                {# Bouton de retour à la page précédente — un <button> est plus accessible
+                   et plus propre qu'un <a href="javascript:..."> (qui n'est pas un vrai lien) #}
+                <button type="button" class="secondary-button" onclick="history.back()">Retour</button>
             </div>
 
             <div class="detail-info-grid" style="margin-top: 24px;">

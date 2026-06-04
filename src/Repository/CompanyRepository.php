@@ -212,27 +212,30 @@ class CompanyRepository
             ]);
             $offers = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
-            foreach ($offers as $offerId) {
+            // Suppression des dépendances de toutes les offres en une seule requête par table
+            // (au lieu de 3 requêtes par offre dans une boucle = problème N+1).
+            // On construit une liste de placeholders :id0, :id1… pour la clause IN.
+            if ($offers !== []) {
+                $placeholders = [];
+                $params = [];
+                foreach ($offers as $i => $offerId) {
+                    $key = 'id' . $i;
+                    $placeholders[] = ':' . $key;
+                    $params[$key] = (int) $offerId;
+                }
+                $inClause = implode(',', $placeholders);
+
                 // supprimer wishlist liées
-                $stmt = $this->pdo->prepare("
-                    DELETE FROM student_wishlist
-                    WHERE offre_id = :id
-                ");
-                $stmt->execute(['id' => $offerId]);
+                $stmt = $this->pdo->prepare("DELETE FROM student_wishlist WHERE offre_id IN ($inClause)");
+                $stmt->execute($params);
 
                 // supprimer candidatures liées
-                $stmt = $this->pdo->prepare("
-                    DELETE FROM candidatures
-                    WHERE offre_id = :id
-                ");
-                $stmt->execute(['id' => $offerId]);
+                $stmt = $this->pdo->prepare("DELETE FROM candidatures WHERE offre_id IN ($inClause)");
+                $stmt->execute($params);
 
                 // supprimer compétences liées
-                $stmt = $this->pdo->prepare("
-                    DELETE FROM offre_competence
-                    WHERE offre_id = :id
-                ");
-                $stmt->execute(['id' => $offerId]);
+                $stmt = $this->pdo->prepare("DELETE FROM offre_competence WHERE offre_id IN ($inClause)");
+                $stmt->execute($params);
             }
 
             // 3. supprimer les offres liées

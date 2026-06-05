@@ -10,7 +10,7 @@
 @import "base.css";
 
  .legal-page {
-    background: #f3f4f6;
+    background: var(--color-bg);
     min-height: calc(100vh - 80px);
     padding: 32px 16px 60px;
 }
@@ -21,24 +21,22 @@
 }
 
 .legal-card {
-    background: var(--color-white);
-    border: 1px solid var(--color-border);
-    border-radius: 14px;
-    box-shadow: 0 4px 18px var(--color-shadow-black);
-    padding: 28px 24px;
+background: var(--color-white);
+border: 1px solid var(--color-border);
+border-radius: 14px;
+box-shadow: 0 4px 18px var(--color-shadow-black);
+padding: 22px 18px;
 }
-
 .legal-card h1 {
-    font-size: 2rem;
-    margin-bottom: 18px;
-    color: var(--color-text);
+font-size: 1.7rem;
+margin-bottom: 18px;
+color: var(--color-text);
 }
-
 .legal-card h2 {
-    font-size: 1.45rem;
-    margin-top: 28px;
-    margin-bottom: 12px;
-    color: var(--color-text);
+font-size: 1.25rem;
+margin-top: 28px;
+margin-bottom: 12px;
+color: var(--color-text);
 }
 
 .legal-card h3 {
@@ -51,14 +49,14 @@
 .legal-card p {
     font-size: 0.98rem;
     line-height: 1.7;
-    color: #4b5563;
+    color: var(--color-text);
     margin-bottom: 14px;
 }
 
 .legal-card ul {
     margin-left: 20px;
     margin-bottom: 16px;
-    color: #4b5563;
+    color: var(--color-text);
 }
 
 .legal-card li {
@@ -82,16 +80,14 @@
     text-decoration: underline;
 }
 
-@media (max-width: 768px) {
-    .legal-card {
-        padding: 22px 18px;
-    }
-
-    .legal-card h1 {
-        font-size: 1.7rem;
-    }
-
-    .legal-card h2 {
-        font-size: 1.25rem;
-    }
+@media (min-width: 768px) {
+.legal-card {
+padding: 28px 24px;
+}
+.legal-card h1 {
+font-size: 2rem;
+}
+.legal-card h2 {
+font-size: 1.45rem;
+}
 }

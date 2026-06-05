@@ -18,7 +18,7 @@
 @import "base.css";
 
 .login-page {
-    background: #f4f4ea;
+    background: var(--color-bg);
     min-height: calc(100vh - 80px);
     padding: 60px 20px;
 }
@@ -60,23 +60,31 @@
     line-height: 1.6;
 }
 
-.demo-student {
-    background: #f8f0c7;
-    border: 1px solid #e9cf4d;
+
+.demo-student {                             /* Étudiant: Jaune standard */
+    background: var(--color-primary-light);
+    border: 1px solid var(--color-primary);
 }
 
-.demo-pilot {
+
+.demo-pilot {                               /* Pilote: Bleu ciel*/
     background: #dfe9f8;
     border: 1px solid #9ab8ea;
+}
+
+.demo-admin {                               /* Admin: Violet Royal*/
+    background: #efe3ff;
+    border: 1px solid #8b5cf6;
+    color: #4c1d95;
 }
 
 /* =========================================================
    4. MESSAGE D'ERREUR — affiché quand les identifiants sont incorrects
    ========================================================= */
 .login-error {
-    color: #b42318;
-    background: #fee4e2;
-    border: 1px solid #fda29b;
+    color: var(--color-error);
+    background: var(--color-error-bg);
+    border: 1px solid var(--color-error);
     padding: 12px;
     border-radius: 10px;
     margin-bottom: 16px;
@@ -98,10 +106,10 @@
 
 .login-form input {
     padding: 14px;
-    border: 1px solid #cfd4dc;
+    border: 1px solid var(--color-border-light);
     border-radius: 10px;
     font: inherit;
-    background: #eef3fb;
+    background: var(--color-bg-light);
 }
 
 /* =========================================================
@@ -131,8 +139,3 @@
     margin-top: 18px;
 }
 
-.demo-admin {
-    background: #efe3ff;
-    border: 1px solid #8b5cf6;
-    color: #4c1d95;
-}

@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\Database;
 use App\Repository\UserRepository;
 use App\Security\Csrf;
+use App\Security\RateLimiter;
 use Twig\Environment;
 
 class AuthController
@@ -25,16 +26,23 @@ class AuthController
         $error = null;
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            Csrf::requireValidToken($_POST['_csrf_token'] ?? null);
+            // Rate limiting : max 5 tentatives par 15 minutes par IP
+            $clientIp = (string) ($_SERVER['REMOTE_ADDR'] ?? '127.0.0.1');
+            $rateLimitKey = 'login_' . $clientIp;
 
-            $email = trim((string) ($_POST['email'] ?? ''));
-            $password = (string) ($_POST['password'] ?? '');
-
-            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                $error = 'Adresse email invalide.';
-            } elseif ($password === '') {
-                $error = 'Mot de passe requis.';
+            if (!RateLimiter::checkLimit($rateLimitKey, 5, 900)) {
+                $error = 'Trop de tentatives. Réessayez dans 15 minutes.';
             } else {
+                Csrf::requireValidToken($_POST['_csrf_token'] ?? null);
+
+                $email = trim((string) ($_POST['email'] ?? ''));
+                $password = (string) ($_POST['password'] ?? '');
+
+                if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    $error = 'Adresse email invalide.';
+                } elseif ($password === '') {
+                    $error = 'Mot de passe requis.';
+                } else {
                 $user = $this->userRepository->findLoginUserByEmail($email);
 
                 if ($user && password_verify($password, $user['password_hash'])) {
@@ -69,6 +77,7 @@ class AuthController
                     $error = 'Rôle utilisateur non autorisé.';
                 } else {
                     $error = 'Email ou mot de passe incorrect.';
+                }
                 }
             }
         }

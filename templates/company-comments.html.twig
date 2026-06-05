@@ -1,71 +1,60 @@
 {#
     Page publique des commentaires d'une entreprise.
-
     Sécurité/RGPD :
     - L'adresse email des auteurs n'est jamais affichée.
     - Si le nom/prénom n'est pas disponible, on affiche un libellé générique.
 #}
 {% extends 'base.html.twig' %}
-
 {% block title %}Commentaires - {{ company.nom }}{% endblock %}
-
 {% block body %}
 <div class="offer-detail-page">
     <div class="container">
-        <nav class="breadcrumb" style="margin-bottom: 24px;">
+        <nav class="breadcrumb" aria-label="Fil d'Ariane">
             <a href="/">Accueil</a>
             <span>/</span>
             <a href="/offres">Offres</a>
             <span>/</span>
             <span>Commentaires entreprise</span>
         </nav>
-
         <section class="offer-detail-card">
-            <div style="display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; align-items:flex-start;">
+            <div>
                 <div>
-                    <h1 style="margin-bottom:8px;">Commentaires de {{ company.nom }}</h1>
-                    <p style="margin:0; color:#6b7280;">
+                    <h1>Commentaires de {{ company.nom }}</h1>
+                    <p>
                         {{ company.secteur ?: 'Secteur non défini' }}
                         {% if company.ville %}
                             • {{ company.ville }}
                         {% endif %}
                     </p>
                 </div>
-
                 {# Bouton de retour à la page précédente — un <button> est plus accessible
                    et plus propre qu'un <a href="javascript:..."> (qui n'est pas un vrai lien) #}
                 <button type="button" class="secondary-button" onclick="history.back()">Retour</button>
             </div>
-
-            <div class="detail-info-grid" style="margin-top: 24px;">
+            <div class="detail-info-grid">
                 <div class="detail-info-item">
                     <span class="detail-label">Nom</span>
                     <strong>{{ company.nom }}</strong>
                 </div>
-
                 <div class="detail-info-item">
                     <span class="detail-label">SIRET</span>
                     <strong>{{ company.siret ?: 'Non renseigné' }}</strong>
                 </div>
-
                 <div class="detail-info-item">
                     <span class="detail-label">Secteur</span>
                     <strong>{{ company.secteur ?: 'Non défini' }}</strong>
                 </div>
-
                 <div class="detail-info-item">
                     <span class="detail-label">Ville</span>
                     <strong>{{ company.ville ?: 'Non définie' }}</strong>
                 </div>
             </div>
-
-            <h2 style="margin-top: 32px;">Tous les commentaires</h2>
-
+            <h2>Tous les commentaires</h2>
             {% if comments is not empty %}
-                <div style="display:flex; flex-direction:column; gap:16px; margin-top:16px;">
+                <div>
                     {% for comment in comments %}
-                        <div style="padding:16px; background:#f9fafb; border:1px solid #e5e7eb; border-radius:12px;">
-                            <div style="display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:8px;">
+                        <div>
+                            <div>
                                 <strong>
                                     {% if comment.prenom or comment.nom %}
                                         {{ comment.prenom }} {{ comment.nom }}
@@ -73,18 +62,16 @@
                                         Étudiant vérifié
                                     {% endif %}
                                 </strong>
-
-                                <small style="color:#6b7280;">
+                                <small>
                                     {{ comment.created_at|date('d/m/Y H:i') }}
                                 </small>
                             </div>
-
-                            <p style="margin:0; white-space:pre-line;">{{ comment.commentaire }}</p>
+                            <p>{{ comment.commentaire }}</p>
                         </div>
                     {% endfor %}
                 </div>
             {% else %}
-                <p style="color:#6b7280;">Aucun commentaire pour cette entreprise.</p>
+                <p>Aucun commentaire pour cette entreprise.</p>
             {% endif %}
         </section>
     </div>

@@ -176,3 +176,53 @@
         padding: 20px;
     }
 }
+/* =========================================================
+   COMMENTAIRES (depuis offer-detail.html.twig)
+   ========================================================= */
+.comments-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 16px;
+}
+
+.comment-card {
+    padding: 16px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+}
+
+.comment-date {
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+.comment-text {
+    margin: 0;
+    white-space: pre-line;
+}
+
+.comments-more {
+    margin-top: 20px;
+}
+
+.no-comments {
+    color: #6b7280;
+}
+
+.stars-display {
+    margin-top: 4px;
+}
+
+.company-note-unavailable {
+    color: #9ca3af;
+}

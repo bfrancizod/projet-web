@@ -1,6 +1,5 @@
 {#
     Page de détail d'une offre de stage.
-
     Variables transmises par OfferController::show() :
      - offer            : données de l'offre + entreprise (JOIN en BDD)
      - latest_comments  : 3 derniers commentaires de l'entreprise
@@ -10,81 +9,66 @@
      - current_user     : global Twig (null si visiteur)
 #}
 {% extends 'base.html.twig' %}
-
 {% block title %}{{ offer.titre }} - Help Me Stage{% endblock %}
-
 {% block stylesheets %}
     <link rel="stylesheet" href="/assets/css/offer-detail.css">
     <link rel="stylesheet" href="/assets/css/star-rating.css">
 {% endblock %}
-
 {% block body %}
 <div class="offer-detail-page">
     <div class="container">
-        <nav class="breadcrumb">
+        <nav class="breadcrumb" aria-label="Fil d'Ariane">
             <a href="/">Accueil</a>
             <span>/</span>
             <a href="/offres">Offres</a>
             <span>/</span>
             <span>{{ offer.titre }}</span>
         </nav>
-
-        <section class="offer-detail-card">
+        <section class="offer-detail-card" aria-label="Détail de l'offre de stage">
             <h1>{{ offer.titre }}</h1>
-
             <p class="detail-company">{{ offer.entreprise_nom ?: 'Entreprise non définie' }}</p>
-
             <div class="detail-info-grid">
                 <div class="detail-info-item">
                     <span class="detail-label">Rémunération</span>
                     <strong>{{ offer.remuneration }} € / mois</strong>
                 </div>
-
                 <div class="detail-info-item">
                     <span class="detail-label">Lieu</span>
                     <strong>{{ offer.lieu ?: 'Non défini' }}</strong>
                 </div>
-
                 <div class="detail-info-item">
                     <span class="detail-label">Durée</span>
                     <strong>{{ offer.duree_semaines }} semaines</strong>
                 </div>
-
                 <div class="detail-info-item">
                     <span class="detail-label">Publication</span>
                     <strong>{{ offer.created_at|date('d/m/Y') }}</strong>
                 </div>
             </div>
-
             <h2>Description de l'offre</h2>
             <p class="detail-description">{{ offer.description }}</p>
-
             <h2>Entreprise</h2>
             <div class="detail-info-grid">
                 <div class="detail-info-item">
                     <span class="detail-label">Nom</span>
                     <strong>{{ offer.entreprise_nom ?: 'Non défini' }}</strong>
                 </div>
-
                 <div class="detail-info-item">
                     <span class="detail-label">Secteur</span>
                     <strong>{{ offer.entreprise_secteur ?: 'Non défini' }}</strong>
                 </div>
-
                 <div class="detail-info-item">
                     <span class="detail-label">Ville</span>
                     <strong>{{ offer.entreprise_ville ?: 'Non définie' }}</strong>
                 </div>
-
                 <div class="detail-info-item">
                     <span class="detail-label">SIRET</span>
                     <strong>{{ offer.entreprise_siret ?: 'Non renseigné' }}</strong>
                 </div>
-
                 <div class="detail-info-item">
                     <span class="detail-label">Évaluation</span>
                     {% if offer.entreprise_note is not null %}
-                        <div class="stars-display" style="margin-top: 4px;">
+                        <div class="stars-display">
                             {#
                                 Arrondi à l'entier inférieur pour afficher des étoiles entières.
                                 La boucle 1..5 compare chaque position i à la note arrondie :
@@ -99,11 +83,10 @@
                             <small class="stars-number">{{ note_int }}/5</small>
                         </div>
                     {% else %}
-                        <strong style="color: #9ca3af;">Non évaluée</strong>
+                        <strong class="company-note-unavailable">Non évaluée</strong>
                     {% endif %}
                 </div>
             </div>
-
             {# Sécurité : on n'affiche le lien que si l'URL commence par http:// ou https://
                Évite qu'une valeur javascript:... saisie en BDD devienne un lien cliquable (XSS) #}
             {% if offer.entreprise_site_web matches '/^https?:\\/\\//i' %}
@@ -114,15 +97,13 @@
                     </a>
                 </p>
             {% endif %}
-
             <h2>Derniers commentaires</h2>
-
             {# Affiche les 3 derniers commentaires de l'entreprise (limité côté repository) #}
             {% if latest_comments is not empty %}
-                <div style="display:flex; flex-direction:column; gap:16px; margin-top:16px;">
+                <div class="comments-container">
                     {% for comment in latest_comments %}
-                        <div style="padding:16px; background:#f9fafb; border:1px solid #e5e7eb; border-radius:12px;">
-                            <div style="display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:8px;">
+                        <div class="comment-card">
+                            <div class="comment-header">
                                 <strong>
                                     {% if comment.prenom or comment.nom %}
                                         {{ comment.prenom }} {{ comment.nom }}
@@ -130,30 +111,25 @@
                                         Utilisateur anonyme
                                     {% endif %}
                                 </strong>
-
-                                <small style="color:#6b7280;">
+                                <small class="comment-date">
                                     {{ comment.created_at|date('d/m/Y H:i') }}
                                 </small>
                             </div>
-
-                            {# white-space:pre-line conserve les sauts de ligne saisis par l'utilisateur #}
-                            <p style="margin:0; white-space:pre-line;">{{ comment.commentaire }}</p>
+                            <p class="comment-text">{{ comment.commentaire }}</p>
                         </div>
                     {% endfor %}
                 </div>
-
                 {# Lien "Voir plus" affiché uniquement s'il y a plus d'un commentaire au total #}
                 {% if offer.entreprise_id and comments_count > 1 %}
-                    <div style="margin-top:20px;">
+                    <div class="comments-more">
                         <a href="/entreprises/{{ offer.entreprise_id }}/commentaires" class="secondary-button">
                             Voir plus de commentaires
                         </a>
                     </div>
                 {% endif %}
             {% else %}
-                <p style="color:#6b7280;">Aucun commentaire pour cette entreprise.</p>
+                <p class="no-comments">Aucun commentaire pour cette entreprise.</p>
             {% endif %}
-
             {#
                 Bouton wishlist : visible uniquement pour les étudiants connectés.
                 Le formulaire POST change d'action selon l'état is_in_wishlist.
@@ -174,7 +150,6 @@
                     {% endif %}
                 </div>
             {% endif %}
-
             {#
                 Bouton "Postuler" — 4 états mutuellement exclusifs :
                  1. Visiteur non connecté    → lien vers la page de connexion

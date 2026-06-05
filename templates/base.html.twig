@@ -36,14 +36,13 @@
     {% block stylesheets %}{% endblock %}
 </head>
 <body>
-
 <header class="site-header">
     <div class="container header-content">
 
         <!-- LOGO -->
         <div class="logo">
             <a href="/" class="logo-link">
-                <img 
+                <img
                     src="/assets/logo/logo.svg"
                     alt="logo Help Me Stage"
                     class="site-logo"
@@ -58,8 +57,7 @@
                     {{ current_user.email }}
                 </span>
             {% endif %}
-
-            <button class="menu-button" id="menu-toggle" aria-label="Ouvrir le menu">☰</button>
+            <button type="button" class="menu-button" id="menu-toggle" aria-label="Ouvrir le menu">☰</button>
         </div>
 
     </div>
@@ -72,7 +70,7 @@
          - etudiant        : accès à l'espace étudiant, candidatures, wishlist, offres, statistiques
          - visiteur (null) : liens publics uniquement (accueil, offres, connexion)
     #}
-    <nav class="mobile-menu" id="mobile-menu">
+    <nav class="mobile-menu" id="mobile-menu" aria-label="Menu de navigation principal">
         {% if current_user %}
 
             {% if current_user.role == 'administrateur' %}
@@ -115,7 +113,7 @@
 
         <div class="footer-brand">
             <a href="/" class="footer-logo-link">
-                <img 
+                <img
                     src="/assets/logo/logo.svg"
                     alt="Logo Help Me Stage"
                     class="footer-logo"

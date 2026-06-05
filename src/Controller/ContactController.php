@@ -19,7 +19,7 @@ class ContactController
         $this->twig = $twig;
     }
 
-    // Affiche la page de contact statique 
+    // Affiche la page de contact statique
     public function index(): string
     {
         return $this->twig->render('contact.html.twig', [

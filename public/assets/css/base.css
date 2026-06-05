@@ -411,7 +411,7 @@ h3 {
 .cookie-banner-text p {
     margin: 0 0 18px;
     font-size: 0.98rem;
-    color: #4b5563;
+    color: var(--color-text-muted);
 }
 
 .cookie-banner-form {

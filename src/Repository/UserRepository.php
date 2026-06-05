@@ -76,8 +76,8 @@ class UserRepository
         $userId = $this->findUserIdByEmail($email);
 
         $stmt = $this->pdo->prepare("
-            INSERT INTO password_reset_requests (user_id, email)
-            VALUES (:user_id, :email)
+            INSERT INTO password_reset_requests (user_id, email, expires_at)
+            VALUES (:user_id, :email, DATE_ADD(NOW(), INTERVAL 24 HOUR))
         ");
 
         $stmt->execute([
@@ -95,8 +95,10 @@ class UserRepository
                 email,
                 status,
                 created_at,
-                processed_at
+                processed_at,
+                expires_at
             FROM password_reset_requests
+            WHERE expires_at > NOW() OR status = 'traitee'
             ORDER BY created_at DESC
         ");
 
@@ -110,7 +112,8 @@ class UserRepository
                 id,
                 user_id,
                 email,
-                status
+                status,
+                expires_at
             FROM password_reset_requests
             WHERE id = :id
             LIMIT 1
@@ -120,7 +123,14 @@ class UserRepository
             'id' => $id,
         ]);
 
-        return $stmt->fetch();
+        $request = $stmt->fetch();
+
+        // Vérifier que la demande n'est pas expirée (expires_at > NOW())
+        if ($request && isset($request['expires_at']) && strtotime($request['expires_at']) < time()) {
+            return false;
+        }
+
+        return $request;
     }
 
     public function updatePassword(int $userId, string $passwordHash): void
@@ -149,5 +159,29 @@ class UserRepository
         $stmt->execute([
             'id' => $id,
         ]);
+    }
+
+    /** Supprime définitivement une demande de réinitialisation de mot de passe */
+    public function deletePasswordResetRequest(int $id): void
+    {
+        $stmt = $this->pdo->prepare("
+            DELETE FROM password_reset_requests
+            WHERE id = :id
+        ");
+
+        $stmt->execute([
+            'id' => $id,
+        ]);
+    }
+
+    /** Supprime les demandes expirées depuis plus de 30 jours (nettoyage automatique) */
+    public function cleanupExpiredPasswordResetRequests(): void
+    {
+        $stmt = $this->pdo->prepare("
+            DELETE FROM password_reset_requests
+            WHERE expires_at < DATE_SUB(NOW(), INTERVAL 30 DAY)
+        ");
+
+        $stmt->execute();
     }
 }

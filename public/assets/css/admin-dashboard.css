@@ -192,3 +192,23 @@
         font-size: 34px;
     }
 }
+/* Bouton croix rouge — suppression d'une demande de mot de passe */
+.request-delete-button {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    min-height: 32px;
+    padding: 0;
+    border: none;
+    border-radius: 8px;
+    background: #fee2e2;
+    color: #b91c1c;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.request-delete-button:hover {
+    background: #fecaca;
+}

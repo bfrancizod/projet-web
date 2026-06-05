@@ -41,6 +41,17 @@ require_once __DIR__ . '/../vendor/autoload.php';
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
 $dotenv->load();
 
+// Migration : ajoute la colonne expires_at à password_reset_requests si elle n'existe pas
+try {
+    $pdo = Database::getConnection();
+    $checkColumn = $pdo->query("SHOW COLUMNS FROM password_reset_requests LIKE 'expires_at'");
+    if ($checkColumn->rowCount() === 0) {
+        $pdo->exec("ALTER TABLE password_reset_requests ADD COLUMN expires_at DATETIME DEFAULT NULL AFTER created_at");
+    }
+} catch (\Throwable $e) {
+    error_log("Migration warning: " . $e->getMessage());
+}
+
 $https = (
     (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
     || (($_SERVER['SERVER_PORT'] ?? null) === '443')
@@ -265,6 +276,11 @@ if ($method === 'POST' && preg_match('#^/admin-promotions/([0-9]+)/supprimer$#',
 
 if ($method === 'POST' && preg_match('#^/admin-demandes-mdp/([0-9]+)/changer$#', $uri, $matches)) {
     (new AuthController($twig))->adminChangePassword((int) $matches[1]);
+    exit;
+}
+
+if ($method === 'POST' && preg_match('#^/admin-demandes-mdp/([0-9]+)/supprimer$#', $uri, $matches)) {
+    (new AuthController($twig))->adminDeletePasswordRequest((int) $matches[1]);
     exit;
 }
 

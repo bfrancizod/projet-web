@@ -113,6 +113,7 @@ class AuthController
         return $this->twig->render('admin-password-requests.html.twig', [
             'requests' => $this->userRepository->findPasswordResetRequests(),
             'success' => isset($_GET['success']),
+            'deleted' => isset($_GET['deleted']),
             'error' => $_GET['error'] ?? null,
         ]);
     }
@@ -128,7 +129,12 @@ class AuthController
 
         $request = $this->userRepository->findPasswordResetRequestById($requestId);
 
-        if (!$request || empty($request['user_id'])) {
+        if (!$request) {
+            header('Location: /admin-demandes-mdp?error=Demande introuvable ou expirée (validité : 24h)');
+            exit;
+        }
+
+        if (empty($request['user_id'])) {
             header('Location: /admin-demandes-mdp?error=Utilisateur introuvable');
             exit;
         }
@@ -146,6 +152,22 @@ class AuthController
         $this->userRepository->markPasswordResetRequestAsProcessed($requestId);
 
         header('Location: /admin-demandes-mdp?success=1');
+        exit;
+    }
+
+    /** Supprime une demande de réinitialisation de mot de passe (action admin) */
+    public function adminDeletePasswordRequest(int $requestId): void
+    {
+        if (($_SESSION['user']['role'] ?? null) !== 'administrateur') {
+            header('Location: /connexion');
+            exit;
+        }
+
+        Csrf::requireValidToken($_POST['_csrf_token'] ?? null);
+
+        $this->userRepository->deletePasswordResetRequest($requestId);
+
+        header('Location: /admin-demandes-mdp?deleted=1');
         exit;
     }
 

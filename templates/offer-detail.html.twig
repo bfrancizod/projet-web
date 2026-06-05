@@ -124,16 +124,10 @@
                         <div style="padding:16px; background:#f9fafb; border:1px solid #e5e7eb; border-radius:12px;">
                             <div style="display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:8px;">
                                 <strong>
-                                    {#
-                                        Affiche le nom complet en priorité, puis l'email, puis un ID anonyme.
-                                        Le JOIN avec users peut ne pas retourner de nom si le compte a été supprimé.
-                                    #}
                                     {% if comment.prenom or comment.nom %}
                                         {{ comment.prenom }} {{ comment.nom }}
-                                    {% elseif comment.email %}
-                                        {{ comment.email }}
                                     {% else %}
-                                        Utilisateur #{{ comment.user_id ?: 'inconnu' }}
+                                        Utilisateur anonyme
                                     {% endif %}
                                 </strong>
 

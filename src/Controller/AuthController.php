@@ -119,11 +119,24 @@ class AuthController
             exit;
         }
 
+        // Whitelist des messages d'erreur acceptés en GET (évite XSS via ?error=<payload>)
+        $allowedErrors = [
+            'Utilisateur introuvable',
+            'Le mot de passe doit contenir au moins 8 caractères',
+            'Demande introuvable ou expirée (validité : 24h)',
+        ];
+
+        $errorMessage = null;
+        $rawError = $_GET['error'] ?? null;
+        if ($rawError && in_array($rawError, $allowedErrors, true)) {
+            $errorMessage = $rawError;
+        }
+
         return $this->twig->render('admin-password-requests.html.twig', [
             'requests' => $this->userRepository->findPasswordResetRequests(),
             'success' => isset($_GET['success']),
             'deleted' => isset($_GET['deleted']),
-            'error' => $_GET['error'] ?? null,
+            'error' => $errorMessage,
         ]);
     }
 

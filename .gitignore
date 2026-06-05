@@ -1,5 +1,4 @@
 /vendor/
 .env
-/node_modules/
 storage/
 schema_bdd.loo

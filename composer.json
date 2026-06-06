@@ -1,6 +1,6 @@
 {
-  "name": "groupe-1/help-me-stage",
-  "description": "Plateforme de mise en relation étudiants-entreprises pour la recherche de stage",
+  "name": "tonnom/help-me-stage",
+  "description": "Premier site PHP avec Twig",
   "type": "project",
   "require": {
     "twig/twig": "^3.0",

@@ -10,8 +10,13 @@ use App\Repository\CompanyRepository;
 use App\Security\Csrf;
 use Twig\Environment;
 
+/**
+ * Contrôleur de gestion des entreprises.
+ * Liste accessible aux admins et pilotes ; création, édition et suppression réservées aux admins.
+ */
 class AdminCompanyController
 {
+    // Pagination : 10 entreprises maximum par page
     private const PER_PAGE = 10;
 
     private Environment $twig;
@@ -29,6 +34,7 @@ class AdminCompanyController
 
     public function index(): string
     {
+        // Accès autorisé aux administrateurs et pilotes uniquement
         if (
             !isset($_SESSION['user'])
             || !in_array($_SESSION['user']['role'] ?? null, ['administrateur', 'pilote'], true)
@@ -39,6 +45,7 @@ class AdminCompanyController
 
         $search = trim((string) ($_GET['q'] ?? ''));
 
+        // Calcul de la pagination à partir du paramètre GET "page"
         $currentPage = isset($_GET['page']) && ctype_digit((string) $_GET['page']) && (int) $_GET['page'] > 0
             ? (int) $_GET['page']
             : 1;
@@ -77,8 +84,12 @@ class AdminCompanyController
         return $this->handleForm($companyId);
     }
 
+    /**
+     * Méthode commune pour créer ou modifier une entreprise.
+     */
     private function handleForm(?int $companyId): string
     {
+        // Seul un administrateur peut créer ou modifier une entreprise
         if (
             !isset($_SESSION['user'])
             || ($_SESSION['user']['role'] ?? null) !== 'administrateur'
@@ -109,6 +120,7 @@ class AdminCompanyController
 
         $allComments = [];
 
+        // En édition, on recharge l'entreprise et les commentaires associés
         if ($isEdit) {
             $existingCompany = $this->companyRepository->findById($companyId);
 
@@ -129,6 +141,7 @@ class AdminCompanyController
         }
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Protection CSRF sur les formulaires de création et modification
             Csrf::requireValidToken($_POST['_csrf_token'] ?? null);
 
             $nom = trim((string) ($_POST['nom'] ?? ''));
@@ -160,6 +173,7 @@ class AdminCompanyController
 
             $userComment['commentaire'] = $commentaire;
 
+            // Validation métier des champs du formulaire
             if ($error === null && $nom === '') {
                 $error = "Le nom de l'entreprise est obligatoire.";
             }
@@ -199,6 +213,7 @@ class AdminCompanyController
                     $villeValue = $ville !== '' ? $ville : null;
                     $siteWebValue = $siteWeb !== '' ? $siteWeb : null;
 
+                    // Création ou mise à jour de l'entreprise
                     if ($isEdit) {
                         $this->companyRepository->update(
                             $companyId,
@@ -233,6 +248,7 @@ class AdminCompanyController
                         $success = 'Entreprise créée avec succès.';
                     }
 
+                    // Rechargement après sauvegarde pour afficher les données réellement enregistrées
                     $reloadedCompany = $this->companyRepository->findById($companyId);
 
                     if ($reloadedCompany) {
@@ -263,6 +279,7 @@ class AdminCompanyController
 
     public function delete(int $companyId): void
     {
+        // Suppression réservée aux administrateurs
         if (
             !isset($_SESSION['user'])
             || ($_SESSION['user']['role'] ?? null) !== 'administrateur'
@@ -274,6 +291,7 @@ class AdminCompanyController
         Csrf::requireValidToken($_POST['_csrf_token'] ?? null);
 
         try {
+            // La suppression en cascade est gérée dans CompanyRepository
             $this->companyRepository->delete($companyId);
         } catch (\Throwable $e) {
             error_log('[AdminCompanyController::delete] Échec suppression entreprise #' . $companyId . ' : ' . $e->getMessage());

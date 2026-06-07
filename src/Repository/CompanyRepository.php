@@ -6,6 +6,10 @@ namespace App\Repository;
 
 use PDO;
 
+/**
+ * Repository des entreprises.
+ * Centralise les requêtes SQL liées à la table entreprises.
+ */
 class CompanyRepository
 {
     public function __construct(private PDO $pdo)
@@ -32,6 +36,9 @@ class CompanyRepository
         return (int) $stmt->fetchColumn();
     }
 
+    /**
+     * Retourne les entreprises filtrées avec pagination.
+     */
     public function findPaginated(string $search, int $limit, int $offset): array
     {
         $sql = "
@@ -101,6 +108,10 @@ class CompanyRepository
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    /**
+     * Vérifie l'unicité du nom d'entreprise.
+     * En édition, l'entreprise courante est exclue du contrôle.
+     */
     public function nameExists(string $name, ?int $excludeId = null): bool
     {
         if ($excludeId !== null) {
@@ -188,6 +199,10 @@ class CompanyRepository
         ]);
     }
 
+    /**
+     * Supprime une entreprise et ses données liées dans une transaction.
+     * L'objectif est d'éviter des données orphelines si une suppression échoue.
+     */
     public function delete(int $companyId): void
     {
         $this->pdo->beginTransaction();
@@ -238,6 +253,7 @@ class CompanyRepository
 
                 $inClause = implode(',', $placeholders);
 
+                // Suppression des dépendances des offres avant suppression de l'entreprise
                 $stmt = $this->pdo->prepare("DELETE FROM student_wishlist WHERE offre_id IN ($inClause)");
                 $stmt->execute($params);
 
@@ -287,6 +303,9 @@ class CompanyRepository
         }
     }
 
+    /**
+     * Condition SQL commune pour la recherche entreprise.
+     */
     private function getSearchCondition(): string
     {
         return "
@@ -299,6 +318,9 @@ class CompanyRepository
         ";
     }
 
+    /**
+     * Prépare les paramètres de recherche utilisés par les requêtes préparées PDO.
+     */
     private function buildSearchParams(string $search): array
     {
         if ($search === '') {

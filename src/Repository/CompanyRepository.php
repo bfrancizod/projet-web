@@ -6,21 +6,33 @@ namespace App\Repository;
 
 use PDO;
 
-/**
- * Repository des entreprises (table : entreprises)
- *
- * Gère les opérations CRUD sur les entreprises.
- * La suppression est en cascade : elle supprime aussi les offres, candidatures,
- * wishlists et commentaires associés via une transaction.
- */
 class CompanyRepository
 {
     public function __construct(private PDO $pdo)
     {
     }
 
-    /** Retourne toutes les entreprises, filtrées par nom/SIRET/secteur/ville si recherche fournie */
-    public function findAll(string $search): array
+    public function countAll(string $search = ''): int
+    {
+        $sql = "
+            SELECT COUNT(*)
+            FROM entreprises
+            WHERE 1 = 1
+        ";
+
+        $params = $this->buildSearchParams($search);
+
+        if ($search !== '') {
+            $sql .= $this->getSearchCondition();
+        }
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+
+        return (int) $stmt->fetchColumn();
+    }
+
+    public function findPaginated(string $search, int $limit, int $offset): array
     {
         $sql = "
             SELECT
@@ -36,34 +48,36 @@ class CompanyRepository
             WHERE 1 = 1
         ";
 
-        $params = [];
+        $params = $this->buildSearchParams($search);
 
         if ($search !== '') {
-            $sql .= "
-                AND (
-                    nom LIKE :search_nom
-                    OR siret LIKE :search_siret
-                    OR secteur LIKE :search_secteur
-                    OR ville LIKE :search_ville
-                )
-            ";
-
-            $searchValue = '%' . $search . '%';
-            $params['search_nom'] = $searchValue;
-            $params['search_siret'] = $searchValue;
-            $params['search_secteur'] = $searchValue;
-            $params['search_ville'] = $searchValue;
+            $sql .= $this->getSearchCondition();
         }
 
-        $sql .= " ORDER BY nom ASC";
+        $sql .= "
+            ORDER BY nom ASC
+            LIMIT :limit_value OFFSET :offset_value
+        ";
 
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute($params);
+
+        foreach ($params as $key => $value) {
+            $stmt->bindValue(':' . $key, $value, PDO::PARAM_STR);
+        }
+
+        $stmt->bindValue(':limit_value', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset_value', $offset, PDO::PARAM_INT);
+
+        $stmt->execute();
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /** Retrouve une entreprise par son ID */
+    public function findAll(string $search): array
+    {
+        return $this->findPaginated($search, 10, 0);
+    }
+
     public function findById(int $companyId): array|false
     {
         $stmt = $this->pdo->prepare("
@@ -79,15 +93,14 @@ class CompanyRepository
             WHERE id = :id
             LIMIT 1
         ");
-        $stmt->execute(['id' => $companyId]);
+
+        $stmt->execute([
+            'id' => $companyId,
+        ]);
 
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Vérifie si une entreprise avec ce nom existe déjà.
-     * $excludeId permet d'ignorer l'entreprise en cours d'édition (évite faux positif).
-     */
     public function nameExists(string $name, ?int $excludeId = null): bool
     {
         if ($excludeId !== null) {
@@ -98,6 +111,7 @@ class CompanyRepository
                   AND id != :id
                 LIMIT 1
             ");
+
             $stmt->execute([
                 'nom' => $name,
                 'id' => $excludeId,
@@ -109,6 +123,7 @@ class CompanyRepository
                 WHERE nom = :nom
                 LIMIT 1
             ");
+
             $stmt->execute([
                 'nom' => $name,
             ]);
@@ -117,7 +132,6 @@ class CompanyRepository
         return (bool) $stmt->fetch();
     }
 
-    /** Crée une entreprise et retourne son nouvel ID */
     public function create(
         string $nom,
         ?string $siret,
@@ -130,6 +144,7 @@ class CompanyRepository
             INSERT INTO entreprises (nom, siret, secteur, ville, site_web, note)
             VALUES (:nom, :siret, :secteur, :ville, :site_web, :note)
         ");
+
         $stmt->execute([
             'nom' => $nom,
             'siret' => $siret,
@@ -142,7 +157,6 @@ class CompanyRepository
         return (int) $this->pdo->lastInsertId();
     }
 
-    /** Met à jour les informations d'une entreprise existante */
     public function update(
         int $companyId,
         string $nom,
@@ -162,6 +176,7 @@ class CompanyRepository
                 note = :note
             WHERE id = :id
         ");
+
         $stmt->execute([
             'id' => $companyId,
             'nom' => $nom,
@@ -173,24 +188,22 @@ class CompanyRepository
         ]);
     }
 
-    /**
-     * Supprime une entreprise et toutes ses données liées en cascade (transaction).
-     * Ordre de suppression : wishlist → candidatures → compétences offre → offres → commentaires → entreprise.
-     * L'ordre est important pour respecter les contraintes de clé étrangère.
-     */
     public function delete(int $companyId): void
     {
         $this->pdo->beginTransaction();
 
         try {
-            // 1. récupérer le nom de l'entreprise avant suppression
             $stmt = $this->pdo->prepare("
                 SELECT nom
                 FROM entreprises
                 WHERE id = :id
                 LIMIT 1
             ");
-            $stmt->execute(['id' => $companyId]);
+
+            $stmt->execute([
+                'id' => $companyId,
+            ]);
+
             $company = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if (!$company) {
@@ -199,69 +212,70 @@ class CompanyRepository
 
             $companyName = $company['nom'];
 
-            // 2. récupérer toutes les offres liées soit par entreprise_id soit par nom
             $stmt = $this->pdo->prepare("
                 SELECT id
                 FROM offres
                 WHERE entreprise_id = :id
                    OR entreprise = :nom
             ");
+
             $stmt->execute([
                 'id' => $companyId,
                 'nom' => $companyName,
             ]);
+
             $offers = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
-            // Suppression des dépendances de toutes les offres en une seule requête par table
-            // (au lieu de 3 requêtes par offre dans une boucle = problème N+1).
-            // On construit une liste de placeholders :id0, :id1… pour la clause IN.
             if ($offers !== []) {
                 $placeholders = [];
                 $params = [];
+
                 foreach ($offers as $i => $offerId) {
                     $key = 'id' . $i;
                     $placeholders[] = ':' . $key;
                     $params[$key] = (int) $offerId;
                 }
+
                 $inClause = implode(',', $placeholders);
 
-                // supprimer wishlist liées
                 $stmt = $this->pdo->prepare("DELETE FROM student_wishlist WHERE offre_id IN ($inClause)");
                 $stmt->execute($params);
 
-                // supprimer candidatures liées
                 $stmt = $this->pdo->prepare("DELETE FROM candidatures WHERE offre_id IN ($inClause)");
                 $stmt->execute($params);
 
-                // supprimer compétences liées
                 $stmt = $this->pdo->prepare("DELETE FROM offre_competence WHERE offre_id IN ($inClause)");
                 $stmt->execute($params);
             }
 
-            // 3. supprimer les offres liées
             $stmt = $this->pdo->prepare("
                 DELETE FROM offres
                 WHERE entreprise_id = :id
                    OR entreprise = :nom
             ");
+
             $stmt->execute([
                 'id' => $companyId,
                 'nom' => $companyName,
             ]);
 
-            // 4. supprimer commentaires entreprise
             $stmt = $this->pdo->prepare("
                 DELETE FROM entreprise_commentaires
                 WHERE entreprise_id = :id
             ");
-            $stmt->execute(['id' => $companyId]);
 
-            // 5. supprimer l'entreprise
+            $stmt->execute([
+                'id' => $companyId,
+            ]);
+
             $stmt = $this->pdo->prepare("
                 DELETE FROM entreprises
                 WHERE id = :id
             ");
-            $stmt->execute(['id' => $companyId]);
+
+            $stmt->execute([
+                'id' => $companyId,
+            ]);
 
             $this->pdo->commit();
         } catch (\Throwable $e) {
@@ -271,5 +285,33 @@ class CompanyRepository
 
             throw $e;
         }
+    }
+
+    private function getSearchCondition(): string
+    {
+        return "
+            AND (
+                nom LIKE :search_nom
+                OR siret LIKE :search_siret
+                OR secteur LIKE :search_secteur
+                OR ville LIKE :search_ville
+            )
+        ";
+    }
+
+    private function buildSearchParams(string $search): array
+    {
+        if ($search === '') {
+            return [];
+        }
+
+        $searchValue = '%' . $search . '%';
+
+        return [
+            'search_nom' => $searchValue,
+            'search_siret' => $searchValue,
+            'search_secteur' => $searchValue,
+            'search_ville' => $searchValue,
+        ];
     }
 }

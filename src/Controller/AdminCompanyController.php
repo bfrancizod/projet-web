@@ -10,17 +10,10 @@ use App\Repository\CompanyRepository;
 use App\Security\Csrf;
 use Twig\Environment;
 
-/**
- * Contrôleur de gestion des entreprises
- *
- * - Liste : accessible aux administrateurs ET pilotes
- * - Création / édition / suppression : administrateurs uniquement
- *
- * Le formulaire gère à la fois les données de l'entreprise ET le commentaire
- * de l'utilisateur connecté (upsert via CompanyCommentRepository).
- */
 class AdminCompanyController
 {
+    private const PER_PAGE = 10;
+
     private Environment $twig;
     private CompanyRepository $companyRepository;
     private CompanyCommentRepository $companyCommentRepository;
@@ -29,13 +22,11 @@ class AdminCompanyController
     {
         $this->twig = $twig;
 
-        // Partage la même connexion PDO entre les deux repositories
         $pdo = Database::getConnection();
         $this->companyRepository = new CompanyRepository($pdo);
         $this->companyCommentRepository = new CompanyCommentRepository($pdo);
     }
 
-    /** Liste toutes les entreprises — accessible aux admins et pilotes */
     public function index(): string
     {
         if (
@@ -47,40 +38,45 @@ class AdminCompanyController
         }
 
         $search = trim((string) ($_GET['q'] ?? ''));
-        $companies = $this->companyRepository->findAll($search);
+
+        $currentPage = isset($_GET['page']) && ctype_digit((string) $_GET['page']) && (int) $_GET['page'] > 0
+            ? (int) $_GET['page']
+            : 1;
+
+        $totalCompanies = $this->companyRepository->countAll($search);
+        $totalPages = max(1, (int) ceil($totalCompanies / self::PER_PAGE));
+
+        if ($currentPage > $totalPages) {
+            $currentPage = $totalPages;
+        }
+
+        $offset = ($currentPage - 1) * self::PER_PAGE;
+
+        $companies = $this->companyRepository->findPaginated(
+            $search,
+            self::PER_PAGE,
+            $offset
+        );
 
         return $this->twig->render('admin-companies.html.twig', [
             'companies' => $companies,
             'search' => $search,
+            'current_page' => $currentPage,
+            'total_pages' => $totalPages,
+            'total_companies' => $totalCompanies,
         ]);
     }
 
-    /** Affiche le formulaire de création d'une nouvelle entreprise */
     public function create(): string
     {
         return $this->handleForm(null);
     }
 
-    /** Affiche le formulaire d'édition d'une entreprise existante */
     public function edit(int $companyId): string
     {
         return $this->handleForm($companyId);
     }
 
-    /**
-     * Gère le formulaire de création ET d'édition d'une entreprise (méthode mutualisée).
-     *
-     * En édition ($companyId non null) :
-     * - Charge les données existantes pour pré-remplir le formulaire
-     * - Charge le commentaire de l'utilisateur courant sur cette entreprise
-     * - Charge tous les commentaires pour les afficher
-     *
-     * Validations : nom obligatoire, SIRET 14 chiffres, URL valide, longueurs max,
-     * unicité du nom (en ignorant l'entreprise courante en édition).
-     *
-     * Après sauvegarde réussie : recharge les données depuis la BDD pour éviter
-     * d'afficher des données périmées (pattern post-redirect-get allégé).
-     */
     private function handleForm(?int $companyId): string
     {
         if (
@@ -93,11 +89,10 @@ class AdminCompanyController
 
         $currentUserId = (int) $_SESSION['user']['id'];
 
-        $isEdit = $companyId !== null; // true = édition, false = création
+        $isEdit = $companyId !== null;
         $error = null;
         $success = null;
 
-        // Valeurs par défaut pour le formulaire vide (création)
         $company = [
             'id' => null,
             'nom' => '',
@@ -125,6 +120,7 @@ class AdminCompanyController
             $company = $existingCompany;
 
             $existingUserComment = $this->companyCommentRepository->findByCompanyIdAndUserId($companyId, $currentUserId);
+
             if ($existingUserComment) {
                 $userComment['commentaire'] = (string) ($existingUserComment['commentaire'] ?? '');
             }
@@ -136,7 +132,6 @@ class AdminCompanyController
             Csrf::requireValidToken($_POST['_csrf_token'] ?? null);
 
             $nom = trim((string) ($_POST['nom'] ?? ''));
-            // Supprime tous les caractères non numériques du SIRET (espaces, tirets, etc.)
             $siret = preg_replace('/\D/', '', (string) ($_POST['siret'] ?? ''));
             $secteur = trim((string) ($_POST['secteur'] ?? ''));
             $ville = trim((string) ($_POST['ville'] ?? ''));
@@ -145,8 +140,10 @@ class AdminCompanyController
             $commentaire = trim((string) ($_POST['commentaire'] ?? ''));
 
             $note = null;
+
             if ($noteRaw !== '') {
                 $noteInt = (int) $noteRaw;
+
                 if (!is_numeric($noteRaw) || $noteInt < 1 || $noteInt > 5) {
                     $error = 'La note doit être un nombre entier entre 1 et 5.';
                 } else {
@@ -197,8 +194,6 @@ class AdminCompanyController
 
             if ($error === null) {
                 try {
-                    // Les champs optionnels sont stockés NULL en BDD plutôt que chaîne vide
-                    // pour pouvoir distinguer "non renseigné" de "renseigné vide"
                     $siretValue = $siret !== '' ? $siret : null;
                     $secteurValue = $secteur !== '' ? $secteur : null;
                     $villeValue = $ville !== '' ? $ville : null;
@@ -216,11 +211,7 @@ class AdminCompanyController
                         );
 
                         if ($commentaire !== '') {
-                            $this->companyCommentRepository->upsert(
-                                $companyId,
-                                $currentUserId,
-                                $commentaire
-                            );
+                            $this->companyCommentRepository->upsert($companyId, $currentUserId, $commentaire);
                         }
 
                         $success = 'Entreprise mise à jour avec succès.';
@@ -235,21 +226,15 @@ class AdminCompanyController
                         );
 
                         if ($commentaire !== '') {
-                            $this->companyCommentRepository->upsert(
-                                $companyId,
-                                $currentUserId,
-                                $commentaire
-                            );
+                            $this->companyCommentRepository->upsert($companyId, $currentUserId, $commentaire);
                         }
 
                         $isEdit = true;
                         $success = 'Entreprise créée avec succès.';
                     }
 
-                    // Rechargement depuis la BDD après sauvegarde : garantit que le template
-                    // affiche les données réellement persistées (ex: note calculée, timestamps)
-                    // plutôt que les valeurs du formulaire qui pourraient différer légèrement
                     $reloadedCompany = $this->companyRepository->findById($companyId);
+
                     if ($reloadedCompany) {
                         $company = $reloadedCompany;
                     }
@@ -276,10 +261,6 @@ class AdminCompanyController
         ]);
     }
 
-    /**
-     * Supprime une entreprise et toutes ses données liées (offres, candidatures, wishlist, commentaires).
-     * La suppression en cascade est gérée par CompanyRepository::delete() via une transaction.
-     */
     public function delete(int $companyId): void
     {
         if (
@@ -295,8 +276,6 @@ class AdminCompanyController
         try {
             $this->companyRepository->delete($companyId);
         } catch (\Throwable $e) {
-            // On journalise l'échec pour le diagnostic et on en informe l'utilisateur
-            // (sans ce log, une suppression échouée passait inaperçue, l'utilisateur croyait avoir réussi)
             error_log('[AdminCompanyController::delete] Échec suppression entreprise #' . $companyId . ' : ' . $e->getMessage());
             header('Location: /admin-entreprises?error=suppression_echouee');
             exit;

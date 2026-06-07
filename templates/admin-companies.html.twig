@@ -1,14 +1,3 @@
-{#
-    Liste des entreprises — accessible aux admins ET pilotes.
-
-    Variables transmises par AdminCompanyController::index() :
-     - companies    : liste des entreprises avec note, secteur, ville, commentaire
-     - search       : texte de recherche en cours
-     - companyNames : suggestions pour l'autocomplete (<datalist>)
-
-    L'affichage des étoiles est une boucle 1..5 comparée à note_int (arrondi inférieur).
-    Le commentaire affiché est celui de l'utilisateur connecté (JOIN via CompanyCommentRepository).
-#}
 {% extends 'base.html.twig' %}
 
 {% block title %}Gestion des entreprises{% endblock %}
@@ -24,6 +13,7 @@
         <section class="activity-section">
             <div class="activity-header">
                 <h2>Gestion des entreprises</h2>
+
                 <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
                     <a href="/admin-entreprise-create" class="student-button">Créer une entreprise</a>
 
@@ -37,6 +27,7 @@
 
             <form method="GET" action="/admin-entreprises" class="apply-form" style="margin-bottom: 18px;">
                 <label for="q">Rechercher une entreprise</label>
+
                 <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
                     <input
                         id="q"
@@ -44,58 +35,64 @@
                         type="text"
                         value="{{ search }}"
                         placeholder="Nom, secteur, ville"
-                        list="company-suggestions"
                         autocomplete="off"
                     >
-
-                    <datalist id="company-suggestions">
-                        {% for companyName in companyNames %}
-                            <option value="{{ companyName }}"></option>
-                        {% endfor %}
-                    </datalist>
 
                     <button type="submit" class="student-button">Rechercher</button>
                     <a href="/admin-entreprises" class="student-button">Réinitialiser</a>
                 </div>
             </form>
 
+            {% if total_companies is defined %}
+                <p style="margin-bottom:16px; color:#6b7280;">
+                    {{ total_companies }} entreprise{{ total_companies > 1 ? 's' : '' }} trouvée{{ total_companies > 1 ? 's' : '' }}
+                </p>
+            {% endif %}
+
             <div class="student-list">
                 {% for company in companies %}
                     <article class="student-row">
                         <div class="student-main">
                             <h3>{{ company.nom }}</h3>
+
                             <p>
                                 {{ company.secteur ?: 'Secteur non défini' }}
                                 • {{ company.ville ?: 'Ville non définie' }}
                             </p>
 
                             <div class="student-meta">
-                                {# ===== AFFICHAGE DES ETOILES EN LECTURE SEULE ===== #}
                                 {% if company.note is not null %}
                                     <span class="stars-display">
                                         {% set note_int = company.note|round(0, 'floor') %}
+
                                         {% for i in 1..5 %}
                                             <span class="star-icon {% if i <= note_int %}star-filled{% else %}star-empty{% endif %}">&#9733;</span>
                                         {% endfor %}
+
                                         <small class="stars-number">{{ note_int }}/5</small>
                                     </span>
                                 {% else %}
                                     <span class="badge badge-yellow">Non évaluée</span>
                                 {% endif %}
-                                {# ===== FIN AFFICHAGE ETOILES ===== #}
 
                                 <small>{{ company.site_web ?: 'Aucun site web' }}</small>
                             </div>
 
-                            {% if company.commentaire %}
+                            {% if company.commentaire is defined and company.commentaire %}
                                 <p style="margin-top:8px; color:#374151;">💬 {{ company.commentaire }}</p>
                             {% endif %}
                         </div>
 
                         <div class="student-actions student-actions-vertical">
-                            <a href="/admin-entreprises/{{ company.id }}/editer" class="student-button">Modifier / Évaluer</a>
+                            <a href="/admin-entreprises/{{ company.id }}/editer" class="student-button">
+                                Modifier / Évaluer
+                            </a>
 
-                            <form method="POST" action="/admin-entreprises/{{ company.id }}/supprimer" onsubmit="return confirm('Confirmer la suppression ?');">
+                            <form
+                                method="POST"
+                                action="/admin-entreprises/{{ company.id }}/supprimer"
+                                onsubmit="return confirm('Confirmer la suppression ?');"
+                            >
                                 <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
                                 <button type="submit" class="student-button">Supprimer</button>
                             </form>
@@ -105,6 +102,32 @@
                     <p class="empty-state">Aucune entreprise trouvée.</p>
                 {% endfor %}
             </div>
+
+            {% if total_pages is defined and total_pages > 1 %}
+                <nav style="display:flex; justify-content:center; gap:10px; margin-top:24px; flex-wrap:wrap;">
+                    {% if current_page > 1 %}
+                        <a
+                            class="student-button"
+                            href="/admin-entreprises?page={{ current_page - 1 }}{% if search %}&q={{ search|url_encode }}{% endif %}"
+                        >
+                            Précédent
+                        </a>
+                    {% endif %}
+
+                    <span style="display:flex; align-items:center; color:#374151;">
+                        Page {{ current_page }} / {{ total_pages }}
+                    </span>
+
+                    {% if current_page < total_pages %}
+                        <a
+                            class="student-button"
+                            href="/admin-entreprises?page={{ current_page + 1 }}{% if search %}&q={{ search|url_encode }}{% endif %}"
+                        >
+                            Suivant
+                        </a>
+                    {% endif %}
+                </nav>
+            {% endif %}
         </section>
     </div>
 </div>

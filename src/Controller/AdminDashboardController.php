@@ -8,8 +8,7 @@ use App\Database;
 use App\Repository\DashboardRepository;
 use Twig\Environment;
 
-/**
- * Contrôleur du tableau de bord administrateur
+/*
  *
  * Accessible uniquement aux administrateurs.
  * Affiche les compteurs globaux de la plateforme et les étudiants récemment actifs.

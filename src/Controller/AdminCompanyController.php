@@ -18,7 +18,6 @@ use Twig\Environment;
  *
  * Le formulaire gère à la fois les données de l'entreprise ET le commentaire
  * de l'utilisateur connecté (upsert via CompanyCommentRepository).
- * Les deux repositories partagent la même connexion PDO.
  */
 class AdminCompanyController
 {

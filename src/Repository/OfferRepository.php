@@ -551,7 +551,7 @@ class OfferRepository
      * Retourne le détail complet d'une offre publique avec les infos de l'entreprise liée.
      * Utilisé pour la page de détail d'une offre (/offres/{id}).
      */
-    public function findPublicOfferDetailById(int $offerId): array|false
+    public function findPublicOfferDetailById(int $offerId): \App\Model\Offer|false
     {
         $stmt = $this->pdo->prepare("
             SELECT
@@ -577,7 +577,32 @@ class OfferRepository
         ");
         $stmt->execute(['id' => $offerId]);
 
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$row) {
+            return false;
+        }
+
+        // Hydratation de l'entité Offer
+        $offer = new \App\Model\Offer(
+            (int) $row['id'],
+            $row['titre'],
+            $row['entreprise'],
+            $row['lieu'],
+            (int) $row['duree_semaines'],
+            (float) $row['remuneration'],
+            $row['description'],
+            $row['created_at']
+        );
+
+        $offer->setEntrepriseId($row['entreprise_id'] !== null ? (int) $row['entreprise_id'] : null);
+        $offer->setEntrepriseNom($row['entreprise_nom']);
+        $offer->setEntrepriseSiret($row['entreprise_siret']);
+        $offer->setEntrepriseSecteur($row['entreprise_secteur']);
+        $offer->setEntrepriseVille($row['entreprise_ville']);
+        $offer->setEntrepriseSiteWeb($row['entreprise_site_web']);
+        $offer->setEntrepriseNote($row['entreprise_note'] !== null ? (float) $row['entreprise_note'] : null);
+
+        return $offer;
     }
 
     /** Retourne les compétences d'une offre (noms) — pour l'affichage sur la page de détail */

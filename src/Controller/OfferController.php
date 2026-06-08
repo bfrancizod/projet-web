@@ -118,8 +118,8 @@ class OfferController
         $latestComments = [];
         $commentsCount = 0;
 
-        if (!empty($offer['entreprise_id'])) {
-            $companyId = (int) $offer['entreprise_id'];
+        if ($offer->getEntrepriseId() !== null) {
+            $companyId = $offer->getEntrepriseId();
             $latestComments = $this->companyCommentRepository->findLatestByCompanyId($companyId, 1);
             $commentsCount = $this->companyCommentRepository->countByCompanyId($companyId);
         }

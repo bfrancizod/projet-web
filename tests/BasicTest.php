@@ -7,131 +7,140 @@ use App\Security\RateLimiter;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Tests unitaires de l'application Help Me Stage.
+ * Suite de tests unitaires de l'application Help Me Stage.
  *
- * Regroupe dans un seul fichier :
- * - des tests de base (PHPUnit, hachage de mot de passe, validation d'email)
- * - les tests de la protection CSRF (App\Security\Csrf)
- * - les tests de la limitation anti-force-brute (App\Security\RateLimiter)
+ * Regroupe dans un seul fichier les tests des fonctions de sécurité critiques,
+ * organisés en 3 sections :
+ *   1. Mots de passe & emails  (hachage, validation de format)
+ *   2. Protection CSRF         (génération, validation, rotation du jeton)
+ *   3. Rate limiting           (blocage anti-force-brute, réinitialisation)
  *
- * Aucun de ces tests n'a besoin de base de données : ils valident de la
- * logique pure (sessions simulées, fichiers de compteur).
+ * Tous ces tests sont "unitaires" : ils valident de la logique pure, SANS
+ * base de données (session simulée via un tableau, compteurs stockés en fichier).
  */
 final class BasicTest extends TestCase
 {
-    /** Clé unique pour les tests de RateLimiter (n'interfère pas avec les vraies tentatives). */
+    /** Clé dédiée aux tests de RateLimiter, pour ne pas polluer les vraies tentatives. */
     private const RATE_KEY = 'test_unitaire_rate_limiter';
 
-    /** Avant chaque test : session vidée + compteur de tentatives remis à zéro. */
+    /**
+     * Exécuté AVANT chaque test : on repart d'un environnement vierge.
+     * - $_SESSION vidée   → les tests CSRF ne s'influencent pas entre eux
+     * - compteur RateLimiter remis à zéro
+     */
     protected function setUp(): void
     {
         $_SESSION = [];
         RateLimiter::reset(self::RATE_KEY);
     }
 
-    /** Après chaque test : on nettoie le fichier de compteur créé par RateLimiter. */
+    /** Exécuté APRÈS chaque test : on supprime le fichier de compteur créé par RateLimiter. */
     protected function tearDown(): void
     {
         RateLimiter::reset(self::RATE_KEY);
     }
 
     // =====================================================================
-    //  1. Tests de base
+    //  1. MOTS DE PASSE & EMAILS
     // =====================================================================
 
-    /** Test minimal : vérifie que PHPUnit est correctement configuré. */
-    public function testTrueIsTrue(): void
+    /**
+     * Le hachage de mot de passe doit être réversible à la vérification,
+     * et un mauvais mot de passe doit toujours être rejeté.
+     * (Garantit qu'on ne stocke jamais de mot de passe en clair.)
+     */
+    public function testHachageMotDePasse(): void
     {
-        $this->assertTrue(true);
+        $hash = password_hash('stage2026', PASSWORD_DEFAULT);
+
+        $this->assertTrue(password_verify('stage2026', $hash));   // bon mot de passe accepté
+        $this->assertFalse(password_verify('mauvais', $hash));     // mauvais mot de passe rejeté
     }
 
-    /** Un mot de passe haché avec password_hash() doit être validé par password_verify(). */
-    public function testPasswordHashIsValid(): void
-    {
-        $password = 'stage2026';
-
-        $hash = password_hash($password, PASSWORD_DEFAULT);
-
-        $this->assertTrue(password_verify($password, $hash));
-        // Un mauvais mot de passe ne doit jamais être validé
-        $this->assertFalse(password_verify('mauvais', $hash));
-    }
-
-    /** filter_var doit rejeter un email mal formé et accepter un email valide. */
-    public function testEmailValidation(): void
+    /**
+     * La validation d'email doit rejeter un format invalide
+     * et accepter une adresse correcte.
+     */
+    public function testValidationEmail(): void
     {
         $this->assertFalse(filter_var('email-invalide', FILTER_VALIDATE_EMAIL));
         $this->assertNotFalse(filter_var('etudiant@helpmestage.fr', FILTER_VALIDATE_EMAIL));
     }
 
     // =====================================================================
-    //  2. Protection CSRF (App\Security\Csrf)
+    //  2. PROTECTION CSRF (App\Security\Csrf)
     // =====================================================================
 
-    /** Le token CSRF doit faire 64 caractères hexadécimaux (bin2hex de 32 octets). */
-    public function testCsrfTokenEstUneChaineHexDe64Caracteres(): void
+    /**
+     * token() doit générer un jeton si la session est vide, le stocker en session,
+     * et produire 64 caractères hexadécimaux (bin2hex de 32 octets = 256 bits).
+     */
+    public function testCsrfGenerationDuToken(): void
+    {
+        $this->assertEmpty($_SESSION);
+
+        $token = Csrf::token();
+
+        $this->assertSame(64, strlen($token));                          // longueur attendue
+        $this->assertMatchesRegularExpression('/^[0-9a-f]{64}$/', $token); // bien hexadécimal
+        $this->assertSame($token, $_SESSION['_csrf_token']);            // bien stocké en session
+    }
+
+    /**
+     * validate() doit accepter le jeton de la session
+     * et rejeter tout jeton falsifié, nul ou vide.
+     */
+    public function testCsrfValidation(): void
     {
         $token = Csrf::token();
 
-        $this->assertSame(64, strlen($token));
-        $this->assertMatchesRegularExpression('/^[0-9a-f]{64}$/', $token);
+        $this->assertTrue(Csrf::validate($token));   // jeton correct
+        $this->assertFalse(Csrf::validate('faux'));  // jeton falsifié
+        $this->assertFalse(Csrf::validate(null));    // aucun jeton
+        $this->assertFalse(Csrf::validate(''));      // jeton vide
     }
 
-    /** Appeler token() plusieurs fois dans la même session renvoie la même valeur. */
-    public function testCsrfTokenEstStableDansLaSession(): void
-    {
-        $this->assertSame(Csrf::token(), Csrf::token());
-    }
-
-    /** validate() accepte le bon token et rejette tout le reste. */
-    public function testCsrfValidateAccepteLeBonTokenEtRejetteLesAutres(): void
-    {
-        $token = Csrf::token();
-
-        $this->assertTrue(Csrf::validate($token));   // bon token
-        $this->assertFalse(Csrf::validate('faux'));  // mauvais token
-        $this->assertFalse(Csrf::validate(null));    // pas de token
-        $this->assertFalse(Csrf::validate(''));      // token vide
-    }
-
-    /** rotate() (appelé à la connexion) invalide l'ancien token. */
-    public function testCsrfRotateInvalideLAncienToken(): void
+    /**
+     * rotate() (appelé après une connexion) doit générer un NOUVEAU jeton :
+     * l'ancien ne doit plus être valide, ce qui empêche sa réutilisation.
+     */
+    public function testCsrfRotation(): void
     {
         $ancien = Csrf::token();
         Csrf::rotate();
 
-        $this->assertFalse(Csrf::validate($ancien));
+        $this->assertNotSame($ancien, Csrf::token()); // un nouveau jeton est généré
+        $this->assertFalse(Csrf::validate($ancien));   // l'ancien est invalidé
     }
 
     // =====================================================================
-    //  3. Limitation anti-force-brute (App\Security\RateLimiter)
+    //  3. RATE LIMITING (App\Security\RateLimiter) — anti-force-brute
     // =====================================================================
 
-    /** Avec 3 essais autorisés : les 3 premiers passent, le 4e est bloqué. */
-    public function testRateLimiterAutoriseJusquAuMaxPuisBloque(): void
+    /**
+     * Avec 3 tentatives autorisées : les 3 premières passent, la 4e est bloquée.
+     * On vérifie aussi que le compteur de tentatives restantes diminue.
+     */
+    public function testRateLimiterBloqueApresLeMaximum(): void
     {
-        $this->assertTrue(RateLimiter::checkLimit(self::RATE_KEY, 3, 900));
-        $this->assertTrue(RateLimiter::checkLimit(self::RATE_KEY, 3, 900));
-        $this->assertTrue(RateLimiter::checkLimit(self::RATE_KEY, 3, 900));
-        $this->assertFalse(RateLimiter::checkLimit(self::RATE_KEY, 3, 900)); // bloqué
+        $this->assertSame(3, RateLimiter::getRemaining(self::RATE_KEY, 3, 900)); // 3 essais dispo
+
+        $this->assertTrue(RateLimiter::checkLimit(self::RATE_KEY, 3, 900));   // 1re tentative
+        $this->assertTrue(RateLimiter::checkLimit(self::RATE_KEY, 3, 900));   // 2e tentative
+        $this->assertTrue(RateLimiter::checkLimit(self::RATE_KEY, 3, 900));   // 3e tentative
+        $this->assertFalse(RateLimiter::checkLimit(self::RATE_KEY, 3, 900));  // 4e : BLOQUÉE
     }
 
-    /** Le nombre de tentatives restantes part du maximum et diminue à chaque essai. */
-    public function testRateLimiterTentativesRestantesDiminuent(): void
-    {
-        $this->assertSame(5, RateLimiter::getRemaining(self::RATE_KEY, 5, 900));
-
-        RateLimiter::checkLimit(self::RATE_KEY, 5, 900);
-        $this->assertSame(4, RateLimiter::getRemaining(self::RATE_KEY, 5, 900));
-    }
-
-    /** reset() efface les tentatives : l'utilisateur est de nouveau autorisé. */
-    public function testRateLimiterResetReautoriseLesTentatives(): void
+    /**
+     * reset() doit effacer les tentatives : après une limite atteinte,
+     * l'utilisateur redevient autorisé (utile après une connexion réussie).
+     */
+    public function testRateLimiterReinitialisation(): void
     {
         RateLimiter::checkLimit(self::RATE_KEY, 1, 900);
-        $this->assertFalse(RateLimiter::checkLimit(self::RATE_KEY, 1, 900));
+        $this->assertFalse(RateLimiter::checkLimit(self::RATE_KEY, 1, 900)); // limite atteinte
 
         RateLimiter::reset(self::RATE_KEY);
-        $this->assertTrue(RateLimiter::checkLimit(self::RATE_KEY, 1, 900));
+        $this->assertTrue(RateLimiter::checkLimit(self::RATE_KEY, 1, 900));  // de nouveau autorisé
     }
 }

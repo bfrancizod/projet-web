@@ -1,4 +1,17 @@
+# Dépendances (installées via composer install)
 /vendor/
+
+# Variables d'environnement — contient les identifiants de la base de données
 .env
+
+# Fichiers de stockage générés à l'exécution (uploads, logs, etc.)
 storage/
+
+# Ancien fichier MCD binaire (outil Looping)
 schema_bdd.loo
+
+# Exécutable Composer — c'est l'outil, pas une dépendance du projet
+composer.phar
+
+# Cache de PHPUnit — régénéré à chaque exécution des tests
+.phpunit.result.cache

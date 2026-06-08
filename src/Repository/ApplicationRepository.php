@@ -7,7 +7,6 @@ namespace App\Repository;
 use PDO;
 
 /**
- * Repository des candidatures (table : candidatures)
  *
  * Gère toutes les opérations BDD liées aux candidatures des étudiants :
  * création, recherche paginée, mise à jour du statut, et vérification de doublon.
@@ -33,7 +32,6 @@ class ApplicationRepository
 
     /**
      * Compte le total de candidatures selon les filtres — utilisé pour calculer le nombre de pages.
-     * $allowedPromotionIds restreint les résultats aux promotions du pilote (vide = pas de restriction, pour les admins).
      */
     public function countApplications(?int $selectedPromotionId, string $search, array $allowedPromotionIds = []): int
     {
@@ -94,8 +92,7 @@ class ApplicationRepository
     /**
      * Retourne une page de candidatures avec les infos étudiant, offre et promotion.
      * Le tri prioritise les candidatures "envoyées" (non traitées) en haut de liste,
-     * puis les acceptées, refusées, en étude — les plus récentes en premier dans chaque groupe.
-     * $allowedPromotionIds restreint les résultats aux promotions du pilote (vide = pas de restriction, pour les admins).
+
      */
     public function findApplicationsPaginated(
         ?int $selectedPromotionId,
@@ -194,8 +191,6 @@ class ApplicationRepository
 
     /**
      * Met à jour le statut d'une candidature ET synchronise le statut de l'étudiant.
-     * Si au moins une candidature est acceptée → statut étudiant = 'stage_valide'.
-     * Sinon → 'en_recherche'. Utilise une transaction pour garantir la cohérence des deux tables.
      */
     public function updateApplicationStatusAndStudentProfile(int $applicationId, string $status): void
     {
@@ -271,7 +266,7 @@ class ApplicationRepository
         return $stmt->fetch();
     }
 
-    /** Vérifie si l'étudiant a déjà postulé à cette offre — évite les doublons de candidature */
+    /** Vérifie si l'étudiant a déjà postulé à cette offre */
     public function hasStudentAppliedToOffer(int $userId, int $offerId): bool
     {
         $stmt = $this->pdo->prepare("

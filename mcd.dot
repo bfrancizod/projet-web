@@ -1,0 +1,66 @@
+graph MCD {
+    graph [rankdir=LR, splines=true, overlap=false, nodesep=0.5, ranksep=1.1, fontname="Helvetica", bgcolor="white", label="MCD — Help Me Stage", labelloc="t", fontsize=22];
+    node  [fontname="Helvetica", fontsize=11];
+    edge  [fontname="Helvetica", fontsize=10, color="#444444", len=2.2];
+
+    /* ===================== ENTITÉS (rectangles) ===================== */
+    node [shape=record, style="filled", fillcolor="#dbeafe", color="#1e3a8a", penwidth=1.4];
+
+    UTILISATEUR [label="{UTILISATEUR|id\lnom\lprenom\lemail (U)\lpassword_hash\lrole\lcreated_at\l}"];
+    ETUDIANT    [label="{ÉTUDIANT|id\lformation\lstatus\llast_activity\l}", fillcolor="#bfdbfe"];
+    PROMOTION   [label="{PROMOTION|id\llabel (U)\lacademic_year\lis_active\lcreated_at\l}"];
+    ENTREPRISE  [label="{ENTREPRISE|id\lnom (U)\lsiret\lsecteur\lville\lsite_web\lnote\lcommentaire\l}"];
+    OFFRE       [label="{OFFRE|id\ltitre\llieu\lduree_semaines\lremuneration\ldescription\lcreated_at\l}"];
+    COMPETENCE  [label="{COMPÉTENCE|id\lnom (U)\l}"];
+    CONSENTEMENT [label="{CONSENTEMENT_COOKIE|id\lconsent_token (U)\lessential\lanalytics\lmarketing\lconsented_at\l}"];
+    DEMANDE     [label="{DEMANDE_RÉINIT|id\lemail\lstatus\lcreated_at\lexpires_at\lprocessed_at\l}"];
+
+    /* ===================== ASSOCIATIONS (ellipses) ===================== */
+    node [shape=ellipse, style="filled", fillcolor="#fef3c7", color="#92400e", penwidth=1.2];
+
+    A_EST       [label="EST\n(héritage)"];
+    A_APPARTENIR [label="APPARTENIR"];
+    A_GERER     [label="GÉRER\n(created_at)"];
+    A_PROPOSER  [label="PROPOSER"];
+    A_REQUERIR  [label="REQUÉRIR"];
+    A_MAITRISER [label="MAÎTRISER"];
+    A_POSTULER  [label="POSTULER\n(status, lettre,\ncv, created_at)", fillcolor="#fde68a"];
+    A_SOUHAITER [label="SOUHAITER\n(created_at)"];
+    A_COMMENTER [label="COMMENTER\n(commentaire,\ncreated_at)", fillcolor="#fde68a"];
+    A_CONSENTIR [label="CONSENTIR"];
+    A_DEMANDER  [label="DEMANDER"];
+
+    /* ===================== LIENS + CARDINALITÉS ===================== */
+    UTILISATEUR -- A_EST        [headlabel="(1,1)", taillabel="(0,1)"];
+    A_EST       -- ETUDIANT     [label=""];
+
+    ETUDIANT    -- A_APPARTENIR [taillabel="(0,1)"];
+    A_APPARTENIR -- PROMOTION   [headlabel="(0,N)"];
+
+    UTILISATEUR -- A_GERER      [taillabel="(0,N)"];
+    A_GERER     -- PROMOTION    [headlabel="(0,N)"];
+
+    ENTREPRISE  -- A_PROPOSER   [taillabel="(0,N)"];
+    A_PROPOSER  -- OFFRE        [headlabel="(0,1)"];
+
+    OFFRE       -- A_REQUERIR   [taillabel="(0,N)"];
+    A_REQUERIR  -- COMPETENCE   [headlabel="(0,N)"];
+
+    ETUDIANT    -- A_MAITRISER  [taillabel="(0,N)"];
+    A_MAITRISER -- COMPETENCE   [headlabel="(0,N)"];
+
+    ETUDIANT    -- A_POSTULER   [taillabel="(0,N)"];
+    A_POSTULER  -- OFFRE        [headlabel="(0,N)"];
+
+    ETUDIANT    -- A_SOUHAITER  [taillabel="(0,N)"];
+    A_SOUHAITER -- OFFRE        [headlabel="(0,N)"];
+
+    UTILISATEUR -- A_COMMENTER  [taillabel="(0,N)"];
+    A_COMMENTER -- ENTREPRISE   [headlabel="(0,N)"];
+
+    UTILISATEUR -- A_CONSENTIR  [taillabel="(0,N)"];
+    A_CONSENTIR -- CONSENTEMENT [headlabel="(0,1)"];
+
+    UTILISATEUR -- A_DEMANDER   [taillabel="(0,N)"];
+    A_DEMANDER  -- DEMANDE      [headlabel="(0,1)"];
+}

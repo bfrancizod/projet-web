@@ -5,6 +5,7 @@
  * Contient les composants réutilisables : cartes stat, tableaux, badges de statut.
  */
 @import "base.css";
+
 .dashboard-page {
     padding: 60px 0;
 }
@@ -32,16 +33,4 @@
     margin-left: 16px;
     color: var(--color-text-muted);
     text-decoration: none;
-}
-
-/* =========================================================
-   MEDIA QUERIES
-   ========================================================= */
-@media (max-width: 768px) {
-    .dashboard-page {
-        padding: 30px 0;
-    }
-    .dashboard-card {
-        padding: 20px;
-    }
 }

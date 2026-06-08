@@ -9,7 +9,6 @@
  *  4. Message d'erreur
  *  5. Formulaire de connexion
  *  6. Lien "Mot de passe oublié"
- *  7. Media Queries
  */
 
 /* =========================================================
@@ -141,16 +140,4 @@
     color: var(--color-text-muted);
     font-size: 0.95rem;
     margin-top: 18px;
-}
-
-/* =========================================================
-   7. MEDIA QUERIES
-   ========================================================= */
-@media (max-width: 768px) {
-    .login-card {
-        padding: 24px 18px;
-    }
-    .login-page {
-        padding: 30px 15px;
-    }
 }

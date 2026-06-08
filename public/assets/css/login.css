@@ -9,6 +9,7 @@
  *  4. Message d'erreur
  *  5. Formulaire de connexion
  *  6. Lien "Mot de passe oublié"
+ *  7. Media Queries
  */
 
 /* =========================================================
@@ -61,18 +62,21 @@
 }
 
 
-.demo-student {                             /* Étudiant: Jaune standard */
+.demo-student {
+    /* Étudiant: Jaune standard */
     background: var(--color-primary-light);
     border: 1px solid var(--color-primary);
 }
 
 
-.demo-pilot {                               /* Pilote: Bleu ciel*/
+.demo-pilot {
+    /* Pilote: Bleu ciel*/
     background: #dfe9f8;
     border: 1px solid #9ab8ea;
 }
 
-.demo-admin {                               /* Admin: Violet Royal*/
+.demo-admin {
+    /* Admin: Violet Royal*/
     background: #efe3ff;
     border: 1px solid #8b5cf6;
     color: #4c1d95;
@@ -139,3 +143,14 @@
     margin-top: 18px;
 }
 
+/* =========================================================
+   7. MEDIA QUERIES
+   ========================================================= */
+@media (max-width: 768px) {
+    .login-card {
+        padding: 24px 18px;
+    }
+    .login-page {
+        padding: 30px 15px;
+    }
+}

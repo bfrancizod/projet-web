@@ -5,6 +5,7 @@
  * Sections :
  *  1. Hero — bannière principale avec accroche et bouton CTA
  *  2. Steps — grille "Comment ça marche ?" en 3 étapes
+ *  3. Media Queries — adaptation mobile
  */
 
 /* =========================================================
@@ -13,25 +14,25 @@
 @import "base.css";
 
 .hero {
-background: var(--color-bg);
-padding: 80px 0;
-text-align: center;
+   background: var(--color-bg);
+   padding: 80px 0;
+   text-align: center;
 }
 
 .hero-inner {
-max-width: 700px;
-margin: auto;
+   max-width: 700px;
+   margin: auto;
 }
 
 .hero h1 {
-font-size: 42px;
-margin-bottom: 20px;
+   font-size: 42px;
+   margin-bottom: 20px;
 }
 
 .hero p {
-font-size: 18px;
-color: var(--color-text-muted);
-margin-bottom: 30px;
+   font-size: 18px;
+   color: var(--color-text-muted);
+   margin-bottom: 30px;
 }
 
 
@@ -40,36 +41,43 @@ margin-bottom: 30px;
    3 colonnes sur desktop, empilées sur mobile via les media queries de base.css.
    ========================================================= */
 .steps-section {
-padding: 70px 0;
+   padding: 70px 0;
 }
 
 .steps-section h2 {
-text-align: center;
-margin-bottom: 40px;
-font-size: 28px;
+   text-align: center;
+   margin-bottom: 40px;
+   font-size: 28px;
 }
 
 .steps-grid {
-display: grid;
-grid-template-columns: repeat(3,1fr);
-gap: 25px;
+   display: grid;
+   grid-template-columns: repeat(3, 1fr);
+   gap: 25px;
 }
 
 .step-card {
-background: var(--color-white);
-border-radius: 14px;
-padding: 30px;
-text-align: center;
-box-shadow: 0 5px 15px var(--color-shadow-black);
+   background: var(--color-white);
+   border-radius: 14px;
+   padding: 30px;
+   text-align: center;
+   box-shadow: 0 5px 15px var(--color-shadow-black);
 }
 
 .step-icon {
-font-size: 30px;
-margin-bottom: 15px;
+   font-size: 30px;
+   margin-bottom: 15px;
 }
 
 .step-card h3 {
-margin-bottom: 10px;
+   margin-bottom: 10px;
 }
 
-
+/* =========================================================
+   3. MEDIA QUERIES
+   ========================================================= */
+@media (max-width: 768px) {
+    .steps-grid {
+        grid-template-columns: 1fr;
+    }
+}

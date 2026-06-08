@@ -7,8 +7,7 @@ namespace App\Security;
 /**
  * Classe Csrf — Protection contre les attaques Cross-Site Request Forgery
  *
- * Une attaque CSRF consiste à piéger un utilisateur connecté pour qu'il
- * exécute une action à son insu (ex: soumettre un formulaire). Cette classe
+ * Cette classe
  * génère un token unique par session, inclus dans chaque formulaire POST,
  * et vérifie sa validité avant tout traitement.
  */
@@ -65,8 +64,6 @@ final class Csrf
 
     /**
      * Régénère un nouveau token CSRF.
-     * Appelé après une connexion pour invalider l'ancien token
-     * et éviter la réutilisation du token pré-authentification.
      */
     public static function rotate(): void
     {

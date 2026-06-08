@@ -35,7 +35,7 @@ class Database
                 $user   = $_ENV['DB_USER'] ?? '';
                 $pass   = $_ENV['DB_PASS'] ?? '';
 
-                // Vérification que toutes les variables sont bien définies dans .env
+               
                 if ($host === '' || $port === '' || $dbname === '' || $user === '' || $pass === '') {
                     throw new PDOException('Variables de connexion BDD manquantes dans le fichier .env');
                 }

@@ -10,9 +10,6 @@ use PDOException;
 /**
  * Classe Database — Connexion PDO en Singleton
  *
- * Garantit une seule instance de connexion à la base de données
- * pendant toute la durée d'une requête HTTP. Les paramètres de
- * connexion sont lus depuis les variables d'environnement (.env).
  */
 class Database
 {
@@ -31,7 +28,7 @@ class Database
     {
         if (self::$instance === null) {
             try {
-                // Lecture des paramètres depuis les variables d'environnement
+                
                 $host   = $_ENV['DB_HOST'] ?? '';
                 $port   = $_ENV['DB_PORT'] ?? '';
                 $dbname = $_ENV['DB_NAME'] ?? '';

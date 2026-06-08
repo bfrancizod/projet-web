@@ -1,1 +1,0 @@
-{"version":2,"defects":[],"times":{"BasicTest::testTrueIsTrue":0,"BasicTest::testPasswordHashIsValid":0.092,"BasicTest::testInvalidEmailIsRejected":0.001}}

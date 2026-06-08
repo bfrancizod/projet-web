@@ -1,0 +1,31 @@
+digraph MVC {
+    graph [rankdir=LR, fontname="Helvetica", bgcolor="white", label="Architecture MVC — Help Me Stage", labelloc="t", fontsize=22, nodesep=0.5, ranksep=1.0];
+    node  [fontname="Helvetica", fontsize=12, style="filled", penwidth=1.4];
+    edge  [fontname="Helvetica", fontsize=10, color="#374151"];
+
+    /* ---- Client ---- */
+    NAV [label="Navigateur\n(utilisateur)", shape=oval, fillcolor="#e5e7eb", color="#374151"];
+
+    /* ---- Point d'entrée ---- */
+    ROUTER [label="index.php\nRouteur (Front Controller)", shape=box, fillcolor="#fde68a", color="#92400e"];
+
+    /* ---- CONTROLLER ---- */
+    CTRL [label="CONTROLLER\nsrc/Controller/\n(reçoit la requête,\norchestre, valide)", shape=box, fillcolor="#bfdbfe", color="#1e3a8a"];
+
+    /* ---- MODEL ---- */
+    MODEL [label="MODEL\nsrc/Repository/\n(logique d'accès\naux données, SQL)", shape=box, fillcolor="#bbf7d0", color="#166534"];
+    DB    [label="Base de données\nMySQL (Railway)", shape=cylinder, fillcolor="#d1fae5", color="#166534"];
+
+    /* ---- VIEW ---- */
+    VIEW [label="VIEW\ntemplates/*.twig\n(génère le HTML)", shape=box, fillcolor="#fecaca", color="#991b1b"];
+
+    /* ---- Flux ---- */
+    NAV    -> ROUTER [label="1. requête HTTP\n(URL)"];
+    ROUTER -> CTRL   [label="2. route vers\nle bon contrôleur"];
+    CTRL   -> MODEL  [label="3. demande\nles données"];
+    MODEL  -> DB     [label="4. requête SQL\n(PDO)"];
+    DB     -> MODEL  [label="5. résultats", style=dashed];
+    MODEL  -> CTRL   [label="6. données", style=dashed];
+    CTRL   -> VIEW   [label="7. transmet\nles données"];
+    VIEW   -> NAV    [label="8. page HTML\n(réponse)", style=dashed, constraint=false];
+}

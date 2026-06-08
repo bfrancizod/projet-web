@@ -1,22 +1,8 @@
-/*
- * offers.css — Page liste des offres de stage
- *
- * Styles spécifiques à la page /offres (templates/offers.html.twig).
- * Sections :
- *  1. Mise en page principale (grille 2 colonnes : filtres + liste)
- *  2. Panneau de filtres (aside gauche)
- *  3. Grille et cartes d'offres
- *  4. Badges de compétences (.tag)
- *  5. Pagination
- *
- * NOTE : certaines règles apparaissent plusieurs fois (héritage de refactoring progressif).
- * Les dernières déclarations d'un même sélecteur priment en CSS (cascade normale).
- */
 
-/* =========================================================
-   1. MISE EN PAGE PRINCIPALE
-   grid-template-columns: panneau filtres fixe à 260px + liste fluide (1fr)
-   ========================================================= */
+ 
+ 
+
+
 @import "base.css";
 
 .offers-page {
@@ -29,9 +15,9 @@
     gap: 40px;
 }
 
-/* =========================================================
+/* 
    2. PANNEAU DE FILTRES
-   ========================================================= */
+    */
 .filters {
     background: white;
     padding: 25px;
@@ -100,10 +86,10 @@
     margin-bottom: 6px;
 }
 
-/* =========================================================
+/* 
    4. BADGES DE COMPÉTENCES
    border-radius:999px crée un badge "pill" quel que soit le contenu.
-   ========================================================= */
+   */
 .tags {
     display: flex;
     flex-wrap: wrap;
@@ -141,9 +127,9 @@
     transform: translateY(-1px);
 }
 
-/* =========================================================
+/* 
    5. PAGINATION
-   ========================================================= */
+    */
 .pagination {
     margin-top: 30px;
 }

@@ -1,0 +1,172 @@
+digraph MLD {
+    graph [rankdir=LR, splines=ortho, nodesep=0.6, ranksep=1.4, fontname="Helvetica", bgcolor="white", label="MLD — Help Me Stage", labelloc="t", fontsize=24];
+    node  [shape=plaintext, fontname="Helvetica", fontsize=11];
+    edge  [color="#b45309", penwidth=1.3, arrowhead=normal, arrowsize=0.8];
+
+    /* ====== Légende des en-têtes : bleu = entité, orange = table de liaison ====== */
+
+    users [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4" BGCOLOR="white">
+        <TR><TD BGCOLOR="#1e3a8a"><FONT COLOR="white"><B>users</B></FONT></TD></TR>
+        <TR><TD PORT="id" ALIGN="LEFT"><B>PK id</B></TD></TR>
+        <TR><TD ALIGN="LEFT">nom</TD></TR>
+        <TR><TD ALIGN="LEFT">prenom</TD></TR>
+        <TR><TD ALIGN="LEFT">email (U)</TD></TR>
+        <TR><TD ALIGN="LEFT">password_hash</TD></TR>
+        <TR><TD ALIGN="LEFT">role</TD></TR>
+        <TR><TD ALIGN="LEFT">created_at</TD></TR>
+      </TABLE>>];
+
+    student_profiles [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4" BGCOLOR="white">
+        <TR><TD BGCOLOR="#1e3a8a"><FONT COLOR="white"><B>student_profiles</B></FONT></TD></TR>
+        <TR><TD PORT="id" ALIGN="LEFT"><B>PK id</B></TD></TR>
+        <TR><TD PORT="user_id" ALIGN="LEFT"># user_id (U)</TD></TR>
+        <TR><TD ALIGN="LEFT">formation</TD></TR>
+        <TR><TD PORT="promotion_id" ALIGN="LEFT"># promotion_id</TD></TR>
+        <TR><TD ALIGN="LEFT">status</TD></TR>
+        <TR><TD ALIGN="LEFT">last_activity</TD></TR>
+      </TABLE>>];
+
+    promotions [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4" BGCOLOR="white">
+        <TR><TD BGCOLOR="#1e3a8a"><FONT COLOR="white"><B>promotions</B></FONT></TD></TR>
+        <TR><TD PORT="id" ALIGN="LEFT"><B>PK id</B></TD></TR>
+        <TR><TD ALIGN="LEFT">label (U)</TD></TR>
+        <TR><TD ALIGN="LEFT">academic_year</TD></TR>
+        <TR><TD ALIGN="LEFT">is_active</TD></TR>
+        <TR><TD ALIGN="LEFT">created_at</TD></TR>
+      </TABLE>>];
+
+    pilot_promotions [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4" BGCOLOR="white">
+        <TR><TD BGCOLOR="#b45309"><FONT COLOR="white"><B>pilot_promotions</B></FONT></TD></TR>
+        <TR><TD PORT="pilot_user_id" ALIGN="LEFT"><B>PK # pilot_user_id</B></TD></TR>
+        <TR><TD PORT="promotion_id" ALIGN="LEFT"><B>PK # promotion_id</B></TD></TR>
+        <TR><TD ALIGN="LEFT">created_at</TD></TR>
+      </TABLE>>];
+
+    entreprises [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4" BGCOLOR="white">
+        <TR><TD BGCOLOR="#1e3a8a"><FONT COLOR="white"><B>entreprises</B></FONT></TD></TR>
+        <TR><TD PORT="id" ALIGN="LEFT"><B>PK id</B></TD></TR>
+        <TR><TD ALIGN="LEFT">nom (U)</TD></TR>
+        <TR><TD ALIGN="LEFT">siret</TD></TR>
+        <TR><TD ALIGN="LEFT">secteur</TD></TR>
+        <TR><TD ALIGN="LEFT">ville</TD></TR>
+        <TR><TD ALIGN="LEFT">site_web</TD></TR>
+        <TR><TD ALIGN="LEFT">note</TD></TR>
+        <TR><TD ALIGN="LEFT">commentaire</TD></TR>
+        <TR><TD ALIGN="LEFT">created_at</TD></TR>
+        <TR><TD ALIGN="LEFT">updated_at</TD></TR>
+      </TABLE>>];
+
+    offres [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4" BGCOLOR="white">
+        <TR><TD BGCOLOR="#1e3a8a"><FONT COLOR="white"><B>offres</B></FONT></TD></TR>
+        <TR><TD PORT="id" ALIGN="LEFT"><B>PK id</B></TD></TR>
+        <TR><TD ALIGN="LEFT">titre</TD></TR>
+        <TR><TD PORT="entreprise_id" ALIGN="LEFT"># entreprise_id</TD></TR>
+        <TR><TD ALIGN="LEFT">entreprise</TD></TR>
+        <TR><TD ALIGN="LEFT">lieu</TD></TR>
+        <TR><TD ALIGN="LEFT">duree_semaines</TD></TR>
+        <TR><TD ALIGN="LEFT">remuneration</TD></TR>
+        <TR><TD ALIGN="LEFT">description</TD></TR>
+        <TR><TD ALIGN="LEFT">created_at</TD></TR>
+      </TABLE>>];
+
+    competences [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4" BGCOLOR="white">
+        <TR><TD BGCOLOR="#1e3a8a"><FONT COLOR="white"><B>competences</B></FONT></TD></TR>
+        <TR><TD PORT="id" ALIGN="LEFT"><B>PK id</B></TD></TR>
+        <TR><TD ALIGN="LEFT">nom (U)</TD></TR>
+      </TABLE>>];
+
+    offre_competence [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4" BGCOLOR="white">
+        <TR><TD BGCOLOR="#b45309"><FONT COLOR="white"><B>offre_competence</B></FONT></TD></TR>
+        <TR><TD PORT="offre_id" ALIGN="LEFT"><B>PK # offre_id</B></TD></TR>
+        <TR><TD PORT="competence_id" ALIGN="LEFT"><B>PK # competence_id</B></TD></TR>
+      </TABLE>>];
+
+    student_competence [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4" BGCOLOR="white">
+        <TR><TD BGCOLOR="#b45309"><FONT COLOR="white"><B>student_competence</B></FONT></TD></TR>
+        <TR><TD PORT="user_id" ALIGN="LEFT"><B>PK # user_id</B></TD></TR>
+        <TR><TD PORT="competence_id" ALIGN="LEFT"><B>PK # competence_id</B></TD></TR>
+      </TABLE>>];
+
+    candidatures [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4" BGCOLOR="white">
+        <TR><TD BGCOLOR="#b45309"><FONT COLOR="white"><B>candidatures</B></FONT></TD></TR>
+        <TR><TD PORT="id" ALIGN="LEFT"><B>PK id</B></TD></TR>
+        <TR><TD PORT="student_user_id" ALIGN="LEFT"># student_user_id</TD></TR>
+        <TR><TD PORT="offre_id" ALIGN="LEFT"># offre_id</TD></TR>
+        <TR><TD ALIGN="LEFT">status</TD></TR>
+        <TR><TD ALIGN="LEFT">lettre_motivation</TD></TR>
+        <TR><TD ALIGN="LEFT">cv_filename</TD></TR>
+        <TR><TD ALIGN="LEFT">created_at</TD></TR>
+      </TABLE>>];
+
+    student_wishlist [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4" BGCOLOR="white">
+        <TR><TD BGCOLOR="#b45309"><FONT COLOR="white"><B>student_wishlist</B></FONT></TD></TR>
+        <TR><TD PORT="user_id" ALIGN="LEFT"><B>PK # user_id</B></TD></TR>
+        <TR><TD PORT="offre_id" ALIGN="LEFT"><B>PK # offre_id</B></TD></TR>
+        <TR><TD ALIGN="LEFT">created_at</TD></TR>
+      </TABLE>>];
+
+    entreprise_commentaires [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4" BGCOLOR="white">
+        <TR><TD BGCOLOR="#b45309"><FONT COLOR="white"><B>entreprise_commentaires</B></FONT></TD></TR>
+        <TR><TD PORT="id" ALIGN="LEFT"><B>PK id</B></TD></TR>
+        <TR><TD PORT="entreprise_id" ALIGN="LEFT"># entreprise_id</TD></TR>
+        <TR><TD PORT="user_id" ALIGN="LEFT"># user_id</TD></TR>
+        <TR><TD ALIGN="LEFT">commentaire</TD></TR>
+        <TR><TD ALIGN="LEFT">created_at</TD></TR>
+      </TABLE>>];
+
+    cookie_consents [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4" BGCOLOR="white">
+        <TR><TD BGCOLOR="#1e3a8a"><FONT COLOR="white"><B>cookie_consents</B></FONT></TD></TR>
+        <TR><TD PORT="id" ALIGN="LEFT"><B>PK id</B></TD></TR>
+        <TR><TD ALIGN="LEFT">consent_token (U)</TD></TR>
+        <TR><TD PORT="user_id" ALIGN="LEFT"># user_id</TD></TR>
+        <TR><TD ALIGN="LEFT">essential</TD></TR>
+        <TR><TD ALIGN="LEFT">analytics</TD></TR>
+        <TR><TD ALIGN="LEFT">marketing</TD></TR>
+        <TR><TD ALIGN="LEFT">consented_at</TD></TR>
+        <TR><TD ALIGN="LEFT">created_at</TD></TR>
+        <TR><TD ALIGN="LEFT">updated_at</TD></TR>
+      </TABLE>>];
+
+    password_reset_requests [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4" BGCOLOR="white">
+        <TR><TD BGCOLOR="#1e3a8a"><FONT COLOR="white"><B>password_reset_requests</B></FONT></TD></TR>
+        <TR><TD PORT="id" ALIGN="LEFT"><B>PK id</B></TD></TR>
+        <TR><TD ALIGN="LEFT">user_id</TD></TR>
+        <TR><TD ALIGN="LEFT">email</TD></TR>
+        <TR><TD ALIGN="LEFT">status</TD></TR>
+        <TR><TD ALIGN="LEFT">created_at</TD></TR>
+        <TR><TD ALIGN="LEFT">expires_at</TD></TR>
+        <TR><TD ALIGN="LEFT">processed_at</TD></TR>
+      </TABLE>>];
+
+    /* ====== Clés étrangères (la flèche part de la FK vers la PK référencée) ====== */
+    student_profiles:user_id          -> users:id;
+    student_profiles:promotion_id     -> promotions:id;
+    pilot_promotions:pilot_user_id    -> users:id;
+    pilot_promotions:promotion_id     -> promotions:id;
+    offres:entreprise_id              -> entreprises:id;
+    offre_competence:offre_id         -> offres:id;
+    offre_competence:competence_id    -> competences:id;
+    student_competence:user_id        -> users:id;
+    student_competence:competence_id  -> competences:id;
+    candidatures:student_user_id      -> users:id;
+    candidatures:offre_id             -> offres:id;
+    student_wishlist:user_id          -> users:id;
+    student_wishlist:offre_id         -> offres:id;
+    entreprise_commentaires:entreprise_id -> entreprises:id;
+    entreprise_commentaires:user_id   -> users:id;
+    cookie_consents:user_id           -> users:id;
+}

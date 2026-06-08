@@ -1,6 +1,6 @@
 # MLD — Help Me Stage
 
-Modèle Logique de Données dérivé du [MCD](MCD.md), conforme à la base Railway (14 tables).
+Modèle Logique de Données dérivé du [MCD](../MCD/MCD.md), conforme à la base Railway (14 tables).
 
 **Convention de notation :**
 - <ins>Clé primaire</ins> = soulignée

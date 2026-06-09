@@ -22,6 +22,10 @@ final class RateLimiterTest extends TestCase
         RateLimiter::reset(self::RATE_KEY);
     }
 
+    /**
+     * Vérifie que le système bloque correctement les requêtes après avoir
+     * atteint le nombre maximum de tentatives autorisées.
+     */
     public function testRateLimiterBloqueApresLeMaximum(): void
     {
         $this->assertSame(3, RateLimiter::getRemaining(self::RATE_KEY, 3, 900));
@@ -32,6 +36,10 @@ final class RateLimiterTest extends TestCase
         $this->assertFalse(RateLimiter::checkLimit(self::RATE_KEY, 3, 900));
     }
 
+    /**
+     * Vérifie qu'après une réinitialisation manuelle ou expiration du temps,
+     * le compteur repart bien à zéro et autorise de nouveau les requêtes.
+     */
     public function testRateLimiterReinitialisation(): void
     {
         RateLimiter::checkLimit(self::RATE_KEY, 1, 900);

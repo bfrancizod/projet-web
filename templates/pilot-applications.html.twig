@@ -121,7 +121,7 @@
             {% if totalPages > 1 %}
                 <nav style="margin-top: 25px; display: flex; justify-content: center; align-items: center; gap: 8px; flex-wrap: wrap;">
                     {% if currentPage > 1 %}
-                        <a href="/pilot-candidatures?page={{ currentPage - 1 }}{% if search %}&q={{ search|url_encode }}{% endif %}{% if selected_promotion_id %}&promotion_id={{ selected_promotion_id }}{% endif %}" class="student-button">
+                        <a href="/pilot-candidatures?page={{ currentPage - 1 }}{% if search %}&amp;q={{ search|url_encode }}{% endif %}{% if selected_promotion_id %}&amp;promotion_id={{ selected_promotion_id }}{% endif %}" class="student-button">
                             Précédent
                         </a>
                     {% endif %}
@@ -132,14 +132,14 @@
                                 {{ pageNumber }}
                             </span>
                         {% else %}
-                            <a href="/pilot-candidatures?page={{ pageNumber }}{% if search %}&q={{ search|url_encode }}{% endif %}{% if selected_promotion_id %}&promotion_id={{ selected_promotion_id }}{% endif %}" class="student-button">
+                            <a href="/pilot-candidatures?page={{ pageNumber }}{% if search %}&amp;q={{ search|url_encode }}{% endif %}{% if selected_promotion_id %}&amp;promotion_id={{ selected_promotion_id }}{% endif %}" class="student-button">
                                 {{ pageNumber }}
                             </a>
                         {% endif %}
                     {% endfor %}
 
                     {% if currentPage < totalPages %}
-                        <a href="/pilot-candidatures?page={{ currentPage + 1 }}{% if search %}&q={{ search|url_encode }}{% endif %}{% if selected_promotion_id %}&promotion_id={{ selected_promotion_id }}{% endif %}" class="student-button">
+                        <a href="/pilot-candidatures?page={{ currentPage + 1 }}{% if search %}&amp;q={{ search|url_encode }}{% endif %}{% if selected_promotion_id %}&amp;promotion_id={{ selected_promotion_id }}{% endif %}" class="student-button">
                             Suivant
                         </a>
                     {% endif %}

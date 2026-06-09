@@ -115,7 +115,7 @@
                 <div style="display:flex; gap:8px; justify-content:center; align-items:center; flex-wrap:wrap; margin-top:24px;">
                     {% if current_page > 1 %}
                         <a
-                            href="/pilot-etudiants?page={{ current_page - 1 }}{% if selected_promotion_id %}&promotion_id={{ selected_promotion_id }}{% endif %}{% if search %}&q={{ search|url_encode }}{% endif %}"
+                            href="/pilot-etudiants?page={{ current_page - 1 }}{% if selected_promotion_id %}&amp;promotion_id={{ selected_promotion_id }}{% endif %}{% if search %}&amp;q={{ search|url_encode }}{% endif %}"
                             class="student-button"
                         >
                             Précédent
@@ -129,7 +129,7 @@
                             </span>
                         {% else %}
                             <a
-                                href="/pilot-etudiants?page={{ page }}{% if selected_promotion_id %}&promotion_id={{ selected_promotion_id }}{% endif %}{% if search %}&q={{ search|url_encode }}{% endif %}"
+                                href="/pilot-etudiants?page={{ page }}{% if selected_promotion_id %}&amp;promotion_id={{ selected_promotion_id }}{% endif %}{% if search %}&amp;q={{ search|url_encode }}{% endif %}"
                                 class="student-button"
                             >
                                 {{ page }}
@@ -139,7 +139,7 @@
 
                     {% if current_page < total_pages %}
                         <a
-                            href="/pilot-etudiants?page={{ current_page + 1 }}{% if selected_promotion_id %}&promotion_id={{ selected_promotion_id }}{% endif %}{% if search %}&q={{ search|url_encode }}{% endif %}"
+                            href="/pilot-etudiants?page={{ current_page + 1 }}{% if selected_promotion_id %}&amp;promotion_id={{ selected_promotion_id }}{% endif %}{% if search %}&amp;q={{ search|url_encode }}{% endif %}"
                             class="student-button"
                         >
                             Suivant

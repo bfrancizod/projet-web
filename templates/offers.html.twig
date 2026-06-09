@@ -158,7 +158,7 @@
                     {% for p in 1..total_pages %}
                         <a
                             class="page {% if p == current_page %}active{% endif %}"
-                            href="/offres?page={{ p }}&search_query={{ search_query|url_encode }}&skills={{ skills_query|url_encode }}&location={{ location_query|url_encode }}&duration={{ duration_query|url_encode }}&salary={{ salary_query|url_encode }}&sort={{ sort_query|url_encode }}"
+                            href="/offres?page={{ p }}&amp;search_query={{ search_query|url_encode }}&amp;skills={{ skills_query|url_encode }}&amp;location={{ location_query|url_encode }}&amp;duration={{ duration_query|url_encode }}&amp;salary={{ salary_query|url_encode }}&amp;sort={{ sort_query|url_encode }}"
                         >
                             {{ p }}
                         </a>

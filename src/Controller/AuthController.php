@@ -46,6 +46,7 @@ class AuthController
                 $user = $this->userRepository->findLoginUserByEmail($email);
 
                 if ($user && password_verify($password, $user['password_hash'])) {
+                    RateLimiter::reset($rateLimitKey);
                     session_regenerate_id(true);
 
                     $_SESSION['user'] = [

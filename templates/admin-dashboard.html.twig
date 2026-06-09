@@ -14,6 +14,7 @@
     <h1 class="admin-dashboard-title">Tableau de bord Administrateur</h1>
     <p class="admin-dashboard-subtitle">Vue globale de la plateforme</p>
 
+    {# Grille des statistiques globales récupérées via le DashboardRepository #}
     <section class="admin-stats-grid">
         <article class="admin-stat-card">
             <strong>{{ offers_count }}</strong>
@@ -36,6 +37,7 @@
         </article>
     </section>
 
+    {# Menu de navigation rapide vers toutes les opérations de gestion (CRUD) #}
     <section class="admin-actions-grid">
         <article class="admin-action-card">
             <div>
@@ -94,6 +96,7 @@
         </article>
     </section>
 
+    {# Liste dynamique limitant l'affichage aux étudiants récemment connectés #}
     <section class="admin-recent-section">
         <h2>Étudiants récents</h2>
 

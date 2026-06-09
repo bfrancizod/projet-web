@@ -27,7 +27,7 @@
 <div class="offers-page">
     <div class="container offers-layout">
         <aside class="filters">
-            <h3>Filtres</h3>
+            <h2>Filtres</h2>
 
             {#
                 Formulaire de filtres en GET : les paramètres sont ajoutés à l'URL (?search_query=...&skills=...).
@@ -118,7 +118,7 @@
                 {% for offer in offers %}
                     <article class="offer-card">
                         <div class="offer-header">
-                            <h3>{{ offer.titre }}</h3>
+                            <h2>{{ offer.titre }}</h2>
                         </div>
 
                         <p class="company">{{ offer.entreprise_nom ?: 'Entreprise non définie' }}</p>

@@ -15,6 +15,10 @@ class UserRepository
     {
     }
 
+    /**
+     * Récupère un utilisateur par son email pour la tentative de connexion.
+     * Retourne également le mot de passe hashé pour vérification (password_verify).
+     */
     public function findLoginUserByEmail(string $email): array|false
     {
         $stmt = $this->pdo->prepare("
@@ -37,6 +41,10 @@ class UserRepository
         return $stmt->fetch();
     }
 
+    /**
+     * Récupère les informations publiques d'un utilisateur via son ID.
+     * Le mot de passe n'est jamais récupéré ici par mesure de sécurité.
+     */
     public function findById(int $userId): array|false
     {
         $stmt = $this->pdo->prepare("
@@ -53,6 +61,10 @@ class UserRepository
         return $stmt->fetch();
     }
 
+    /**
+     * Vérifie si un email existe en base et retourne l'ID de l'utilisateur correspondant.
+     * Utile pour la procédure de mot de passe oublié sans récupérer toutes les données.
+     */
     public function findUserIdByEmail(string $email): ?int
     {
         $stmt = $this->pdo->prepare("
@@ -71,6 +83,10 @@ class UserRepository
         return $id !== false ? (int) $id : null;
     }
 
+    /**
+     * Crée une nouvelle demande de réinitialisation de mot de passe.
+     * La demande est automatiquement configurée pour expirer dans 24 heures (DATE_ADD).
+     */
     public function createPasswordResetRequest(string $email): void
     {
         $userId = $this->findUserIdByEmail($email);
@@ -86,6 +102,10 @@ class UserRepository
         ]);
     }
 
+    /**
+     * Récupère toutes les demandes de réinitialisation pour le tableau de bord Admin.
+     * Exclut les demandes expirées qui n'ont pas encore été traitées.
+     */
     public function findPasswordResetRequests(): array
     {
         $stmt = $this->pdo->query("
@@ -105,6 +125,11 @@ class UserRepository
         return $stmt->fetchAll();
     }
 
+    /**
+     * Récupère une demande spécifique via son ID.
+     * Comprend une vérification de sécurité en PHP : si la date d'expiration est dépassée,
+     * la fonction retourne false même si la demande existe toujours en BDD.
+     */
     public function findPasswordResetRequestById(int $id): array|false
     {
         $stmt = $this->pdo->prepare("
@@ -133,6 +158,10 @@ class UserRepository
         return $request;
     }
 
+    /**
+     * Met à jour le mot de passe de l'utilisateur.
+     * Attention : la variable $passwordHash doit toujours être générée via password_hash() en amont.
+     */
     public function updatePassword(int $userId, string $passwordHash): void
     {
         $stmt = $this->pdo->prepare("
@@ -147,6 +176,10 @@ class UserRepository
         ]);
     }
 
+    /**
+     * Marque une demande comme 'traitee' après que l'admin a validé le nouveau mot de passe.
+     * Met également à jour la date de traitement (processed_at).
+     */
     public function markPasswordResetRequestAsProcessed(int $id): void
     {
         $stmt = $this->pdo->prepare("

@@ -114,7 +114,7 @@
                 <nav style="margin-top: 25px; display: flex; justify-content: center; align-items: center; gap: 8px; flex-wrap: wrap;">
 
                     {% if currentPage > 1 %}
-                        <a href="/pilot-offres?page={{ currentPage - 1 }}{% if search %}&q={{ search|url_encode }}{% endif %}"
+                        <a href="/pilot-offres?page={{ currentPage - 1 }}{% if search %}&amp;q={{ search|url_encode }}{% endif %}"
                            class="student-button">
                             Précédent
                         </a>
@@ -126,7 +126,7 @@
                                 {{ pageNumber }}
                             </span>
                         {% else %}
-                            <a href="/pilot-offres?page={{ pageNumber }}{% if search %}&q={{ search|url_encode }}{% endif %}"
+                            <a href="/pilot-offres?page={{ pageNumber }}{% if search %}&amp;q={{ search|url_encode }}{% endif %}"
                                class="student-button">
                                 {{ pageNumber }}
                             </a>
@@ -134,7 +134,7 @@
                     {% endfor %}
 
                     {% if currentPage < totalPages %}
-                        <a href="/pilot-offres?page={{ currentPage + 1 }}{% if search %}&q={{ search|url_encode }}{% endif %}"
+                        <a href="/pilot-offres?page={{ currentPage + 1 }}{% if search %}&amp;q={{ search|url_encode }}{% endif %}"
                            class="student-button">
                             Suivant
                         </a>

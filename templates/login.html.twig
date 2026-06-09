@@ -1,5 +1,7 @@
 {#
-    Page de connexion.
+    Page de connexion (Vue).
+    Affiche le formulaire de login et gère l'affichage des erreurs renvoyées par le contrôleur.
+    Sécurisé avec un jeton CSRF obligatoire.
 #}
 {% extends 'base.html.twig' %}
 
@@ -35,6 +37,7 @@
             {% endif %}
 
             <form method="POST" action="/connexion" class="login-form">
+                {# Jeton de sécurité pour éviter les failles CSRF #}
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
 
                 <label for="email">Email</label>

@@ -52,10 +52,25 @@ try {
     error_log("Migration warning: " . $e->getMessage());
 }
 
+// Détection du HTTPS. On vérifie aussi X-Forwarded-Proto car les hébergeurs
+// type Railway/Heroku terminent le SSL sur un proxy et transmettent ensuite
+// la requête en HTTP interne (sans cet entête, le HTTPS serait vu comme absent).
 $https = (
     (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
     || (($_SERVER['SERVER_PORT'] ?? null) === '443')
+    || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https')
 );
+
+// Redirection forcée HTTP -> HTTPS (sécurité : aucune page accessible en clair).
+// Ignorée en local (localhost / 127.0.0.1) pour ne pas casser le serveur de dev (php -S).
+$host = $_SERVER['HTTP_HOST'] ?? '';
+$isLocal = (bool) preg_match('#^(localhost|127\.0\.0\.1)(:\d+)?$#', $host);
+
+if (!$https && !$isLocal) {
+    // 301 = redirection permanente (le navigateur mémorise et bascule en HTTPS)
+    header('Location: https://' . $host . ($_SERVER['REQUEST_URI'] ?? '/'), true, 301);
+    exit;
+}
 
 session_set_cookie_params([
     'lifetime' => 0,

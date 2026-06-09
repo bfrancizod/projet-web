@@ -9,6 +9,10 @@ use PHPUnit\Framework\TestCase;
 
 final class CsrfTest extends TestCase
 {
+    /**
+     * Vérifie que le token généré fait bien 64 caractères hexadécimaux
+     * et qu'il est correctement stocké en session.
+     */
     public function testCsrfGenerationDuToken(): void
     {
         $token = Csrf::token();
@@ -18,6 +22,10 @@ final class CsrfTest extends TestCase
         $this->assertSame($token, $_SESSION['_csrf_token']);
     }
 
+    /**
+     * Teste la validation du token.
+     * Vérifie qu'un bon token est accepté, et qu'un faux, nul ou vide est refusé.
+     */
     public function testCsrfValidation(): void
     {
         $token = Csrf::token();
@@ -28,6 +36,10 @@ final class CsrfTest extends TestCase
         $this->assertFalse(Csrf::validate(''));
     }
 
+    /**
+     * Vérifie que la rotation du token fonctionne bien.
+     * Le nouveau token doit être différent de l'ancien, et l'ancien ne doit plus être valide.
+     */
     public function testCsrfRotation(): void
     {
         $ancien = Csrf::token();
